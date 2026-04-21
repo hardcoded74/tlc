@@ -1,0 +1,136 @@
+{
+  "schema_version": "1.0",
+  "title": "Photosynthesis: How Plants Make Their Own Food (And Ours)",
+  "objective": "Students will identify the three inputs of photosynthesis (sunlight, water, carbon dioxide) and the two outputs (glucose, oxygen), and explain why plants matter for the air we breathe.",
+  "grade_level": "5th grade",
+  "subject": "Science",
+  "estimated_minutes": 45,
+  "overview": "Students learn that plants make their own food through photosynthesis, a process that uses sunlight, water, and carbon dioxide to produce glucose and oxygen. The lesson builds from a warm-up observation through guided note-taking, a live demonstration showing the plant releasing water vapor, and ends with an exit ticket connecting photosynthesis to the air students breathe.",
+  "materials": [
+    { "name": "potted plant (any leafy houseplant)", "quantity": "1", "source_origin": "scaffolded" },
+    { "name": "clear plastic sandwich bag", "quantity": "1", "source_origin": "scaffolded" },
+    { "name": "twist tie or tape", "quantity": "1", "source_origin": "scaffolded" },
+    { "name": "photosynthesis diagram handout", "quantity": "24", "source_origin": "scaffolded" },
+    { "name": "colored pencils (green, yellow, blue)", "quantity": "one set per pair", "source_origin": "scaffolded" },
+    { "name": "exit ticket slips", "quantity": "24", "source_origin": "scaffolded" }
+  ],
+  "lesson_steps": [
+    {
+      "step": 1, "minutes": 5,
+      "teacher_action": "Hold up the plant. Ask: 'If I forgot to water this for a month, what would happen?' Let students picture it. Then: 'What if I put it in a closet with no light for a month — same problem, or different problem?'",
+      "student_action": "Respond verbally. Some will say 'it dies' for both — press them to explain WHY each one kills the plant.",
+      "source_origin": "generated"
+    },
+    {
+      "step": 2, "minutes": 10,
+      "teacher_action": "Introduce 'photosynthesis' and write the equation in plain language: sunlight + water + CO2 → glucose + oxygen. Emphasize: 'Plants make their own food. They don't go to the grocery store.'",
+      "student_action": "Copy the equation onto the diagram handout. Color inputs and outputs.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 3, "minutes": 8,
+      "teacher_action": "Demonstrate: seal the plastic bag around one leaf. Explain students will check it at the end.",
+      "student_action": "Watch demo. Predict what they'll see.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 4, "minutes": 12,
+      "teacher_action": "Pair students. Each pair fills a 3-column chart: INPUT | SOURCE | WHY NEEDED. Circulate.",
+      "student_action": "Work with partner to complete chart.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 5, "minutes": 5,
+      "teacher_action": "Reveal the bag. Ask: 'What do you see? What does that tell us?'",
+      "student_action": "Observe condensation. Discuss what it proves.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 6, "minutes": 5,
+      "teacher_action": "Distribute exit tickets. Students complete individually.",
+      "student_action": "Complete the exit ticket.",
+      "source_origin": "scaffolded"
+    }
+  ],
+  "engagement": {
+    "type": "discussion",
+    "prompt": "If plants make their own food out of sunlight, water, and air... why do farmers still need to water crops? Talk to your partner for 90 seconds.",
+    "minutes": 5,
+    "source_origin": "generated"
+  },
+  "demo": {
+    "description": "Seal a plastic bag around one leaf at the start of class. By the end, students see water droplets forming — physical evidence the plant is releasing water vapor from photosynthesis.",
+    "materials_needed": ["clear plastic sandwich bag", "twist tie", "live plant"],
+    "teacher_tip": "If time allows, do the demo on two plants — one in sunlight, one covered with a box. The covered plant produces less condensation. Evidence that light matters.",
+    "safety_notes": null,
+    "source_origin": "generated"
+  },
+  "guided_practice": {
+    "description": "Students work in pairs to complete the 3-column INPUT/SOURCE/WHY NEEDED chart while the teacher circulates and checks understanding.",
+    "format": "pair",
+    "duration_minutes": 12,
+    "source_origin": "scaffolded"
+  },
+  "independent_practice": null,
+  "assessment": {
+    "format": "exit_ticket",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "Name the three things a plant needs for photosynthesis.",
+        "expected_answer": "Sunlight, water, carbon dioxide.",
+        "rubric_notes": "Full credit for all three. 2/3 for any two.",
+        "source_origin": "scaffolded"
+      },
+      {
+        "id": "q2",
+        "question": "Name the two things photosynthesis produces.",
+        "expected_answer": "Glucose (sugar/food) and oxygen.",
+        "rubric_notes": null,
+        "source_origin": "scaffolded"
+      },
+      {
+        "id": "q3",
+        "question": "What did the water drops in the plastic bag prove?",
+        "expected_answer": "The plant was releasing water vapor, which means it was actively doing photosynthesis.",
+        "rubric_notes": "Credit any answer that connects the condensation to plant activity.",
+        "source_origin": "generated"
+      }
+    ],
+    "estimated_minutes": 5
+  },
+  "teacher_notes": "5th graders often think plants 'eat' dirt or water. The key move is the sentence 'plants build their own food out of air, water, and sunlight.' Slow down at that moment. For struggling learners, keep the diagram on the board throughout. For advanced learners, ask what happens to plants at night.",
+  "discussion_prompts": [
+    { "prompt": "If plants make their own food, why do we fertilize them?", "purpose": "deepen_understanding", "source_origin": "generated" },
+    { "prompt": "Could a plant survive on Mars?", "purpose": "extend_beyond_lesson", "source_origin": "generated" },
+    { "prompt": "Why are rainforests called the 'lungs of the Earth'?", "purpose": "extend_beyond_lesson", "source_origin": "generated" }
+  ],
+  "vocabulary": [
+    { "term": "photosynthesis", "definition": "The process plants use to make food from sunlight, water, and carbon dioxide.", "example": "Every green leaf is doing photosynthesis right now.", "source_origin": "scaffolded" },
+    { "term": "glucose", "definition": "A type of sugar that plants make and use as food.", "example": null, "source_origin": "scaffolded" },
+    { "term": "carbon dioxide", "definition": "A gas in the air that plants take in through their leaves.", "example": "We breathe it out; plants breathe it in.", "source_origin": "scaffolded" }
+  ],
+  "misconceptions": [
+    { "misconception": "Plants eat dirt.", "correction": "Plants absorb minerals from soil, but minerals are not food. Plants build their own food via photosynthesis.", "how_to_address": "If a student says this, ask: 'What would happen if we put a plant in nutrient-rich soil in a closet with no light?' Then walk them through why it would still die." }
+  ],
+  "differentiation": {
+    "struggling": "Pair with a strong partner for the chart. Provide a word bank (sunlight, water, CO2, glucose, oxygen). Keep the diagram visible throughout the lesson.",
+    "advanced": "Ask: 'If photosynthesis needs sunlight, how does a tree survive winter when days are short?' Let them hypothesize before explaining stored glucose.",
+    "multilingual_learners": "Provide diagram labels in student's home language where possible. The visual equation transcends language.",
+    "source_origin": "generated"
+  },
+  "homework": null,
+  "enrichment": null,
+  "standards_alignment": null,
+  "generated_by": {
+    "hunter_contribution_ids": ["build-hunter-seed01", "package-hunter-seed01"],
+    "christine_contribution_ids": ["build-christine-seed01", "package-christine-seed01"],
+    "review_id": "review-seed01"
+  },
+  "source_summary": {
+    "source_id": null,
+    "overall_grounding": "no_source",
+    "grounded_section_count": 0,
+    "generated_section_count": 5
+  }
+}

@@ -1,0 +1,103 @@
+// TLC — Database schema
+//
+// Serverless Postgres on Neon. Accessed via Prisma from Next.js API
+// routes. Covers lesson runs, source uploads, rate limiting, and
+// aggregated usage stats.
+//
+// Privacy posture encoded here:
+//   - SourceUpload.textContent has a 1-hour expiresAt (deleted after)
+//   - LessonRun has a 30-day expiresAt
+//   - IPs never stored raw; only daily-salted hash as ipHash
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model LessonRun {
+  id              String   @id @default(uuid())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  status          RunStatus @default(pending)
+
+  // Input (all from the teacher)
+  topic           String
+  gradeLevel      String
+  classLength     Int?             // minutes
+  subject         String?
+  objective       String?
+  notes           String?          // up to 2KB
+  sourceUploadId  String?
+
+  // Phase outputs (full JSON; queryable for judge inspection via ?judge=1)
+  hunterBuild      Json?
+  christineBuild   Json?
+  review           Json?
+  hunterPackage    Json?
+  christinePackage Json?
+  finalPackage     Json?           // the thing teachers download
+
+  // Observability
+  timings      Json?
+  tokenUsage   Json?
+  errorLog     Json?
+
+  // Privacy + TTL
+  ipHash       String              // sha256(ip + daily_salt) — not reversible
+  expiresAt    DateTime            // auto-pruned after 30 days
+
+  @@index([createdAt])
+  @@index([expiresAt])
+  @@index([ipHash])
+}
+
+model SourceUpload {
+  id            String   @id @default(uuid())
+  uploadedAt    DateTime @default(now())
+  filename      String
+  contentHash   String   // sha256 of text content — used for dedup
+  charCount     Int
+  parseMethod   String   // "text" | "markdown" | "pdf_pypdf"
+  textContent   String?  // nullable; deleted when expiresAt passes
+  expiresAt     DateTime // 1 hour from upload
+  ipHash        String
+
+  @@index([expiresAt])
+  @@index([ipHash])
+  @@index([contentHash])
+}
+
+model RateLimitBucket {
+  id            String   @id @default(uuid())
+  ipHash        String
+  windowStart   DateTime
+  requestCount  Int      @default(0)
+
+  @@unique([ipHash, windowStart])
+  @@index([windowStart])
+}
+
+model UsageStats {
+  id              String   @id @default(uuid())
+  recordedAt      DateTime @default(now())
+  lessonsCreated  Int
+  tokensIn        BigInt
+  tokensOut       BigInt
+  avgLatencyMs    Int
+  errorCount      Int
+
+  @@index([recordedAt])
+}
+
+enum RunStatus {
+  pending
+  building
+  reviewing
+  packaging
+  complete
+  failed
+}
