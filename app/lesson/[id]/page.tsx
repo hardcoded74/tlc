@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { LessonRunView } from "./lesson-run-view";
+import { JudgeInspector } from "@/components/judge-inspector";
 import type { PersonaScaffold, ReviewReport, LessonPackage, RunStatus } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -9,10 +10,14 @@ export const dynamic = "force-dynamic";
 
 export default async function LessonPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ judge?: string }>;
 }) {
   const { id } = await params;
+  const { judge } = await searchParams;
+  const judgeMode = judge === "1";
 
   const run = await prisma.lessonRun
     .findUnique({ where: { id } })
@@ -60,6 +65,7 @@ export default async function LessonPage({
         </Link>
 
         <LessonRunView initial={initial} />
+        {judgeMode && <JudgeInspector runId={run.id} />}
       </div>
     </main>
   );

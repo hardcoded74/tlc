@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { SourceUpload, type UploadedSource } from "./source-upload";
 
 const GRADE_OPTIONS = [
   "Kindergarten",
@@ -47,6 +48,7 @@ export function TeacherInputForm() {
   const [differentiation, setDifferentiation] = useState(true);
   const [homework, setHomework] = useState(false);
   const [enrichment, setEnrichment] = useState(false);
+  const [source, setSource] = useState<UploadedSource | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -67,6 +69,7 @@ export function TeacherInputForm() {
           subject: subject || undefined,
           objective: objective.trim() || undefined,
           notes: notes.trim() || undefined,
+          sourceUploadId: source?.sourceId ?? undefined,
           options: { differentiation, homework, enrichment },
         }),
       });
@@ -187,6 +190,15 @@ export function TeacherInputForm() {
           maxLength={2000}
           disabled={submitting}
         />
+      </div>
+
+      <div>
+        <Label htmlFor="source">Source material (optional)</Label>
+        <SourceUpload onUploaded={setSource} disabled={submitting} />
+        <Hint>
+          A standard, reading, or textbook excerpt. Sections of the lesson
+          will be tagged as <em>grounded</em> when Hunter and Christine use it.
+        </Hint>
       </div>
 
       <fieldset className="space-y-2">
