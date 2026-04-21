@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme {
+  /* Hunter palette — slate, structural */
+  --color-hunter-50: #f4f6f8;
+  --color-hunter-100: #dfe5eb;
+  --color-hunter-300: #8da0b2;
+  --color-hunter-500: #415a77;
+  --color-hunter-700: #1e2d42;
+  --color-hunter-900: #0d1b2a;
+
+  /* Christine palette — warm sand, human */
+  --color-christine-50: #fbf7f1;
+  --color-christine-100: #f2e8d6;
+  --color-christine-300: #d8b78d;
+  --color-christine-500: #a87640;
+  --color-christine-700: #6d4a23;
+  --color-christine-900: #402a15;
+
+  /* Shared neutrals */
+  --color-ink: #111827;
+  --color-paper: #ffffff;
+  --color-muted: #6b7280;
+
+  /* Source-origin pills */
+  --color-grounded: #16a34a;
+  --color-scaffolded: #2563eb;
+  --color-generated: #d97706;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Lora", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  color: var(--color-ink);
+  background: var(--color-paper);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.lesson-prose {
+  font-family: var(--font-serif);
+  line-height: 1.7;
+}
