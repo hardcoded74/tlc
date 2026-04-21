@@ -1,0 +1,149 @@
+{
+  "schema_version": "1.0",
+  "title": "The Water Cycle: Where Rain Comes From",
+  "objective": "Students will describe the four phases of the water cycle (evaporation, condensation, precipitation, collection) and explain how water moves between them in a continuous loop.",
+  "grade_level": "4th grade",
+  "subject": "Science",
+  "estimated_minutes": 50,
+  "overview": "The water cycle is everywhere around students, but it tends to feel abstract on a diagram. This lesson anchors it in a kettle of boiling water and a glass lid: students literally watch evaporation and condensation happen in five minutes. From there, the diagram makes sense. We close with a labeled drawing and a short partner-explanation.",
+  "materials": [
+    { "name": "electric kettle (or hot plate + small pot)", "quantity": "1", "source_origin": "scaffolded" },
+    { "name": "clear glass or Pyrex pie plate", "quantity": "1", "source_origin": "scaffolded" },
+    { "name": "ice cubes", "quantity": "1 tray", "source_origin": "scaffolded" },
+    { "name": "water cycle diagram handout (unlabeled)", "quantity": "28", "source_origin": "scaffolded" },
+    { "name": "colored pencils", "quantity": "1 set per student", "source_origin": "scaffolded" },
+    { "name": "paper towels", "quantity": "a stack", "source_origin": "scaffolded" }
+  ],
+  "lesson_steps": [
+    {
+      "step": 1, "minutes": 5,
+      "teacher_action": "Ask: 'Where does the water in the sink come from? Trace it backward as far as you can.' Listen. Write the answers on the board as a rough chain.",
+      "student_action": "Volunteer answers — pipe, water tower, reservoir, rain, clouds, ocean.",
+      "source_origin": "generated"
+    },
+    {
+      "step": 2, "minutes": 10,
+      "teacher_action": "Run the demo (safely). Start the kettle. While it heats, fill the pie plate with ice. When the kettle boils, hold the pie plate above the steam. Droplets form on the underside. Ask: 'Where did the drops come from?'",
+      "student_action": "Watch closely. Shout out observations.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 3, "minutes": 8,
+      "teacher_action": "Name what they just saw: evaporation (kettle) and condensation (pie plate). Write those words on the board. Connect to rain.",
+      "student_action": "Copy the two new words with their definitions.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 4, "minutes": 10,
+      "teacher_action": "Distribute diagrams. Have students label the four phases: evaporation, condensation, precipitation, collection. Circulate.",
+      "student_action": "Label and color the diagram. Ask a neighbor if stuck.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 5, "minutes": 10,
+      "teacher_action": "Partner explanations: one partner traces a water drop's journey starting from a lake; the other starts from a cloud. Swap.",
+      "student_action": "Take turns narrating the cycle using the diagram as a map.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 6, "minutes": 7,
+      "teacher_action": "Hand out exit tickets. Students complete individually.",
+      "student_action": "Complete the exit ticket.",
+      "source_origin": "scaffolded"
+    }
+  ],
+  "engagement": {
+    "type": "discussion",
+    "prompt": "If water is always moving — evaporating, raining, flowing to the ocean — why doesn't the ocean ever run out, and why don't we ever drown in rain?",
+    "minutes": 5,
+    "source_origin": "generated"
+  },
+  "demo": {
+    "description": "A boiling kettle with an ice-loaded pie plate held above it produces visible evaporation AND condensation in about sixty seconds. Students who've seen the water cycle diagram ten times in textbooks suddenly see it happening.",
+    "materials_needed": ["electric kettle", "glass pie plate", "ice cubes"],
+    "teacher_tip": "Use oven mitts. Stand students back from the steam — it's hot even though it looks fun. If an electric kettle isn't available, a hot plate and a small pot works identically; expect slightly longer wait time.",
+    "safety_notes": "Steam burns. Keep students at least 3 feet back. Unplug the kettle before moving it.",
+    "source_origin": "scaffolded"
+  },
+  "guided_practice": {
+    "description": "Students label an unlabeled water cycle diagram with all four phases, then take turns narrating a droplet's path to a partner starting from different origins (lake vs. cloud).",
+    "format": "pair",
+    "duration_minutes": 10,
+    "source_origin": "scaffolded"
+  },
+  "independent_practice": null,
+  "assessment": {
+    "format": "exit_ticket",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "Name the four phases of the water cycle in order, starting from a puddle.",
+        "expected_answer": "Evaporation, condensation, precipitation, collection.",
+        "rubric_notes": "Accept any order that completes a full loop — evaporation → condensation → precipitation → collection → back to evaporation.",
+        "source_origin": "scaffolded"
+      },
+      {
+        "id": "q2",
+        "question": "In the demo, the kettle was doing ___________, and the pie plate was doing ___________.",
+        "expected_answer": "Evaporation (kettle), condensation (pie plate).",
+        "rubric_notes": null,
+        "source_origin": "scaffolded"
+      },
+      {
+        "id": "q3",
+        "question": "Explain in one sentence why rain in your city came from somewhere far away.",
+        "expected_answer": "Water evaporates from oceans and other bodies far away; clouds drift on the wind; when they cool enough, water condenses and falls as rain — possibly very far from where it started.",
+        "rubric_notes": "Credit any answer that connects evaporation elsewhere → cloud movement → rain here.",
+        "source_origin": "generated"
+      }
+    ],
+    "estimated_minutes": 7
+  },
+  "teacher_notes": "Fourth graders know the word 'water cycle' but often can't tell you why it's a cycle. The demo is the lesson: evaporation and condensation, the two phases they tend to fuzz together, happen in front of them in under a minute. Hold the language steady — say the word 'evaporation' every time steam rises, 'condensation' every time droplets form. By the end they should be saying it with you.",
+  "discussion_prompts": [
+    { "prompt": "Is the water you drink today the same water a dinosaur drank? Why or why not?", "purpose": "extend_beyond_lesson", "source_origin": "generated" },
+    { "prompt": "What would happen to the water cycle if all the oceans turned to ice?", "purpose": "deepen_understanding", "source_origin": "generated" },
+    { "prompt": "Where is there water right now that's NOT in the cycle? (Glaciers, underground aquifers.)", "purpose": "extend_beyond_lesson", "source_origin": "generated" }
+  ],
+  "vocabulary": [
+    { "term": "evaporation", "definition": "When liquid water turns into water vapor (a gas) because of heat.", "example": "A puddle in the sun slowly disappears — that's evaporation.", "source_origin": "scaffolded" },
+    { "term": "condensation", "definition": "When water vapor cools down and becomes liquid water again.", "example": "Drops on the outside of a cold glass on a hot day.", "source_origin": "scaffolded" },
+    { "term": "precipitation", "definition": "Water falling from clouds — rain, snow, sleet, or hail.", "example": null, "source_origin": "scaffolded" },
+    { "term": "collection", "definition": "Water gathering in lakes, rivers, oceans, or underground.", "example": null, "source_origin": "scaffolded" }
+  ],
+  "misconceptions": [
+    { "misconception": "Clouds are made of water vapor.", "correction": "Clouds are tiny LIQUID water droplets (or ice crystals), not water vapor. Water vapor is invisible.", "how_to_address": "After the demo, point at the steam above the kettle and say: 'The invisible air right at the spout is water vapor. The visible steam higher up is already condensing.' This surprises them." },
+    { "misconception": "The water cycle has a 'beginning' you can point to.", "correction": "A cycle has no beginning. Every phase becomes the next in a loop.", "how_to_address": "During partner explanations, have one partner start at a lake and the other at a cloud. Both reach the same places. Drive home that the starting point is arbitrary." }
+  ],
+  "differentiation": {
+    "struggling": "Pair with a strong partner for the labeling step. Let them narrate orally rather than write extended answers.",
+    "advanced": "Ask them to add a fifth phase to the diagram: transpiration from plants. Let them research how plants contribute water vapor too.",
+    "multilingual_learners": "The four phase words share roots with many Romance languages. Encourage students to look for cognates. Post the four words with pictures at the front of the room for reference.",
+    "source_origin": "generated"
+  },
+  "homework": {
+    "description": "Find one place in your home tomorrow morning where you see condensation. Write one sentence: where was it and why did it form there?",
+    "estimated_minutes": 10,
+    "optional": false,
+    "source_origin": "generated"
+  },
+  "enrichment": null,
+  "standards_alignment": {
+    "standards_cited": [
+      { "framework": "NGSS", "code": "5-ESS2-1", "description": "Develop a model using an example to describe ways the geosphere, biosphere, hydrosphere, and/or atmosphere interact." }
+    ],
+    "confidence": "inferred",
+    "notes": "Tags to 5-ESS2-1. For 4th grade, this lesson also sets up 5th-grade earth systems work."
+  },
+  "generated_by": {
+    "hunter_contribution_ids": ["build-hunter-seed03", "package-hunter-seed03"],
+    "christine_contribution_ids": ["build-christine-seed03", "package-christine-seed03"],
+    "review_id": "review-seed03"
+  },
+  "source_summary": {
+    "source_id": null,
+    "overall_grounding": "no_source",
+    "grounded_section_count": 0,
+    "generated_section_count": 6
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "schema_version": "1.0",
+  "title": "Fractions as Equal Parts: Halves, Thirds, and Fourths",
+  "objective": "Students will partition rectangles and circles into 2, 3, or 4 equal parts and name each part as a unit fraction (1/2, 1/3, 1/4).",
+  "grade_level": "3rd grade",
+  "subject": "Math",
+  "estimated_minutes": 40,
+  "overview": "Students start with a concrete problem — sharing a brownie fairly between two, three, or four people — and move from physical partitioning to naming and writing unit fractions. The lesson hinges on the word 'equal' and spends time distinguishing equal parts from merely more than one part. Ends with a partner check and an exit ticket.",
+  "materials": [
+    { "name": "paper rectangles (pre-cut, 3×5 in)", "quantity": "4 per student", "source_origin": "scaffolded" },
+    { "name": "scissors", "quantity": "1 per pair", "source_origin": "scaffolded" },
+    { "name": "crayons (any color)", "quantity": "one set per pair", "source_origin": "scaffolded" },
+    { "name": "anchor chart paper (pre-drawn halves, thirds, fourths)", "quantity": "1", "source_origin": "scaffolded" },
+    { "name": "exit ticket slips", "quantity": "24", "source_origin": "scaffolded" }
+  ],
+  "lesson_steps": [
+    {
+      "step": 1, "minutes": 5,
+      "teacher_action": "Show a rectangle. Say: 'This is a brownie. Two friends want to share it. Draw a line to show how they'd split it fairly.' Pause. Then: 'What if three friends wanted to share it? Four?'",
+      "student_action": "Sketch partitions on scratch paper. Some will struggle with thirds — that's the point.",
+      "source_origin": "generated"
+    },
+    {
+      "step": 2, "minutes": 8,
+      "teacher_action": "Introduce 'equal parts' as the key rule. Show a rectangle split into two unequal parts and ask: 'Is this fair? Why not?' Draw the distinction between 2 parts and 2 EQUAL parts.",
+      "student_action": "Answer questions about whether examples on the board show equal parts.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 3, "minutes": 10,
+      "teacher_action": "Distribute 4 paper rectangles per student. Guide them to fold and cut: one into halves, one into thirds, one into fourths, one to be eaten (kidding — keep as whole for comparison).",
+      "student_action": "Fold and cut rectangles. Label each piece on the back: 1/2, 1/3, or 1/4.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 4, "minutes": 7,
+      "teacher_action": "Anchor chart: add a circle and a rectangle for each fraction. Walk through '1/2 means one out of two equal parts.' Emphasize the words.",
+      "student_action": "Copy the anchor chart into their math notebook.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 5, "minutes": 6,
+      "teacher_action": "Partner check: each pair shows each other their pieces and asks 'Which is bigger — 1/2 or 1/4?' Some will say 1/4 because 4 is bigger. Stop class, address this openly.",
+      "student_action": "Compare pieces with partner. Defend an answer.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 6, "minutes": 4,
+      "teacher_action": "Hand out exit tickets. Students work silently.",
+      "student_action": "Complete the exit ticket.",
+      "source_origin": "scaffolded"
+    }
+  ],
+  "engagement": {
+    "type": "interactive_prompt",
+    "prompt": "I'm going to draw a shape on the board split into parts. When I'm done, you tell me — is it split into equal parts, or not? Ready?",
+    "minutes": 5,
+    "source_origin": "generated"
+  },
+  "demo": {
+    "description": "Fold a paper rectangle into four equal parts right in front of students, then fold a second one into four UNEQUAL parts. Hold them side by side and ask the class to spot the difference.",
+    "materials_needed": ["paper rectangle", "no scissors needed for the demo"],
+    "teacher_tip": "Third graders gravitate toward 'more parts = smaller' but don't have the words yet. Keep the two rectangles up for the rest of the lesson as a visual reference.",
+    "safety_notes": null,
+    "source_origin": "generated"
+  },
+  "guided_practice": {
+    "description": "Pairs partition paper rectangles into halves, thirds, and fourths; then compare piece sizes to each other. Teacher circulates and corrects the common 1/4 > 1/2 error in real time.",
+    "format": "pair",
+    "duration_minutes": 10,
+    "source_origin": "scaffolded"
+  },
+  "independent_practice": null,
+  "assessment": {
+    "format": "exit_ticket",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "Draw a rectangle and split it into 4 equal parts. Label one part 1/4.",
+        "expected_answer": "Student produces a rectangle with 4 visually equal parts, one labeled 1/4.",
+        "rubric_notes": "Accept minor drawing imperfection if intent is clearly equal parts. Dock for 3 or 5 parts, or for obviously unequal splits.",
+        "source_origin": "scaffolded"
+      },
+      {
+        "id": "q2",
+        "question": "Which piece is bigger: 1/2 of a pizza, or 1/4 of a pizza? Explain in one sentence.",
+        "expected_answer": "1/2 is bigger, because when you split into fewer parts each part is larger.",
+        "rubric_notes": "Full credit for correct answer + any explanation that references 'fewer parts' or 'more parts = smaller'.",
+        "source_origin": "scaffolded"
+      },
+      {
+        "id": "q3",
+        "question": "True or false: This picture shows thirds. [Picture: rectangle split into 3 unequal parts.] Explain.",
+        "expected_answer": "False. The parts are not equal.",
+        "rubric_notes": "Must say 'not equal' or equivalent for full credit.",
+        "source_origin": "scaffolded"
+      }
+    ],
+    "estimated_minutes": 4
+  },
+  "teacher_notes": "The single biggest misconception is that 1/4 > 1/2 because 4 > 2. Address it the first time it appears. The concrete paper pieces help — a student holding both 1/2 and 1/4 physically sees the difference. Don't move to fractions greater than 1 (improper fractions) — that's next week's lesson. Keep this one tight: equal parts, unit fractions, comparison.",
+  "discussion_prompts": [
+    { "prompt": "If I cut a pizza into 8 equal parts and you cut one into 4 equal parts, whose pieces are bigger?", "purpose": "deepen_understanding", "source_origin": "generated" },
+    { "prompt": "Why do we use the word 'equal' instead of just 'parts'?", "purpose": "check_misconception", "source_origin": "generated" },
+    { "prompt": "Where else in your day do you see things split into equal parts? (Clock face, dozen eggs, tiles on the floor.)", "purpose": "extend_beyond_lesson", "source_origin": "generated" }
+  ],
+  "vocabulary": [
+    { "term": "equal parts", "definition": "Parts that are the same size.", "example": "A pizza cut down the middle into two matching pieces is in 2 equal parts.", "source_origin": "scaffolded" },
+    { "term": "fraction", "definition": "A number that names one of the equal parts of a whole.", "example": "1/2, 1/3, 1/4", "source_origin": "scaffolded" },
+    { "term": "unit fraction", "definition": "A fraction where the top number is 1.", "example": "1/2 and 1/4 are unit fractions. 3/4 is not.", "source_origin": "scaffolded" }
+  ],
+  "misconceptions": [
+    { "misconception": "A bigger denominator means a bigger piece (so 1/4 is bigger than 1/2).", "correction": "The denominator tells you how many parts the whole was split into. More parts means each part is smaller.", "how_to_address": "Hold up a 1/2 piece and a 1/4 piece of identical rectangles. Ask students to pick the one they'd rather eat. The answer is the correction." },
+    { "misconception": "Any split into N parts counts as 'Nths' (even if unequal).", "correction": "It only counts if the parts are equal. Otherwise we can't name them as a single fraction.", "how_to_address": "Return to the two side-by-side rectangles from the demo throughout the lesson." }
+  ],
+  "differentiation": {
+    "struggling": "Pre-fold the rectangles for them; they just label and compare. Skip the thirds if time is short — halves and fourths are the essential pair.",
+    "advanced": "Ask them to partition a rectangle into fifths or eighths. Let them wrestle with how much harder fifths are.",
+    "multilingual_learners": "The word 'equal' is the critical term. Pair it with a visual on the anchor chart. 'Equal = same size' as a sentence frame.",
+    "source_origin": "generated"
+  },
+  "homework": null,
+  "enrichment": null,
+  "standards_alignment": {
+    "standards_cited": [
+      { "framework": "Common Core Math", "code": "3.NF.A.1", "description": "Understand a fraction 1/b as the quantity formed by 1 part when a whole is partitioned into b equal parts." }
+    ],
+    "confidence": "inferred",
+    "notes": "Aligns cleanly with 3.NF.A.1. The comparison piece gestures toward 3.NF.A.3 but isn't the focus."
+  },
+  "generated_by": {
+    "hunter_contribution_ids": ["build-hunter-seed02", "package-hunter-seed02"],
+    "christine_contribution_ids": ["build-christine-seed02", "package-christine-seed02"],
+    "review_id": "review-seed02"
+  },
+  "source_summary": {
+    "source_id": null,
+    "overall_grounding": "no_source",
+    "grounded_section_count": 0,
+    "generated_section_count": 6
+  }
+}
