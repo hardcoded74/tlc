@@ -10,6 +10,28 @@
 
 import { z } from "zod";
 
+/**
+ * Gemma 4 frequently omits optional fields entirely rather than emitting
+ * `null`. Zod distinguishes `undefined` (missing) from `null` by default,
+ * which turns every omission into a validation error. These helpers build
+ * schemas whose inputs accept undefined|null|T and whose output is T|null,
+ * keeping the downstream type model simple while tolerating model quirks.
+ */
+function nullishString() {
+  return z
+    .string()
+    .nullable()
+    .optional()
+    .transform((v) => (v == null || v === "" ? null : v));
+}
+
+function nullishObject<T extends z.ZodTypeAny>(schema: T) {
+  return schema
+    .nullable()
+    .optional()
+    .transform((v) => v ?? null);
+}
+
 // ──────────────────────────────────────────────────────────────────────
 // Source origin — required on every content field
 // ──────────────────────────────────────────────────────────────────────
@@ -25,9 +47,13 @@ export const SourceOriginSchema = z.enum([
 // Leaf schemas
 // ──────────────────────────────────────────────────────────────────────
 
+// quantity: Gemma 4 sometimes emits bare numbers ("quantity": 3); coerce.
 export const MaterialSchema = z.object({
   name: z.string().min(1),
-  quantity: z.string().nullable(),
+  quantity: z
+    .union([z.string(), z.number(), z.null()])
+    .optional()
+    .transform((v) => (v == null || v === "" ? null : String(v))),
   source_origin: SourceOriginSchema,
 });
 
@@ -55,8 +81,8 @@ export const EngagementSchema = z.object({
 export const DemonstrationSchema = z.object({
   description: z.string().min(1),
   materials_needed: z.array(z.string()),
-  teacher_tip: z.string().nullable(),
-  safety_notes: z.string().nullable(),
+  teacher_tip: nullishString(),
+  safety_notes: nullishString(),
   source_origin: SourceOriginSchema,
 });
 
@@ -70,7 +96,7 @@ export const GuidedPracticeSchema = z.object({
 export const IndependentPracticeSchema = z.object({
   description: z.string().min(1),
   duration_minutes: z.number().int().positive(),
-  deliverable: z.string().nullable(),
+  deliverable: nullishString(),
   source_origin: SourceOriginSchema,
 });
 
@@ -78,7 +104,7 @@ export const AssessmentQuestionSchema = z.object({
   id: z.string().regex(/^q\d+$/, "question IDs must match /^q\\d+$/"),
   question: z.string().min(1),
   expected_answer: z.string().min(1),
-  rubric_notes: z.string().nullable(),
+  rubric_notes: nullishString(),
   source_origin: SourceOriginSchema,
 });
 
@@ -108,7 +134,7 @@ export const DiscussionPromptSchema = z.object({
 export const VocabularyTermSchema = z.object({
   term: z.string().min(1),
   definition: z.string().min(1),
-  example: z.string().nullable(),
+  example: nullishString(),
   source_origin: SourceOriginSchema,
 });
 
@@ -121,7 +147,7 @@ export const MisconceptionSchema = z.object({
 export const DifferentiationSchema = z.object({
   struggling: z.string().min(1),
   advanced: z.string().min(1),
-  multilingual_learners: z.string().nullable(),
+  multilingual_learners: nullishString(),
   source_origin: SourceOriginSchema,
 });
 
@@ -147,13 +173,13 @@ export const StandardReferenceSchema = z.object({
 export const StandardsAlignmentSchema = z.object({
   standards_cited: z.array(StandardReferenceSchema),
   confidence: z.enum(["teacher_provided", "inferred", "none"]),
-  notes: z.string().nullable(),
+  notes: nullishString(),
 });
 
 export const HandoffNoteSchema = z.object({
   field: z.string().min(1),
   reason: z.enum(["partner_owns", "insufficient_context", "out_of_scope"]),
-  note: z.string().nullable(),
+  note: nullishString(),
 });
 
 // ──────────────────────────────────────────────────────────────────────
@@ -165,24 +191,24 @@ export const LessonPackageSchema = z.object({
   title: z.string().min(1).max(200),
   objective: z.string().min(1).max(500),
   grade_level: z.string().min(1),
-  subject: z.string().nullable(),
+  subject: nullishString(),
   estimated_minutes: z.number().int().positive(),
   overview: z.string().min(1).max(1000),
   materials: z.array(MaterialSchema).min(1),
   lesson_steps: z.array(LessonStepSchema).min(1),
   engagement: EngagementSchema,
-  demo: DemonstrationSchema.nullable(),
-  guided_practice: GuidedPracticeSchema.nullable(),
-  independent_practice: IndependentPracticeSchema.nullable(),
+  demo: nullishObject(DemonstrationSchema),
+  guided_practice: nullishObject(GuidedPracticeSchema),
+  independent_practice: nullishObject(IndependentPracticeSchema),
   assessment: AssessmentSchema,
-  teacher_notes: z.string().nullable(),
+  teacher_notes: nullishString(),
   discussion_prompts: z.array(DiscussionPromptSchema),
   vocabulary: z.array(VocabularyTermSchema),
   misconceptions: z.array(MisconceptionSchema),
-  differentiation: DifferentiationSchema.nullable(),
-  homework: HomeworkSchema.nullable(),
-  enrichment: EnrichmentSchema.nullable(),
-  standards_alignment: StandardsAlignmentSchema.nullable(),
+  differentiation: nullishObject(DifferentiationSchema),
+  homework: nullishObject(HomeworkSchema),
+  enrichment: nullishObject(EnrichmentSchema),
+  standards_alignment: nullishObject(StandardsAlignmentSchema),
   generated_by: z.object({
     hunter_contribution_ids: z.array(z.string()),
     christine_contribution_ids: z.array(z.string()),
@@ -210,13 +236,13 @@ export const PersonaScaffoldSchema = z.object({
   materials: z.array(MaterialSchema),
   lesson_steps: z.array(LessonStepSchema),
   engagement: EngagementSchema,
-  demo: DemonstrationSchema.nullable(),
+  demo: nullishObject(DemonstrationSchema),
   assessment: AssessmentSchema,
-  teacher_notes: z.string().nullable(),
-  discussion_prompts: z.array(DiscussionPromptSchema),
-  vocabulary: z.array(VocabularyTermSchema),
-  misconceptions: z.array(MisconceptionSchema),
-  handoff_notes: z.array(HandoffNoteSchema),
+  teacher_notes: nullishString(),
+  discussion_prompts: z.array(DiscussionPromptSchema).default([]),
+  vocabulary: z.array(VocabularyTermSchema).default([]),
+  misconceptions: z.array(MisconceptionSchema).default([]),
+  handoff_notes: z.array(HandoffNoteSchema).default([]),
 });
 
 export const ReviewIssueSchema = z.object({
@@ -245,7 +271,7 @@ export const ReviewReportSchema = z.object({
   ]),
   grade_fit: z.object({
     rating: z.enum(["appropriate", "too_advanced", "too_basic"]),
-    notes: z.string().nullable(),
+    notes: nullishString(),
   }),
   source_alignment: z.enum([
     "fully_grounded",

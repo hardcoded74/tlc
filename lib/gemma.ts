@@ -32,10 +32,11 @@ export function gemmaClient(): GoogleGenAI {
 }
 
 // Model ID — pinned via env so we can swap without redeploying code.
-// Gemma 4 Good Hackathon uses gemma-4-*. Default picks the e4b instruction-tuned
-// variant referenced in ARCHITECTURE.md.
+// AI Studio surfaces two Gemma 4 variants as of 2026-04: gemma-4-26b-a4b-it
+// (MoE, ~4B active params, fast) and gemma-4-31b-it (dense, stronger, slower).
+// Default to the MoE for demo latency; override via GEMMA_MODEL_ID.
 export const MODEL_ID =
-  process.env.GEMMA_MODEL_ID ?? "gemma-4-e4b-it";
+  process.env.GEMMA_MODEL_ID ?? "gemma-4-26b-a4b-it";
 
 // ──────────────────────────────────────────────────────────────────────
 // Public call shape
@@ -185,11 +186,16 @@ export async function callGemma(params: GemmaCallParams): Promise<GemmaCallResul
           systemInstruction: systemPrompt,
           temperature,
           tools: [{ functionDeclarations: [tool as unknown as never] }],
+          // NOTE: Gemma 4 hangs (60s+ no response) when mode=ANY forces a
+          // tool call. mode=AUTO still calls the named tool reliably
+          // because the system prompt tells it to — and if the model
+          // ever emits JSON as text instead, parseJsonFromText() below
+          // catches it. Empirically tested against gemma-4-26b-a4b-it
+          // 2026-04-21. Don't flip back to ANY without re-testing.
           toolConfig: forceToolCall
             ? {
                 functionCallingConfig: {
-                  mode: FunctionCallingConfigMode.ANY,
-                  allowedFunctionNames: [tool.name],
+                  mode: FunctionCallingConfigMode.AUTO,
                 },
               }
             : undefined,
