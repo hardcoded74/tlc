@@ -119,6 +119,15 @@
     "multilingual_learners": "The word 'equal' is the critical term. Pair it with a visual on the anchor chart. 'Equal = same size' as a sentence frame.",
     "source_origin": "generated"
   },
+  "accommodations": {
+    "visual_supports": "Color-code the halves, thirds, and fourths pieces (red, blue, green) so students can distinguish them at a glance regardless of abstract labels. Provide large-print versions of the anchor chart.",
+    "auditory_supports": "Write the key question 'are these equal parts?' on the board each time it's asked orally. A student can point to the written question if they miss the verbal cue.",
+    "motor_supports": "Pre-cut the rectangles into halves/thirds/fourths for students with fine-motor challenges — they sort and label rather than cut. Offer a right-angle ruler guide for students who want to cut but need support.",
+    "cognitive_supports": "Pre-teach 'equal' with a concrete, non-fraction context the day before (e.g. two equal piles of blocks). Provide a visual reference card showing 1/2, 1/3, 1/4 as labeled circles/rectangles that stays on the desk throughout the lesson.",
+    "behavioral_supports": "The 1/4 > 1/2 moment is a predictable frustration trigger. Frame it as a 'trick question everybody gets wrong the first time' so students don't feel singled out.",
+    "general_notes": "The concrete paper pieces benefit every disability category — they reduce reliance on abstract symbols. Keep extras available so pieces that get lost or torn don't derail the lesson.",
+    "source_origin": "generated"
+  },
   "homework": null,
   "enrichment": null,
   "standards_alignment": {

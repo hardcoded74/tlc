@@ -343,6 +343,46 @@ export const PACKAGE_TOOL: FunctionDeclaration = {
         },
         required: ["struggling", "advanced", "source_origin"],
       },
+      accommodations: {
+        type: "object",
+        nullable: true,
+        description:
+          "Specific supports for students with disabilities (IEP/504 accommodations). Distinct from differentiation — these target barriers tied to vision, hearing, motor, cognitive, or behavioral disabilities. Any category may be null if no specific supports are needed for this lesson.",
+        properties: {
+          visual_supports: {
+            type: "string",
+            nullable: true,
+            description: "Supports for blindness, low vision, or dyslexia (e.g. large-print handouts, high-contrast visuals, screen reader compatibility, tactile manipulatives).",
+          },
+          auditory_supports: {
+            type: "string",
+            nullable: true,
+            description: "Supports for deafness, hard-of-hearing, or auditory processing (e.g. written instructions alongside oral, visual cue for transitions, FM system compatibility).",
+          },
+          motor_supports: {
+            type: "string",
+            nullable: true,
+            description: "Supports for mobility or fine motor challenges (e.g. larger grips on materials, seated partner work, allow voice-dictation for written response).",
+          },
+          cognitive_supports: {
+            type: "string",
+            nullable: true,
+            description: "Supports for autism, ADHD, learning disabilities, or executive function needs (e.g. pre-teach vocabulary, chunk steps, provide a written procedure, allow extended time).",
+          },
+          behavioral_supports: {
+            type: "string",
+            nullable: true,
+            description: "Supports for emotional regulation or anxiety (e.g. provide a fidget tool, allow a 2-minute reset break, offer to participate via written response).",
+          },
+          general_notes: {
+            type: "string",
+            nullable: true,
+            description: "Catch-all: classroom environment, peer supports, or other accommodations that don't fit a single category.",
+          },
+          source_origin: SOURCE_ORIGIN_PROP,
+        },
+        required: ["source_origin"],
+      },
       homework: {
         type: "object",
         nullable: true,

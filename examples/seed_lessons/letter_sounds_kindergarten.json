@@ -1,0 +1,145 @@
+{
+  "schema_version": "1.0",
+  "title": "The Letter B Makes a /b/ Sound",
+  "objective": "Students will produce the /b/ sound in isolation and identify three words that begin with /b/.",
+  "grade_level": "Kindergarten",
+  "subject": "English / Language Arts",
+  "estimated_minutes": 20,
+  "overview": "A short, high-movement phonemic awareness lesson focused on the letter B. Students feel the sound in their mouth, practice saying it, listen for it at the beginning of familiar words, and pick the /b/ words out of a small set. The lesson ends with a physical 'beanbag toss' game that lets kids associate the letter B with both the shape and the sound. Designed to fit a 20-minute circle-time block.",
+  "materials": [
+    { "name": "large letter B flashcard (uppercase and lowercase)", "quantity": "1", "source_origin": "scaffolded" },
+    { "name": "picture cards showing /b/ words (ball, bear, butterfly, boat)", "quantity": "4", "source_origin": "scaffolded" },
+    { "name": "picture cards showing non-/b/ words (cat, dog, fish, sun)", "quantity": "4", "source_origin": "scaffolded" },
+    { "name": "beanbag (or soft ball)", "quantity": "1", "source_origin": "scaffolded" },
+    { "name": "mirror (one per student or pair)", "quantity": "12", "source_origin": "scaffolded" }
+  ],
+  "lesson_steps": [
+    {
+      "step": 1, "minutes": 3,
+      "teacher_action": "Hold up the B flashcard. Point to uppercase B and lowercase b. Say: 'This letter is called B. Big B and little b. They both say /b/.' Make the sound crisp: /b/ /b/ /b/.",
+      "student_action": "Watch the card. Repeat /b/ /b/ /b/ after the teacher three times.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 2, "minutes": 4,
+      "teacher_action": "Hand out mirrors. Demonstrate: press lips together, then pop them open — 'feel your lips touch, then let a little puff of air out.' Have students watch their own lips in the mirror.",
+      "student_action": "Use the mirror to watch their own lips make /b/. Try it five times in a row.",
+      "source_origin": "generated"
+    },
+    {
+      "step": 3, "minutes": 5,
+      "teacher_action": "Show the picture cards one at a time (mix /b/ and non-/b/). Say each word clearly. Ask: 'Does this word start with /b/? Put your thumb UP if you hear /b/, thumb DOWN if you don't.'",
+      "student_action": "Listen to each word. Put their thumb up or down. Say the /b/ sound out loud for the /b/ words.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 4, "minutes": 5,
+      "teacher_action": "Stand in a circle. Hold up the beanbag and say a /b/ word ('BALL!'). Toss the beanbag to a student. That student says a different /b/ word and tosses to another. If a student can't think of one, the class whispers help.",
+      "student_action": "When they catch the beanbag, say a word that starts with /b/. Listen when classmates go.",
+      "source_origin": "generated"
+    },
+    {
+      "step": 5, "minutes": 3,
+      "teacher_action": "Gather back to the carpet. Say: 'Before snack, tell me one word that starts with /b/.' Go around the circle quickly.",
+      "student_action": "Each student says one /b/ word as their 'ticket' to snack time.",
+      "source_origin": "generated"
+    }
+  ],
+  "engagement": {
+    "type": "interactive_prompt",
+    "prompt": "I'm going to say a word. If the word starts with /b/, hop one time. If it doesn't, stay still. Ready? BOAT. CAT. BEAR. FISH. BUTTERFLY.",
+    "minutes": 3,
+    "source_origin": "generated"
+  },
+  "demo": {
+    "description": "Teacher models /b/ in front of a mirror, showing the lip closure and air release. Students copy with their own mirrors, then practice in pairs watching each other's mouths.",
+    "materials_needed": ["mirror", "teacher's face"],
+    "teacher_tip": "Kindergarteners love seeing their own mouths move. Give them 30 seconds of free mirror time after the demo — they'll make every sound in the alphabet on their own and that's a good thing.",
+    "safety_notes": null,
+    "source_origin": "generated"
+  },
+  "guided_practice": {
+    "description": "Teacher shows picture cards one at a time. Students give thumbs up for /b/ words and thumbs down for others, then say the sound out loud for the /b/ words.",
+    "format": "whole_class",
+    "duration_minutes": 5,
+    "source_origin": "scaffolded"
+  },
+  "independent_practice": null,
+  "assessment": {
+    "format": "comprehension_check",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "Say the /b/ sound out loud.",
+        "expected_answer": "Student produces a clean /b/ sound with lip closure and air release.",
+        "rubric_notes": "Pass if audibly recognizable as /b/. Most K students produce this cleanly; if a student substitutes /p/ or /m/, flag for speech-language screening.",
+        "source_origin": "scaffolded"
+      },
+      {
+        "id": "q2",
+        "question": "Show the student three picture cards (ball, fish, bear). Ask: 'Which two start with /b/?'",
+        "expected_answer": "Ball and bear.",
+        "rubric_notes": "Accept pointing as a response. Full credit for both; partial credit for one.",
+        "source_origin": "scaffolded"
+      },
+      {
+        "id": "q3",
+        "question": "Tell me one word that starts with /b/.",
+        "expected_answer": "Any word where /b/ is the first sound — ball, bear, boat, butterfly, book, balloon, banana, etc.",
+        "rubric_notes": "Accept any word with an initial /b/. Don't count 'bat' if they say /p/.",
+        "source_origin": "scaffolded"
+      }
+    ],
+    "estimated_minutes": 2
+  },
+  "teacher_notes": "Kindergarten phonemic awareness is a motor skill before it's an abstract skill. Keep it physical — mirrors, beanbag, thumbs up/down, hopping. A student who can't produce /b/ after the mirror step is not being defiant; they may need speech support. Flag it and keep moving; don't freeze the lesson over one student. The whole lesson should have the energy of a game, not a test.",
+  "discussion_prompts": [
+    { "prompt": "What's your favorite word that starts with /b/?", "purpose": "activate_prior_knowledge", "source_origin": "generated" },
+    { "prompt": "How does your mouth feel when you say /b/? Does it feel different from /m/ or /p/?", "purpose": "deepen_understanding", "source_origin": "generated" },
+    { "prompt": "Can you think of a word that has /b/ in the middle or the end, not just the beginning?", "purpose": "extend_beyond_lesson", "source_origin": "generated" }
+  ],
+  "vocabulary": [
+    { "term": "letter", "definition": "A shape on paper that stands for a sound.", "example": "B, C, D are letters.", "source_origin": "scaffolded" },
+    { "term": "sound", "definition": "What you hear when you say a letter out loud.", "example": "The letter B makes the /b/ sound.", "source_origin": "scaffolded" }
+  ],
+  "misconceptions": [
+    { "misconception": "The letter B says 'buh' (with a vowel attached).", "correction": "The letter B says /b/ — a quick burst of sound. Adding 'uh' makes blending words later much harder.", "how_to_address": "Model the pure /b/ several times with the mirror. Praise students who produce it crisply. Don't correct 'buh' sharply — just model the cleaner sound and let them adjust." },
+    { "misconception": "All words that sound like they start with B actually do (e.g. 'phone' doesn't start with F... no wait, it does — but to a K student, sound and letter feel unified here).", "correction": "In K, the sound IS the key. We'll connect sounds to letters systematically as the year goes on.", "how_to_address": "Don't overcomplicate this now. If a student asks a tricky question about a silent letter, honor the curiosity but redirect: 'Great question! We'll figure that one out later in the year.'" }
+  ],
+  "differentiation": {
+    "struggling": "Pair with a partner who has stronger /b/ production during the beanbag toss. Let them say a word the class already gave. Don't put them on the spot for a novel word.",
+    "advanced": "Ask them to think of a /b/ word that NO ONE ELSE said during the beanbag toss. Gives them a harder challenge without singling them out.",
+    "multilingual_learners": "For students whose home language doesn't use /b/ as strongly (or uses it differently — some dialects collapse /b/ and /v/), give extra mirror time. A picture card with a familiar word in their home language can be a bridge (e.g., 'banana' works in many languages).",
+    "source_origin": "generated"
+  },
+  "accommodations": {
+    "visual_supports": "Use a magnetic or tactile letter B students can hold and trace with their fingers. Provide high-contrast black-on-white picture cards (not pastel). For a student with low vision, describe each picture card aloud before asking the thumb question.",
+    "auditory_supports": "Add a gesture for /b/ (one closed fist, then open quickly) so deaf / hard-of-hearing students can track the sound visually. Face the student directly when saying each word. Caption the teacher's questions on a small whiteboard if the student uses written support.",
+    "motor_supports": "For students with fine-motor challenges, swap the beanbag for rolling a soft ball on the floor (no overhand throw needed). Thumbs up/down can be substituted with any two-position signal — left hand / right hand, or a yes/no card.",
+    "cognitive_supports": "Pre-teach the /b/ sound in a 1:1 session before circle time. Reduce the number of picture cards from 8 to 4 for students who need less information at once. Use the same 3 /b/ words throughout (ball, bear, boat) instead of rotating in new ones.",
+    "behavioral_supports": "If a student is overwhelmed by the circle, offer a 'helper' role — they hold the flashcard for the teacher and don't have to say the sound in front of peers. Beanbag toss can feel high-pressure; let a student pass once without losing a turn.",
+    "general_notes": "Circle time is high-stimulation. Watch for dysregulation during the beanbag toss step specifically. The mirror step, by contrast, is usually calming for every student.",
+    "source_origin": "generated"
+  },
+  "homework": null,
+  "enrichment": null,
+  "standards_alignment": {
+    "standards_cited": [
+      { "framework": "Common Core ELA", "code": "RF.K.2.D", "description": "Isolate and pronounce the initial, medial vowel, and final sounds in three-phoneme (consonant-vowel-consonant, or CVC) words." },
+      { "framework": "Common Core ELA", "code": "RF.K.3.A", "description": "Demonstrate basic knowledge of one-to-one letter-sound correspondences by producing the primary sound for each consonant." }
+    ],
+    "confidence": "inferred",
+    "notes": "Aligns to RF.K.3.A most directly (one-to-one letter-sound). The thumb-up assessment also touches RF.K.2.D (initial sound isolation)."
+  },
+  "generated_by": {
+    "hunter_contribution_ids": ["build-hunter-seed04", "package-hunter-seed04"],
+    "christine_contribution_ids": ["build-christine-seed04", "package-christine-seed04"],
+    "review_id": "review-seed04"
+  },
+  "source_summary": {
+    "source_id": null,
+    "overall_grounding": "no_source",
+    "grounded_section_count": 0,
+    "generated_section_count": 8
+  }
+}

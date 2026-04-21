@@ -157,6 +157,31 @@ export function toMarkdown(pkg: LessonPackage): string {
     lines.push("");
   }
 
+  if (pkg.accommodations) {
+    const a = pkg.accommodations;
+    const rows: [string, string | null][] = [
+      ["Visual supports", a.visual_supports],
+      ["Auditory supports", a.auditory_supports],
+      ["Motor / physical supports", a.motor_supports],
+      ["Cognitive / attention supports", a.cognitive_supports],
+      ["Behavioral / emotional supports", a.behavioral_supports],
+    ];
+    const active = rows.filter(([, v]) => v);
+    if (active.length > 0 || a.general_notes) {
+      lines.push(`## Accommodations for students with disabilities`);
+      lines.push(
+        `*Supports for IEP/504 accommodations tied to this lesson. Pair with the student's existing plan.*`,
+      );
+      for (const [label, value] of active) {
+        lines.push(`**${label}:** ${value}`);
+      }
+      if (a.general_notes) {
+        lines.push(`**General notes:** ${a.general_notes}`);
+      }
+      lines.push("");
+    }
+  }
+
   if (pkg.homework) {
     lines.push(`## Homework${pkg.homework.optional ? " (optional)" : ""}`);
     lines.push(pkg.homework.description);
@@ -326,6 +351,35 @@ export function toHtml(pkg: LessonPackage): string {
         `<p><strong>Struggling:</strong> ${escaped(pkg.differentiation.struggling)}</p><p><strong>Advanced:</strong> ${escaped(pkg.differentiation.advanced)}</p>${pkg.differentiation.multilingual_learners ? `<p><strong>Multilingual:</strong> ${escaped(pkg.differentiation.multilingual_learners)}</p>` : ""}`,
       ),
     );
+  }
+
+  if (pkg.accommodations) {
+    const a = pkg.accommodations;
+    const rows: [string, string | null][] = [
+      ["Visual", a.visual_supports],
+      ["Auditory", a.auditory_supports],
+      ["Motor / physical", a.motor_supports],
+      ["Cognitive / attention", a.cognitive_supports],
+      ["Behavioral / emotional", a.behavioral_supports],
+    ];
+    const active = rows.filter(([, v]) => v);
+    if (active.length > 0 || a.general_notes) {
+      const listItems = active
+        .map(
+          ([label, value]) =>
+            `<li><strong>${escaped(label)}:</strong> ${escaped(value as string)}</li>`,
+        )
+        .join("");
+      const notes = a.general_notes
+        ? `<p class="meta"><em>${escaped(a.general_notes)}</em></p>`
+        : "";
+      parts.push(
+        section(
+          "Accommodations for students with disabilities",
+          `<p class="meta">Supports for IEP/504 accommodations tied to this lesson. Pair with the student&rsquo;s existing plan.</p><ul>${listItems}</ul>${notes}`,
+        ),
+      );
+    }
   }
 
   if (pkg.homework) {

@@ -121,6 +121,15 @@
     "multilingual_learners": "The four phase words share roots with many Romance languages. Encourage students to look for cognates. Post the four words with pictures at the front of the room for reference.",
     "source_origin": "generated"
   },
+  "accommodations": {
+    "visual_supports": "Provide the unlabeled water cycle diagram in raised-line / tactile form for students with visual impairment. Describe the condensation forming on the pie plate aloud ('drops the size of a pinhead, now the size of a pea') so students who can't see the demo clearly still track it.",
+    "auditory_supports": "The boiling kettle is loud. Offer noise-reducing headphones or allow a student to watch from further back. Caption the key phase names on the board so hearing-impaired students can follow along with the oral narration.",
+    "motor_supports": "Pre-label the diagram with dashed phase lines so students who struggle with writing can color-code rather than write. Voice-dictation for the exit ticket is acceptable.",
+    "cognitive_supports": "Pre-teach the four phase names with flashcards the day before. Provide a graphic organizer template for the partner explanation step so students don't have to recall the order from scratch. Post the four phase names on the board with icons.",
+    "behavioral_supports": "The demo's steam + hot kettle may be overwhelming for some students. Offer the option to watch from a designated 'near the door' spot. The partner explanation can be replaced with a silent drawing of the cycle for students who find peer interaction dysregulating today.",
+    "general_notes": "Safety is the dominant accommodation here — the 3-foot distance rule applies universally, but be prepared for students with motor or visual needs to require a personal aide at 6+ feet.",
+    "source_origin": "generated"
+  },
   "homework": {
     "description": "Find one place in your home tomorrow morning where you see condensation. Write one sentence: where was it and why did it form there?",
     "estimated_minutes": 10,

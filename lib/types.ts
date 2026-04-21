@@ -59,6 +59,7 @@ export interface LessonPackage {
 
   // Optional enhancements
   differentiation: Differentiation | null;
+  accommodations: Accommodations | null;
   homework: Homework | null;
   enrichment: Enrichment | null;
   standards_alignment: StandardsAlignment | null;
@@ -184,6 +185,28 @@ export interface Differentiation {
   struggling: string;
   advanced: string;
   multilingual_learners: string | null;
+  source_origin: SourceOrigin;
+}
+
+/**
+ * Accommodations for students with disabilities — distinct from
+ * Differentiation, which adjusts for readiness level. Accommodations
+ * remove barriers tied to a specific disability type (vision, hearing,
+ * motor/physical, cognitive/attentional, behavioral/emotional). Teachers
+ * usually apply these from a student's IEP or 504 plan, not per lesson,
+ * but the lesson should suggest specific supports that fit this content.
+ *
+ * Each category is nullable; null means "no special accommodations
+ * suggested for this dimension in this lesson" (not "no accommodations
+ * needed for disabled students" — that's a teacher-level judgement).
+ */
+export interface Accommodations {
+  visual_supports: string | null;        // blindness / low vision / dyslexia
+  auditory_supports: string | null;      // deafness / hard of hearing / auditory processing
+  motor_supports: string | null;         // mobility / fine motor / chronic pain
+  cognitive_supports: string | null;     // autism / ADHD / LD / executive function
+  behavioral_supports: string | null;    // emotional regulation / anxiety
+  general_notes: string | null;          // catch-all: environment, classroom layout, peer supports
   source_origin: SourceOrigin;
 }
 

@@ -1,0 +1,171 @@
+{
+  "schema_version": "1.0",
+  "title": "Shakespeare, Up Close: Reading the Balcony Scene",
+  "objective": "Students will translate a short passage from Romeo and Juliet Act 2, Scene 2 into modern English, and identify two examples of metaphor in the passage.",
+  "grade_level": "9th grade",
+  "subject": "English / Language Arts",
+  "estimated_minutes": 55,
+  "overview": "Most 9th graders meet Shakespeare with either intimidation or scorn, and both come from the same source: the language looks like a wall. This lesson climbs the wall once, together, on a short passage (the opening of the balcony scene) so students see that Shakespeare can be decoded, and that the decoding is worth it. We'll read aloud, translate in pairs, and end with a short analytical prompt connecting form (metaphor) to meaning (Romeo's obsession with light imagery). The play's larger arc gets taught later; today is about earning the right to read Shakespeare with confidence.",
+  "materials": [
+    { "name": "Romeo and Juliet Act 2 Scene 2 passage handout (lines 1-32)", "quantity": "28", "source_origin": "scaffolded" },
+    { "name": "'Modern translation' column handout (blank, for student work)", "quantity": "28", "source_origin": "scaffolded" },
+    { "name": "Highlighters (2 colors per student — one for metaphors, one for imagery)", "quantity": "28 pairs", "source_origin": "scaffolded" },
+    { "name": "Whiteboard and markers", "quantity": "1 set", "source_origin": "scaffolded" },
+    { "name": "Short analytical response prompt slip", "quantity": "28", "source_origin": "scaffolded" }
+  ],
+  "lesson_steps": [
+    {
+      "step": 1, "minutes": 4,
+      "teacher_action": "Write on the board: 'But, soft! What light through yonder window breaks?' Pause. Ask: 'Anyone recognize this? Anyone NOT recognize it?' Build expectation, then reveal: 'This is the single most-quoted line from Shakespeare's most-taught play. Today we read the speech it opens.'",
+      "student_action": "Guess the line's source. Volunteer what they've heard about Romeo and Juliet.",
+      "source_origin": "generated"
+    },
+    {
+      "step": 2, "minutes": 8,
+      "teacher_action": "Distribute the passage (lines 1-32 of 2.2). Read it aloud, at pace, without pausing for vocabulary. Make it sound like a person speaking. After the first read, ask: 'What did you understand? Don't worry about the words you didn't — tell me what landed.'",
+      "student_action": "Listen. Don't take notes. After the reading, volunteer one impression of what Romeo seems to be feeling.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 3, "minutes": 15,
+      "teacher_action": "In pairs, students translate the passage line-by-line into modern English on the blank column handout. Not word-by-word — meaning-by-meaning. Circulate. When a pair gets stuck on a single word (e.g. 'yonder,' 'bosom,' 'vestal'), help them infer from context before giving a definition.",
+      "student_action": "Work with partner. Write a modern-English version that sounds like something a real person would say. Ask for help only after trying the context route first.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 4, "minutes": 8,
+      "teacher_action": "Call three pairs to read their translation of the opening six lines aloud. Compare. Note which word choices felt truer. Push the class: 'Romeo calls Juliet the sun, the moon, a bright angel. What do those images have in common?'",
+      "student_action": "Share their translation. Listen to others. Try to articulate the shared quality (light, brightness, holiness).",
+      "source_origin": "generated"
+    },
+    {
+      "step": 5, "minutes": 10,
+      "teacher_action": "Hand out highlighters. Students mark every metaphor in ONE color and every light/dark image in the other. Instruct: highlight before analyzing. Then ask: 'What pattern do you see?'",
+      "student_action": "Highlight both categories on their copy. Count their metaphors. Notice the overlap with light imagery.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 6, "minutes": 8,
+      "teacher_action": "Distribute the analytical prompt slip. Students respond in writing: 'Romeo uses light imagery to describe Juliet. What does that tell you about how he sees her? Use one specific line as evidence.' Two paragraphs, focused.",
+      "student_action": "Write the response. Use at least one quoted phrase from the passage.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 7, "minutes": 2,
+      "teacher_action": "Collect responses. Announce: 'Tomorrow we read Juliet's side of the conversation. She's just as interesting — and she gets the clearer head.'",
+      "student_action": "Turn in the response.",
+      "source_origin": "generated"
+    }
+  ],
+  "engagement": {
+    "type": "discussion",
+    "prompt": "Romeo's never actually spoken to Juliet when this speech happens — they met for ten minutes at a party. Is this love, or is this obsession? Defend your answer in one sentence and be ready to revisit it at the end of the lesson.",
+    "minutes": 5,
+    "source_origin": "generated"
+  },
+  "demo": {
+    "description": "Before the first read, model how to read Shakespeare aloud: follow the punctuation, not the line break. Read 'But, soft! What light through yonder window breaks? / It is the east, and Juliet is the sun.' Read it once like robot-Shakespeare (pausing at every line break). Read it again as a real person would. The difference is the lesson.",
+    "materials_needed": ["the passage handout"],
+    "teacher_tip": "Even students who resist Shakespeare will perk up when they see you read it WELL — with confidence, at speaking pace, like it's normal English. Your pacing sets the ceiling for how they read it. Don't be shy.",
+    "safety_notes": null,
+    "source_origin": "generated"
+  },
+  "guided_practice": {
+    "description": "Students work in pairs to translate the passage into modern English, line-by-line. Teacher circulates and models the translation approach on one or two lines with each pair, rather than lecturing.",
+    "format": "pair",
+    "duration_minutes": 15,
+    "source_origin": "scaffolded"
+  },
+  "independent_practice": {
+    "description": "Students individually write a two-paragraph analytical response connecting Romeo's light imagery to his state of mind, quoting the passage.",
+    "duration_minutes": 8,
+    "deliverable": "A two-paragraph response with at least one direct quote.",
+    "source_origin": "scaffolded"
+  },
+  "assessment": {
+    "format": "written_response",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "Translate these two lines into modern English: 'But, soft! What light through yonder window breaks? / It is the east, and Juliet is the sun.'",
+        "expected_answer": "Something like: 'Wait — what's that light coming through the window over there? Oh, it's morning — and Juliet is the sun rising.' Or: 'Hold on, there's light in that window. It's like dawn, and Juliet is what's making the light.'",
+        "rubric_notes": "Accept any translation that preserves: (1) the 'what's that light?' surprise, (2) the metaphor comparing Juliet to the sun. Dock for translations that ignore the metaphor and just say 'it's Juliet.'",
+        "source_origin": "scaffolded"
+      },
+      {
+        "id": "q2",
+        "question": "Find ONE metaphor in the passage (aside from 'Juliet is the sun') and explain what two things it compares.",
+        "expected_answer": "Examples: 'her eye in heaven / Would through the airy region stream so bright' compares her eyes to stars. 'bright angel' compares her to an angel. 'winged messenger of heaven' compares her to a divine messenger. Any legitimate identification with both sides named gets full credit.",
+        "rubric_notes": "Must name BOTH sides of the comparison. 'He compares her to a star' is full credit; 'there's a star in the passage' is partial.",
+        "source_origin": "scaffolded"
+      },
+      {
+        "id": "q3",
+        "question": "Romeo uses light imagery throughout the passage. What does that pattern tell you about his feelings? Use one specific quote as evidence.",
+        "expected_answer": "Romeo sees Juliet as a source of brightness, warmth, and almost divine quality — he idealizes her. The light imagery shows she's illuminating his world (which has been dark — he was moping about Rosaline earlier in the play). Acceptable evidence includes any light-related quote.",
+        "rubric_notes": "Must: name a feeling (idealization, obsession, awe, reverence, etc.), connect it to light imagery, and quote one line. Full credit requires all three. 'He's in love' without evidence is partial.",
+        "source_origin": "scaffolded"
+      }
+    ],
+    "estimated_minutes": 10
+  },
+  "teacher_notes": "The mistake most teachers make with 9th-grade Shakespeare is pre-translating the text for students. Resist that. The translation work IS the thinking; if you hand them a modern-English version, you've removed the lesson. Let them struggle with 'yonder' for 45 seconds before defining it — that 45 seconds is where comprehension happens. Be ready to loudly celebrate any student who says 'oh wait, he's comparing her to the sunrise!' That realization is the hinge of the lesson. Watch for: cynical students who dismiss it as cheesy. They're not wrong — Romeo IS being over-the-top. The question is whether you want the play to be about how foolish love is, or about how language tries to describe feelings too big for ordinary words. Both readings work. Let the cynics run with it.",
+  "discussion_prompts": [
+    { "prompt": "If Romeo were texting Juliet instead of soliloquizing on a balcony, what would he say? Try to keep the metaphor intact.", "purpose": "deepen_understanding", "source_origin": "generated" },
+    { "prompt": "Why does Shakespeare write in verse (iambic pentameter) instead of prose? What does verse allow that prose doesn't?", "purpose": "extend_beyond_lesson", "source_origin": "generated" },
+    { "prompt": "Romeo was obsessed with someone named Rosaline at the start of the play and has forgotten her completely by this point. Does that change how we should read this speech?", "purpose": "check_misconception", "source_origin": "generated" }
+  ],
+  "vocabulary": [
+    { "term": "metaphor", "definition": "A comparison that says one thing IS another (no 'like' or 'as').", "example": "'Juliet is the sun' is a metaphor. 'Juliet is like the sun' is a simile.", "source_origin": "scaffolded" },
+    { "term": "imagery", "definition": "Descriptive language that appeals to the senses (sight, sound, touch, smell, taste).", "example": "'What light through yonder window breaks' is visual imagery.", "source_origin": "scaffolded" },
+    { "term": "soliloquy", "definition": "A speech a character delivers alone on stage, revealing their inner thoughts.", "example": "Romeo's balcony speech is a soliloquy until Juliet speaks.", "source_origin": "scaffolded" },
+    { "term": "iambic pentameter", "definition": "A rhythm with ten syllables per line, alternating unstressed/stressed (da-DUM × 5).", "example": "'But SOFT! what LIGHT through YON-der WIN-dow BREAKS?'", "source_origin": "scaffolded" },
+    { "term": "yonder", "definition": "Over there (archaic).", "example": "'Yonder window' = 'that window over there.'", "source_origin": "scaffolded" }
+  ],
+  "misconceptions": [
+    { "misconception": "Shakespeare is written in Old English.", "correction": "It's Early Modern English — the same language we speak, just 420 years older. Old English is Beowulf, which is genuinely a different language.", "how_to_address": "Show one line of Old English side by side with the Shakespeare passage. The Shakespeare is readable; the Old English isn't. Students see the difference immediately." },
+    { "misconception": "You need footnotes and a glossary to understand any line of Shakespeare.", "correction": "You need them for some words. For most of the language, context is enough. Reading Shakespeare is more like reading a dialect of English than translating a foreign text.", "how_to_address": "During the pair-translation step, celebrate students who inferred meaning from context. 'You didn't know what \"vestal\" meant but you guessed \"holy\" from the context — that's exactly the move.'" },
+    { "misconception": "Romeo's speech is 'pure love' and uncomplicated.", "correction": "It's idealization. Romeo has never spoken to Juliet. He's projecting a lot onto her. The play rewards readers who notice that.", "how_to_address": "Close the lesson by re-asking the opening discussion question: love or obsession? Let students revise their answer after reading the passage." }
+  ],
+  "differentiation": {
+    "struggling": "Provide the passage with 3-4 of the hardest words already glossed in the margin. Pair with a stronger partner for the translation work. Shorten the analytical response to one paragraph with a sentence starter ('Romeo's use of light imagery suggests...').",
+    "advanced": "After finishing the main task, ask them to find the turning point where Romeo's imagery shifts from 'light' to something else (around line 26 he pivots to naming Juliet as 'dear saint'). What does the shift do?",
+    "multilingual_learners": "The translation exercise benefits multilingual learners — they're already practiced at cross-language interpretation. Let them write their translation in their stronger language first, then render it into English. Provide a glossary in their home language for 5-6 of the hardest words.",
+    "source_origin": "generated"
+  },
+  "accommodations": {
+    "visual_supports": "Enlarge the passage to 18pt minimum for students with visual impairments. For a student with dyslexia, use the OpenDyslexic font or a beige-background handout. Audio version of the reading available for students who follow along better with audio + text. Highlighters in categorically distinguishable colors (not two shades of green).",
+    "auditory_supports": "The opening read-aloud is central — provide a written transcript for deaf/hard-of-hearing students so they can follow at pace. Caption the opening hook question on the board. Partner work can be done in writing entirely, no spoken exchange required.",
+    "motor_supports": "Allow typing instead of handwritten translation or response. Pre-cut the passage into line-strips that a student can arrange rather than write between. Voice-dictation is acceptable for the analytical response.",
+    "cognitive_supports": "Pre-teach 'metaphor,' 'imagery,' and 'soliloquy' the day before. Provide a translation-task scaffold: a fill-in-the-blank version of the modern English where key metaphor slots are blank. Break the 15-minute translation work into three 5-minute chunks with brief re-center moments.",
+    "behavioral_supports": "The paired translation step is social-intensive. Offer a solo variant where the student translates independently and the teacher checks in at the 5-minute mark. The 'share your translation aloud' step (step 4) can trigger performance anxiety — let volunteers share rather than cold-calling, or pre-identify a willing student.",
+    "general_notes": "Shakespeare is culturally loaded — some students carry resistance from prior experiences. The translation frame reframes it as decoding work (concrete, solvable) rather than 'appreciating literature' (abstract, easy to fail at). Lean into the puzzle framing for students who are emotionally reluctant.",
+    "source_origin": "generated"
+  },
+  "homework": {
+    "description": "Read Juliet's response (lines 33-85 of Act 2 Scene 2) at home. Find ONE metaphor SHE uses about Romeo and write one sentence on what it tells you about how Juliet sees him differently than he sees her.",
+    "estimated_minutes": 20,
+    "optional": false,
+    "source_origin": "generated"
+  },
+  "enrichment": null,
+  "standards_alignment": {
+    "standards_cited": [
+      { "framework": "Common Core ELA", "code": "RL.9-10.4", "description": "Determine the meaning of words and phrases as they are used in the text, including figurative and connotative meanings; analyze the cumulative impact of specific word choices on meaning and tone." },
+      { "framework": "Common Core ELA", "code": "RL.9-10.1", "description": "Cite strong and thorough textual evidence to support analysis of what the text says explicitly as well as inferences drawn from the text." }
+    ],
+    "confidence": "inferred",
+    "notes": "RL.9-10.4 is the core standard (figurative language). The written response also touches RL.9-10.1 (textual evidence)."
+  },
+  "generated_by": {
+    "hunter_contribution_ids": ["build-hunter-seed06", "package-hunter-seed06"],
+    "christine_contribution_ids": ["build-christine-seed06", "package-christine-seed06"],
+    "review_id": "review-seed06"
+  },
+  "source_summary": {
+    "source_id": null,
+    "overall_grounding": "no_source",
+    "grounded_section_count": 0,
+    "generated_section_count": 8
+  }
+}

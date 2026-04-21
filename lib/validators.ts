@@ -151,6 +151,16 @@ export const DifferentiationSchema = z.object({
   source_origin: SourceOriginSchema,
 });
 
+export const AccommodationsSchema = z.object({
+  visual_supports: nullishString(),
+  auditory_supports: nullishString(),
+  motor_supports: nullishString(),
+  cognitive_supports: nullishString(),
+  behavioral_supports: nullishString(),
+  general_notes: nullishString(),
+  source_origin: SourceOriginSchema,
+});
+
 export const HomeworkSchema = z.object({
   description: z.string().min(1),
   estimated_minutes: z.number().int().positive(),
@@ -206,6 +216,7 @@ export const LessonPackageSchema = z.object({
   vocabulary: z.array(VocabularyTermSchema),
   misconceptions: z.array(MisconceptionSchema),
   differentiation: nullishObject(DifferentiationSchema),
+  accommodations: nullishObject(AccommodationsSchema),
   homework: nullishObject(HomeworkSchema),
   enrichment: nullishObject(EnrichmentSchema),
   standards_alignment: nullishObject(StandardsAlignmentSchema),

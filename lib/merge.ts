@@ -49,6 +49,7 @@ export interface PackagePhaseExtended {
   guided_practice?: LessonPackage["guided_practice"];
   independent_practice?: LessonPackage["independent_practice"];
   differentiation?: LessonPackage["differentiation"];
+  accommodations?: LessonPackage["accommodations"];
   homework?: LessonPackage["homework"];
   enrichment?: LessonPackage["enrichment"];
   standards_alignment?: LessonPackage["standards_alignment"];
@@ -104,6 +105,10 @@ export function mergePackages(input: MergeInput): LessonPackage {
   const differentiation =
     input.christinePackageExtended?.differentiation ??
     input.hunterPackageExtended?.differentiation ??
+    null;
+  const accommodations =
+    input.christinePackageExtended?.accommodations ??
+    input.hunterPackageExtended?.accommodations ??
     null;
   const homework =
     input.christinePackageExtended?.homework ??
@@ -166,6 +171,7 @@ export function mergePackages(input: MergeInput): LessonPackage {
     vocabulary,
     misconceptions,
     differentiation,
+    accommodations,
     homework,
     enrichment,
     standards_alignment,

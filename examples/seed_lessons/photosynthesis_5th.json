@@ -119,6 +119,15 @@
     "multilingual_learners": "Provide diagram labels in student's home language where possible. The visual equation transcends language.",
     "source_origin": "generated"
   },
+  "accommodations": {
+    "visual_supports": "Provide a tactile version of the photosynthesis diagram (raised lines or felt arrows). Enlarge the equation on the anchor chart to at least 36pt. Describe the demo bag aloud as it forms droplets for students with low vision.",
+    "auditory_supports": "Post the three inputs and two outputs on the board in written form alongside the oral equation. If a student wears FM/hearing technology, face the student when saying the key equation words.",
+    "motor_supports": "Pre-label the diagram handout for students with fine-motor difficulty (students circle rather than write). Allow voice response on the exit ticket.",
+    "cognitive_supports": "Pre-teach the words 'photosynthesis,' 'glucose,' and 'carbon dioxide' a day before the lesson. Provide the 3-column chart partially filled in for students who need scaffolding. Break the equation into inputs-first, outputs-second.",
+    "behavioral_supports": "Allow a fidget tool during the 12-minute partner chart work. Offer a quiet reset spot near the teacher desk if the demo's anticipation gets overwhelming.",
+    "general_notes": "The demo itself is low-sensory (quiet, visible over time), which helps most students. Position the plant so every student can see without crowding; crowding is the primary behavioral trigger for this lesson.",
+    "source_origin": "generated"
+  },
   "homework": null,
   "enrichment": null,
   "standards_alignment": null,

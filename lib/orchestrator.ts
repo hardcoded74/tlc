@@ -283,6 +283,7 @@ function extractExtended(toolArgs: Record<string, unknown>): PackagePhaseExtende
     "guided_practice",
     "independent_practice",
     "differentiation",
+    "accommodations",
     "homework",
     "enrichment",
     "standards_alignment",

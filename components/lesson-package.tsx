@@ -301,6 +301,8 @@ function NotesTab({ pkg }: { pkg: LessonPackage }) {
         </Section>
       )}
 
+      {pkg.accommodations && <AccommodationsBlock a={pkg.accommodations} />}
+
       {pkg.homework && (
         <Section title={`Homework${pkg.homework.optional ? " (optional)" : ""}`}>
           <p>{pkg.homework.description}</p>
@@ -339,5 +341,39 @@ function NotesTab({ pkg }: { pkg: LessonPackage }) {
         </Section>
       )}
     </>
+  );
+}
+
+function AccommodationsBlock({ a }: { a: NonNullable<LessonPackage["accommodations"]> }) {
+  const rows: { label: string; value: string | null }[] = [
+    { label: "Visual", value: a.visual_supports },
+    { label: "Auditory", value: a.auditory_supports },
+    { label: "Motor / physical", value: a.motor_supports },
+    { label: "Cognitive / attention", value: a.cognitive_supports },
+    { label: "Behavioral / emotional", value: a.behavioral_supports },
+  ];
+  const active = rows.filter((r) => r.value);
+  if (active.length === 0 && !a.general_notes) return null;
+
+  return (
+    <Section title="Accommodations for students with disabilities">
+      <p className="text-sm text-(--color-muted) mb-3">
+        Specific supports for IEP/504 accommodations tied to this lesson&rsquo;s
+        content. Pair with the student&rsquo;s existing plan.
+      </p>
+      <dl className="space-y-2">
+        {active.map((r) => (
+          <div key={r.label}>
+            <dt className="font-medium text-sm text-hunter-700">{r.label}</dt>
+            <dd className="text-sm pl-0.5">{r.value}</dd>
+          </div>
+        ))}
+      </dl>
+      {a.general_notes && (
+        <p className="mt-3 text-sm italic text-(--color-muted) border-l-2 border-hunter-100 pl-3">
+          {a.general_notes}
+        </p>
+      )}
+    </Section>
   );
 }

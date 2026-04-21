@@ -1,0 +1,175 @@
+{
+  "schema_version": "1.0",
+  "title": "The Cell as a City: Introduction to Organelles",
+  "objective": "Students will identify the six major eukaryotic organelles (nucleus, cell membrane, cytoplasm, mitochondria, ribosomes, chloroplast) and describe one function of each.",
+  "grade_level": "7th grade",
+  "subject": "Science",
+  "estimated_minutes": 50,
+  "overview": "Middle schoolers have usually seen cell diagrams before; this lesson gets them past memorization into functional understanding. We use the extended metaphor of a cell as a city — nucleus is city hall, mitochondria are power plants, ribosomes are factories — and anchor each organelle to a job a student can picture. Labs and microscope work come in the next unit; this is the vocabulary-plus-concept day.",
+  "materials": [
+    { "name": "Cell-as-City anchor poster (printed, large)", "quantity": "1", "source_origin": "scaffolded" },
+    { "name": "Unlabeled plant-cell diagram handout", "quantity": "28", "source_origin": "scaffolded" },
+    { "name": "Unlabeled animal-cell diagram handout", "quantity": "28", "source_origin": "scaffolded" },
+    { "name": "Colored pencils (at least 6 colors per student)", "quantity": "28 sets", "source_origin": "scaffolded" },
+    { "name": "Organelle card deck (one organelle per card, back shows function)", "quantity": "1 deck per pair", "source_origin": "scaffolded" },
+    { "name": "Exit ticket slips", "quantity": "28", "source_origin": "scaffolded" }
+  ],
+  "lesson_steps": [
+    {
+      "step": 1, "minutes": 5,
+      "teacher_action": "Ask: 'What makes a city work? Think about what happens when the power goes out, or the mayor is sick, or the factories stop producing.' Write student answers in a rough web on the board.",
+      "student_action": "Brainstorm parts of a city and their jobs. Respond aloud or in notebooks.",
+      "source_origin": "generated"
+    },
+    {
+      "step": 2, "minutes": 8,
+      "teacher_action": "Pivot: 'Every cell in your body is basically a tiny city. Let's find each of those city parts inside the cell.' Reveal the Cell-as-City anchor poster. Introduce the six organelles by pointing at the poster: 'This is city hall — that's the nucleus. This is the power plant — that's mitochondria.'",
+      "student_action": "Take brief notes on the metaphor mapping. Each organelle gets one line: name + what it does.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 3, "minutes": 12,
+      "teacher_action": "Distribute diagrams (plant AND animal) and colored pencils. Assign each organelle a color. Have students label AND color each organelle on both diagrams. Circulate; correct mislabeling while it's still fresh.",
+      "student_action": "Label and color the six organelles on both plant and animal cell diagrams. Ask a neighbor if stuck on one.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 4, "minutes": 10,
+      "teacher_action": "Introduce the card deck. In pairs, students play a matching game: one partner holds up an organelle-name card, the other describes the function WITHOUT flipping the card over. Swap roles after each round.",
+      "student_action": "Play the card-match game with a partner. Each student does at least three rounds on each side.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 5, "minutes": 8,
+      "teacher_action": "Bring the class back. Ask three quick questions to the whole group: 'Plant cells have one organelle animal cells don't — which? Why does that organelle only show up in plants? What's the MAIN job of mitochondria?'",
+      "student_action": "Volunteer answers or turn-and-talk for 30 seconds before responding.",
+      "source_origin": "scaffolded"
+    },
+    {
+      "step": 6, "minutes": 7,
+      "teacher_action": "Hand out exit tickets. Students work independently. No talking.",
+      "student_action": "Complete the exit ticket.",
+      "source_origin": "scaffolded"
+    }
+  ],
+  "engagement": {
+    "type": "discussion",
+    "prompt": "If your body suddenly stopped making ribosomes, what do you think would happen — and how long until you noticed? (Hint: ribosomes make proteins. What do you use proteins for?)",
+    "minutes": 4,
+    "source_origin": "generated"
+  },
+  "demo": {
+    "description": "Show the Cell-as-City anchor poster and walk through the metaphor interactively: 'What happens in a city if the power plant fails? Mitochondria are the power plant. Same thing here — no energy, cell shuts down.' Build each organelle-to-city-part link live, inviting students to guess before revealing.",
+    "materials_needed": ["Cell-as-City anchor poster"],
+    "teacher_tip": "The metaphor only works if students connect city-function to cell-function. If a student asks 'why is the nucleus city hall?' — great question. Answer: city hall holds the rules and plans. The nucleus holds DNA, which is the rules and plans for the cell.",
+    "safety_notes": null,
+    "source_origin": "generated"
+  },
+  "guided_practice": {
+    "description": "Students label two cell diagrams (plant + animal) using a color-coded system. Teacher circulates and corrects in real time. The color-matching step makes mislabeling visually obvious — wrong color in wrong place is instantly visible.",
+    "format": "whole_class",
+    "duration_minutes": 12,
+    "source_origin": "scaffolded"
+  },
+  "independent_practice": {
+    "description": "On the exit ticket, each student draws a simple cell and labels four organelles of their choice with one-sentence functions. Their choice of four makes cheating off a neighbor less useful.",
+    "duration_minutes": 5,
+    "deliverable": "A labeled cell sketch with four organelles and their functions.",
+    "source_origin": "scaffolded"
+  },
+  "assessment": {
+    "format": "exit_ticket",
+    "questions": [
+      {
+        "id": "q1",
+        "question": "Name the organelle that controls what goes in and out of the cell, and describe its job in one sentence.",
+        "expected_answer": "Cell membrane — it controls which molecules can enter or leave the cell (selectively permeable).",
+        "rubric_notes": "Full credit for naming cell membrane AND gatekeeper function. Half credit for naming without function.",
+        "source_origin": "scaffolded"
+      },
+      {
+        "id": "q2",
+        "question": "Which organelle is found in plant cells but NOT animal cells? What does it do?",
+        "expected_answer": "Chloroplast. It captures sunlight and converts it to energy (photosynthesis).",
+        "rubric_notes": "Accept 'cell wall' as an alternative correct answer — 7th graders sometimes learn either.",
+        "source_origin": "scaffolded"
+      },
+      {
+        "id": "q3",
+        "question": "In the city metaphor, mitochondria are the power plant. What does that tell you about what mitochondria do in the cell?",
+        "expected_answer": "They produce energy for the cell (ATP). Without them, the cell can't do its jobs.",
+        "rubric_notes": "Any answer that connects 'power' or 'energy' to mitochondria gets full credit.",
+        "source_origin": "generated"
+      },
+      {
+        "id": "q4",
+        "question": "Name three organelles you'd expect to find in BOTH plant and animal cells.",
+        "expected_answer": "Any three of: nucleus, cell membrane, cytoplasm, mitochondria, ribosomes.",
+        "rubric_notes": "Full credit for any three correct. Do NOT accept chloroplast or cell wall here.",
+        "source_origin": "scaffolded"
+      }
+    ],
+    "estimated_minutes": 6
+  },
+  "teacher_notes": "Seventh graders overindex on memorization and underinvest in understanding. They can recite 'mitochondria is the powerhouse of the cell' without knowing what 'powerhouse' means. Push past recitation: ask 'what does power DO for the cell?' The city metaphor is old but it works precisely because it replaces abstract words with concrete ones. If a student can explain WHY mitochondria are the power plant (energy → cell function), they actually understand. If they can only SAY it, they've memorized a slogan. Grade the exit ticket on explanation, not just naming.",
+  "discussion_prompts": [
+    { "prompt": "Which organelle would be most damaging to lose? Defend your answer.", "purpose": "deepen_understanding", "source_origin": "generated" },
+    { "prompt": "The city metaphor works well — but where does it break down? What part of a city has no organelle equivalent?", "purpose": "extend_beyond_lesson", "source_origin": "generated" },
+    { "prompt": "Bacteria are cells too, but they don't have a nucleus. How do you think they hold their DNA?", "purpose": "extend_beyond_lesson", "source_origin": "generated" },
+    { "prompt": "Your body makes new cells all the time. Where do the new organelles come from — do they appear from nothing, or do they split off the old ones?", "purpose": "deepen_understanding", "source_origin": "generated" }
+  ],
+  "vocabulary": [
+    { "term": "organelle", "definition": "A specialized part of a cell with a specific job.", "example": "The nucleus is an organelle.", "source_origin": "scaffolded" },
+    { "term": "nucleus", "definition": "The organelle that holds DNA and controls the cell's activities.", "example": "Every human cell (except red blood cells) has a nucleus.", "source_origin": "scaffolded" },
+    { "term": "mitochondria", "definition": "Organelles that produce energy (ATP) for the cell.", "example": "Muscle cells have extra mitochondria because they need lots of energy.", "source_origin": "scaffolded" },
+    { "term": "ribosomes", "definition": "Tiny organelles that build proteins.", "example": "Ribosomes read instructions from DNA and assemble amino acids into proteins.", "source_origin": "scaffolded" },
+    { "term": "cell membrane", "definition": "The outer layer that controls what enters and leaves the cell.", "example": "Oxygen passes through the cell membrane; large molecules usually can't.", "source_origin": "scaffolded" },
+    { "term": "cytoplasm", "definition": "The jelly-like fluid inside the cell that holds the organelles.", "example": "When you bite into a grape, the juice inside is kind of like cytoplasm.", "source_origin": "scaffolded" },
+    { "term": "chloroplast", "definition": "An organelle in plant cells that captures sunlight for energy.", "example": "Chloroplasts contain chlorophyll, which is why plants are green.", "source_origin": "scaffolded" }
+  ],
+  "misconceptions": [
+    { "misconception": "Plant cells and animal cells are fundamentally different types of life.", "correction": "They're both eukaryotic cells. They share most organelles; plants just have a few extras (chloroplast, cell wall, large vacuole).", "how_to_address": "After the diagram step, hold up both side by side. Point at all the organelles they share. Ask students to count how many are the same vs different." },
+    { "misconception": "Mitochondria 'make' energy from nothing.", "correction": "Mitochondria convert energy from food (glucose) into a form the cell can use (ATP). They don't create it from scratch.", "how_to_address": "Connect to the earlier photosynthesis unit: plants capture solar energy → stored in glucose → animals eat plants → mitochondria extract the energy. The chain matters." },
+    { "misconception": "Ribosomes live inside the nucleus.", "correction": "Ribosomes are in the cytoplasm (some are attached to the endoplasmic reticulum, which we'll cover later). The nucleus makes the INSTRUCTIONS that ribosomes use, but the ribosomes work outside.", "how_to_address": "Point this out during the color-coding step. If a student shades ribosomes inside the nucleus, redirect before they finish." }
+  ],
+  "differentiation": {
+    "struggling": "Reduce the organelle count from 6 to 4 (nucleus, cell membrane, mitochondria, cytoplasm). Skip chloroplast for now. Provide a partially-filled organelle-matching card deck.",
+    "advanced": "Ask them to research and add two more organelles (endoplasmic reticulum, Golgi apparatus) and map them onto the city metaphor. Where would they fit? Why?",
+    "multilingual_learners": "Many organelle names are Greek or Latin, which can be confusing. Where possible, mention the root meaning: 'mitochondria' = 'thread granule,' 'chloroplast' = 'green form.' This helps students who are decoding the word, not just memorizing it. Provide a word bank in their first language if available.",
+    "source_origin": "generated"
+  },
+  "accommodations": {
+    "visual_supports": "Provide the cell diagrams in high-contrast (black line on white, not faded gray). For a student with low vision, enlarge the diagram to at least 150% and include raised-line / embossed versions of the two cell types. Color-coding is central to this lesson — if a student has color blindness, pair color with pattern (hatching, dots, stripes) on the anchor poster.",
+    "auditory_supports": "Write the organelle names on the board as you introduce them orally. Caption the three quick-review questions in step 5 in writing. For the card-deck game, pair the student with a peer who signs or writes; allow the game to be played silently.",
+    "motor_supports": "For students with fine-motor difficulties, pre-label the diagram with faint guides they trace over rather than write. The card-deck game can be played by pointing at the card instead of flipping it. Voice-dictation is acceptable for the exit ticket.",
+    "cognitive_supports": "Pre-teach 'organelle' and the six names the day before. Provide a reference card with all six organelles, colors, and one-sentence functions that stays on the desk. Reduce the discussion prompt pool from 4 to 2 for students who need less choice overload. Chunk the lesson into halves — city metaphor first, then diagram-labeling after a short break.",
+    "behavioral_supports": "The card-deck game can be peer-sensitive; offer a solo variant where the student plays against the teacher. The exit ticket's independent silent time may be difficult; allow noise-canceling headphones or a quiet corner.",
+    "general_notes": "This lesson is information-dense. Consider splitting it into two class periods for students with processing speed differences — day 1 is the city metaphor + diagram, day 2 is the card game + assessment.",
+    "source_origin": "generated"
+  },
+  "homework": null,
+  "enrichment": {
+    "description": "Research one organelle we didn't cover (endoplasmic reticulum, Golgi apparatus, lysosomes, or vacuole). Write a one-paragraph 'city job description' for it that fits the metaphor we built today.",
+    "for_students_who": "finished the exit ticket early and want more, or want extra credit",
+    "source_origin": "generated"
+  },
+  "standards_alignment": {
+    "standards_cited": [
+      { "framework": "NGSS", "code": "MS-LS1-2", "description": "Develop and use a model to describe the function of a cell as a whole and ways the parts of cells contribute to the function." },
+      { "framework": "NGSS", "code": "MS-LS1-1", "description": "Conduct an investigation to provide evidence that living things are made of cells; either one cell or many different numbers and types of cells." }
+    ],
+    "confidence": "inferred",
+    "notes": "Primary alignment is MS-LS1-2 (cell model + function). The city metaphor IS the model."
+  },
+  "generated_by": {
+    "hunter_contribution_ids": ["build-hunter-seed05", "package-hunter-seed05"],
+    "christine_contribution_ids": ["build-christine-seed05", "package-christine-seed05"],
+    "review_id": "review-seed05"
+  },
+  "source_summary": {
+    "source_id": null,
+    "overall_grounding": "no_source",
+    "grounded_section_count": 0,
+    "generated_section_count": 8
+  }
+}
