@@ -184,6 +184,89 @@ export function mergePackages(input: MergeInput): LessonPackage {
 }
 
 // ──────────────────────────────────────────────────────────────────────
+// Fuzzy dedupe
+// ──────────────────────────────────────────────────────────────────────
+
+/**
+ * Normalize a string for fuzzy comparison: lowercase, strip punctuation,
+ * collapse whitespace, drop trailing plural 's' on each token. Then
+ * return the set of tokens ≥ 3 characters.
+ *
+ * Lets "ruler" match "rulers", "heavy textbook (1 set)" match
+ * "heavy textbooks", "simple machine quiz" match "Simple Machines Quiz".
+ */
+function tokens(s: string): Set<string> {
+  const cleaned = s
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const bag = new Set<string>();
+  for (const t of cleaned.split(" ")) {
+    if (t.length < 3) continue;
+    const singular = t.endsWith("s") && t.length > 3 ? t.slice(0, -1) : t;
+    bag.add(singular);
+  }
+  return bag;
+}
+
+/** Jaccard similarity: |A ∩ B| / |A ∪ B|. */
+function jaccard(a: Set<string>, b: Set<string>): number {
+  if (a.size === 0 || b.size === 0) return 0;
+  let inter = 0;
+  for (const t of a) if (b.has(t)) inter++;
+  const union = a.size + b.size - inter;
+  return union === 0 ? 0 : inter / union;
+}
+
+/** True if two strings share enough tokens to count as the same item. */
+function isFuzzyDuplicate(
+  a: string,
+  b: string,
+  threshold: number = 0.6,
+): boolean {
+  const ta = tokens(a);
+  const tb = tokens(b);
+  // Exact-normalized match is always a duplicate.
+  if (ta.size === tb.size && [...ta].every((t) => tb.has(t))) return true;
+  // One side fully contained in the other (handles "rulers" vs "ruler, eraser, textbook set").
+  const smaller = ta.size <= tb.size ? ta : tb;
+  const larger = ta.size <= tb.size ? tb : ta;
+  if (smaller.size > 0) {
+    let containedCount = 0;
+    for (const t of smaller) if (larger.has(t)) containedCount++;
+    const containment = containedCount / smaller.size;
+    if (containment >= 0.8 && smaller.size >= 1) return true;
+  }
+  // Otherwise use Jaccard threshold.
+  return jaccard(ta, tb) >= threshold;
+}
+
+/**
+ * Dedupe a sequence of items by a text key using fuzzy match.
+ * Preserves order; keeps the FIRST occurrence when a match is found.
+ */
+function fuzzyDedupe<T>(
+  items: T[],
+  key: (item: T) => string,
+  threshold?: number,
+): T[] {
+  const kept: T[] = [];
+  const keptKeys: string[] = [];
+  for (const item of items) {
+    const k = key(item);
+    const already = keptKeys.some((existing) =>
+      isFuzzyDuplicate(existing, k, threshold),
+    );
+    if (!already) {
+      kept.push(item);
+      keptKeys.push(k);
+    }
+  }
+  return kept;
+}
+
+// ──────────────────────────────────────────────────────────────────────
 // Helpers
 // ──────────────────────────────────────────────────────────────────────
 
@@ -201,62 +284,38 @@ function resolveTitle(hunterTitle: string, christineTitle: string): string {
 }
 
 function unionMaterials(hunter: Material[], christine: Material[]): Material[] {
-  const seen = new Set<string>();
-  const merged: Material[] = [];
-  for (const m of [...hunter, ...christine]) {
-    const key = m.name.trim().toLowerCase();
-    if (!seen.has(key)) {
-      seen.add(key);
-      merged.push(m);
-    }
-  }
-  return merged;
+  // Materials are lenient — Hunter's "ruler, eraser, textbook (1 set)" should
+  // absorb Christine's separate "rulers / erasers / textbooks" entries.
+  return fuzzyDedupe([...hunter, ...christine], (m) => m.name, 0.5);
 }
 
 function unionDiscussionPrompts(
   primary: DiscussionPrompt[],
   secondary: DiscussionPrompt[],
 ): DiscussionPrompt[] {
-  const seen = new Set<string>();
-  const merged: DiscussionPrompt[] = [];
-  for (const p of [...primary, ...secondary]) {
-    const key = p.prompt.trim().toLowerCase();
-    if (!seen.has(key)) {
-      seen.add(key);
-      merged.push(p);
-    }
-  }
-  return merged;
+  // Prompts often differ only in softener words; tighter threshold.
+  return fuzzyDedupe(
+    [...primary, ...secondary],
+    (p) => p.prompt,
+    0.55,
+  );
 }
 
 function unionVocabulary(
   primary: VocabularyTerm[],
   secondary: VocabularyTerm[],
 ): VocabularyTerm[] {
-  const seen = new Set<string>();
-  const merged: VocabularyTerm[] = [];
-  for (const t of [...primary, ...secondary]) {
-    const key = t.term.trim().toLowerCase();
-    if (!seen.has(key)) {
-      seen.add(key);
-      merged.push(t);
-    }
-  }
-  return merged;
+  // Vocabulary dedupes on the term alone (not the definition).
+  return fuzzyDedupe([...primary, ...secondary], (t) => t.term, 0.7);
 }
 
 function unionMisconceptions(
   primary: Misconception[],
   secondary: Misconception[],
 ): Misconception[] {
-  const seen = new Set<string>();
-  const merged: Misconception[] = [];
-  for (const m of [...primary, ...secondary]) {
-    const key = m.misconception.trim().toLowerCase();
-    if (!seen.has(key)) {
-      seen.add(key);
-      merged.push(m);
-    }
-  }
-  return merged;
+  return fuzzyDedupe(
+    [...primary, ...secondary],
+    (m) => m.misconception,
+    0.55,
+  );
 }
