@@ -133,6 +133,34 @@ Your job in this phase: emit a complete scaffold using the emit_lesson_scaffold 
 
 Do your best on first pass — don't hold back expecting review to fix things — but know that review will catch the things you miss.`;
 
+/**
+ * Appended to Phase 1 prompts when Review flagged the FIRST attempt with
+ * must-fix issues. Includes the previous scaffold and the review findings
+ * so the model can write a structurally improved second pass.
+ */
+export function buildRetryAddendum(args: {
+  previousScaffold: unknown;
+  partnerScaffold: unknown;
+  review: unknown;
+}): string {
+  return [
+    "",
+    "---",
+    "RETRY CONTEXT: Your first pass had must-fix issues per the review. Below is your previous scaffold, your partner's previous scaffold, and the review findings. Produce a second pass that resolves the must-fix issues. Stay in your ownership area.",
+    "",
+    "--- YOUR PREVIOUS SCAFFOLD ---",
+    JSON.stringify(args.previousScaffold, null, 2),
+    "",
+    "--- PARTNER'S PREVIOUS SCAFFOLD (do not revise their fields) ---",
+    JSON.stringify(args.partnerScaffold, null, 2),
+    "",
+    "--- REVIEW FINDINGS ---",
+    JSON.stringify(args.review, null, 2),
+    "",
+    "Re-emit the COMPLETE scaffold with corrections applied. The merge layer expects a full Phase 1 scaffold, not a delta.",
+  ].join("\n");
+}
+
 export const PHASE_3_PACKAGE_ADDENDUM = `
 
 ---

@@ -22,6 +22,7 @@ import {
   buildContext,
   buildReviewContext,
   buildPhase3Context,
+  buildRetryAddendum,
   type ContextInput,
 } from "./personas";
 import { SCAFFOLD_TOOL, PACKAGE_TOOL, REVIEW_TOOL } from "./tools";
@@ -129,7 +130,7 @@ export async function orchestrate({ runId }: OrchestrateOptions): Promise<void> 
     emit(runId, "review_start", {});
 
     const reviewStart = Date.now();
-    const review = await runReview({
+    let review = await runReview({
       runId,
       baseContext,
       hunterBuild: hunterBuild.scaffold,
@@ -144,6 +145,91 @@ export async function orchestrate({ runId }: OrchestrateOptions): Promise<void> 
     });
     emit(runId, "review_complete", { review });
 
+    // ─── Regenerate-on-must-fix ─────────────────────────────────────
+    // If Review flagged must-fix issues, give Build one more pass with
+    // the review findings in context. Bounded to a single retry so we
+    // don't loop infinitely. After regen, re-run Review on the new
+    // scaffolds so Phase 3 sees the updated findings.
+    let activeHunterBuild = hunterBuild;
+    let activeChristineBuild = christineBuild;
+    if (review.must_fix_count > 0) {
+      timings.retried_due_to_must_fix = true;
+      await setStatus(runId, "building");
+      emit(runId, "phase_start", { phase: "building", reason: "regenerate_on_must_fix" });
+
+      const retryStart = Date.now();
+      const [hunterRetry, christineRetry] = await Promise.all([
+        runPersona({
+          runId,
+          persona: "hunter",
+          systemPrompt: HUNTER_SYSTEM_PROMPT + PHASE_1_BUILD_ADDENDUM,
+          userPrompt:
+            baseContext +
+            buildRetryAddendum({
+              previousScaffold: hunterBuild.scaffold,
+              partnerScaffold: christineBuild.scaffold,
+              review,
+            }),
+          tool: SCAFFOLD_TOOL,
+          usage,
+        }),
+        runPersona({
+          runId,
+          persona: "christine",
+          systemPrompt: CHRISTINE_SYSTEM_PROMPT + PHASE_1_BUILD_ADDENDUM,
+          userPrompt:
+            baseContext +
+            buildRetryAddendum({
+              previousScaffold: christineBuild.scaffold,
+              partnerScaffold: hunterBuild.scaffold,
+              review,
+            }),
+          tool: SCAFFOLD_TOOL,
+          usage,
+        }),
+      ]);
+      timings.build_retry_ms = Date.now() - retryStart;
+
+      activeHunterBuild = hunterRetry;
+      activeChristineBuild = christineRetry;
+
+      await prisma.lessonRun.update({
+        where: { id: runId },
+        data: {
+          hunterBuild: hunterRetry.scaffold as unknown as object,
+          christineBuild: christineRetry.scaffold as unknown as object,
+        },
+      });
+      emit(runId, "hunter_complete", {
+        latencyMs: hunterRetry.latencyMs,
+        scaffold: hunterRetry.scaffold,
+        retry: true,
+      });
+      emit(runId, "christine_complete", {
+        latencyMs: christineRetry.latencyMs,
+        scaffold: christineRetry.scaffold,
+        retry: true,
+      });
+
+      // Re-run Review on the regenerated scaffolds.
+      await setStatus(runId, "reviewing");
+      emit(runId, "review_start", { retry: true });
+      const reviewRetryStart = Date.now();
+      review = await runReview({
+        runId,
+        baseContext,
+        hunterBuild: hunterRetry.scaffold,
+        christineBuild: christineRetry.scaffold,
+        usage,
+      });
+      timings.review_retry_ms = Date.now() - reviewRetryStart;
+      await prisma.lessonRun.update({
+        where: { id: runId },
+        data: { review: review as unknown as object },
+      });
+      emit(runId, "review_complete", { review, retry: true });
+    }
+
     // ─── Phase 3: Package ────────────────────────────────────────────
     await setStatus(runId, "packaging");
     emit(runId, "phase_start", { phase: "packaging" });
@@ -151,8 +237,8 @@ export async function orchestrate({ runId }: OrchestrateOptions): Promise<void> 
     const packageStart = Date.now();
     const phase3Context = buildPhase3Context({
       baseContext,
-      hunterBuild: hunterBuild.scaffold,
-      christineBuild: christineBuild.scaffold,
+      hunterBuild: activeHunterBuild.scaffold,
+      christineBuild: activeChristineBuild.scaffold,
       review,
     });
 
@@ -178,11 +264,11 @@ export async function orchestrate({ runId }: OrchestrateOptions): Promise<void> 
     timings.package_hunter_ms = hunterDelta.latencyMs;
     timings.package_christine_ms = christineDelta.latencyMs;
 
-    // Apply each delta on top of its Phase 1 scaffold to produce the
-    // effective Phase 3 scaffold that the merge layer consumes.
-    const hunterPackage = applyDelta(hunterBuild.scaffold, hunterDelta.delta);
+    // Apply each delta on top of its (post-retry, if any) Phase 1 scaffold
+    // to produce the effective Phase 3 scaffold that the merge layer consumes.
+    const hunterPackage = applyDelta(activeHunterBuild.scaffold, hunterDelta.delta);
     const christinePackage = applyDelta(
-      christineBuild.scaffold,
+      activeChristineBuild.scaffold,
       christineDelta.delta,
     );
 

@@ -372,6 +372,10 @@ export interface PhaseTimings {
   package_hunter_ms: number;
   package_christine_ms: number;
   total_ms: number;
+  /** Set when regenerate-on-must-fix triggered a second Build pass. */
+  build_retry_ms?: number;
+  review_retry_ms?: number;
+  retried_due_to_must_fix?: boolean;
 }
 
 export interface TokenUsage {
