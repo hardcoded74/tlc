@@ -62,6 +62,54 @@ npm run dev
 | `npm run db:seed`     | Load gallery lessons from `examples/seed_lessons/`   |
 | `npm run db:studio`   | Open Prisma Studio to inspect rows                   |
 
+## Deploying to Vercel
+
+```bash
+# 1. Install the Vercel CLI if you don't have it
+npm i -g vercel
+
+# 2. Link the repo to a Vercel project
+vercel link
+
+# 3. Set environment variables (or use the Vercel dashboard)
+vercel env add GOOGLE_AI_STUDIO_KEY production
+vercel env add DATABASE_URL production
+vercel env add IP_SALT production
+vercel env add CRON_SECRET production    # openssl rand -hex 32
+vercel env add NEXT_PUBLIC_APP_URL production    # https://your-deploy.vercel.app
+
+# 4. Deploy
+vercel deploy --prod
+```
+
+### Post-deploy checklist
+
+- Hit `https://<deploy>/api/health` — both `gemma_reachable` and `db_reachable` should be `true`.
+- Hit `https://<deploy>/api/test-gemma?persona=hunter` — should return a valid scaffold inside ~75s.
+- Confirm `/gallery` shows the 6 seeded lessons. If not, run `npm run db:seed` against the production `DATABASE_URL`.
+- Set up an uptime monitor pinging `/api/health` every 60s during judging week so functions stay warm and outages are flagged.
+
+### Function durations (configured in `vercel.json`)
+
+| Route | Max duration | Why |
+|---|---|---|
+| `/api/lesson/create` | 300s | Runs the full 3-phase orchestrator (Build → Review → Package). End-to-end ~200s on dense Gemma 4. |
+| `/api/lesson/stream/[id]` | 300s | SSE connection held open while the orchestrator runs. |
+| `/api/test-gemma` | 120s | Single-persona smoke test. |
+| Everything else | 10–30s | Fast read paths. |
+
+**Vercel Pro is required** during judging — Hobby tier caps functions at 60s and `/api/lesson/create` exceeds that.
+
+### Daily prune
+
+`vercel.json` registers a cron at `/api/cron/prune` that runs at 04:00 UTC and deletes:
+
+- `LessonRun` rows past `expiresAt` (30 days), excluding gallery seeds
+- `SourceUpload` rows past `expiresAt` (1 hour)
+- `RateLimitBucket` rows older than 24 hours
+
+Authenticated by `CRON_SECRET`. Vercel automatically attaches the secret to cron invocations.
+
 ## Project Status
 
 Submission target: Gemma 4 Good Hackathon, Impact Track

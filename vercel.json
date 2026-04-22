@@ -1,0 +1,41 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "functions": {
+    "app/api/lesson/create/route.ts": {
+      "maxDuration": 300,
+      "memory": 1024
+    },
+    "app/api/lesson/stream/[id]/route.ts": {
+      "maxDuration": 300,
+      "memory": 1024
+    },
+    "app/api/lesson/[id]/route.ts": {
+      "maxDuration": 30,
+      "memory": 512
+    },
+    "app/api/lesson/[id]/download/route.ts": {
+      "maxDuration": 30,
+      "memory": 512
+    },
+    "app/api/source/upload/route.ts": {
+      "maxDuration": 30,
+      "memory": 512
+    },
+    "app/api/test-gemma/route.ts": {
+      "maxDuration": 120,
+      "memory": 512
+    },
+    "app/api/health/route.ts": {
+      "maxDuration": 10,
+      "memory": 256
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/prune",
+      "schedule": "0 4 * * *"
+    }
+  ]
+}
