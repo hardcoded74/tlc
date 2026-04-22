@@ -1,19 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { PhaseTimings, TokenUsage } from "@/lib/types";
+import type {
+  LessonPackage,
+  PersonaScaffold,
+  PhaseTimings,
+  ReviewReport,
+  TokenUsage,
+} from "@/lib/types";
+import { ContributionBreakdown } from "./contribution-breakdown";
 
 interface InspectorData {
   id: string;
   status: string;
   timings: PhaseTimings | null;
   tokenUsage: TokenUsage | null;
-  hunterBuild: unknown;
-  christineBuild: unknown;
-  review: unknown;
-  hunterPackage: unknown;
-  christinePackage: unknown;
-  finalPackage: unknown;
+  hunterBuild: PersonaScaffold | null;
+  christineBuild: PersonaScaffold | null;
+  review: ReviewReport | null;
+  hunterPackage: PersonaScaffold | null;
+  christinePackage: PersonaScaffold | null;
+  finalPackage: LessonPackage | null;
   errorLog: unknown;
 }
 
@@ -97,6 +104,18 @@ export function JudgeInspector({ runId }: { runId: string }) {
           <PhaseBar timings={data.timings} />
         </div>
       )}
+
+      <div className="px-5 pb-5 border-t border-hunter-100 pt-4">
+        <p className="text-xs font-medium text-hunter-700 mb-3">
+          Persona contribution breakdown
+        </p>
+        <ContributionBreakdown
+          hunterBuild={data.hunterBuild}
+          christineBuild={data.christineBuild}
+          review={data.review}
+          finalPackage={data.finalPackage}
+        />
+      </div>
 
       {isOpen && (
         <div className="px-5 pb-5 space-y-4 border-t border-hunter-100 pt-4">
