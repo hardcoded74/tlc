@@ -34,9 +34,11 @@ export function gemmaClient(): GoogleGenAI {
 // Model ID — pinned via env so we can swap without redeploying code.
 // AI Studio surfaces two Gemma 4 variants as of 2026-04: gemma-4-26b-a4b-it
 // (MoE, ~4B active params, fast) and gemma-4-31b-it (dense, stronger, slower).
-// Default to the MoE for demo latency; override via GEMMA_MODEL_ID.
+// Default to the dense 31b for structured-output accuracy — the MoE had
+// visible drift between Build and Package in the simple-machines test run.
+// Override via GEMMA_MODEL_ID env var.
 export const MODEL_ID =
-  process.env.GEMMA_MODEL_ID ?? "gemma-4-26b-a4b-it";
+  process.env.GEMMA_MODEL_ID ?? "gemma-4-31b-it";
 
 // ──────────────────────────────────────────────────────────────────────
 // Public call shape

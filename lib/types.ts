@@ -261,6 +261,14 @@ export interface PersonaScaffold {
   handoff_notes: HandoffNote[];
 }
 
+/**
+ * Delta-shape returned by Phase 3. Every field optional except persona;
+ * merge layer fills unset fields from the Phase 1 scaffold.
+ */
+export type PersonaScaffoldDelta = Partial<Omit<PersonaScaffold, "persona">> & {
+  persona: "hunter" | "christine";
+};
+
 export interface HandoffNote {
   field: string;
   reason: "partner_owns" | "insufficient_context" | "out_of_scope";

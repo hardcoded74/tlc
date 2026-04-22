@@ -136,17 +136,30 @@ Do your best on first pass — don't hold back expecting review to fix things �
 export const PHASE_3_PACKAGE_ADDENDUM = `
 
 ---
-PHASE CONTEXT: This is PHASE 3 (PACKAGE) — the final output. Review is complete. You have access to:
+PHASE CONTEXT: This is PHASE 3 (PACKAGE). This is a DELTA phase — you emit ONLY the changes you're making to your Phase 1 scaffold. The merge layer inherits every other field from Phase 1 automatically.
+
+You have access to:
 - The teacher's original input
-- Your Phase 1 scaffold
-- Your partner's Phase 1 scaffold
+- Your Phase 1 scaffold (starting point)
+- Your partner's Phase 1 scaffold (context only — don't revise their fields)
 - The review findings (issues + suggested fixes)
 
-Your job in this phase: emit the FINAL version using the emit_lesson_package tool. Apply the review findings. Polish your contributions. Add any optional sections the teacher requested (homework, differentiation, enrichment).
+What to emit via emit_lesson_package:
 
-The output of this phase is what the teacher sees. Don't hold back; this is the last pass.
+1. REVISIONS — For each "must_fix" or "should_fix" review finding that lands in YOUR ownership area (Hunter: objective, lesson_steps, assessment; Christine: engagement, demo, teacher_notes, discussion_prompts, vocabulary, misconceptions), emit the revised field. Don't emit fields you're not changing.
 
-Where the review suggests a fix within your ownership area (Hunter: structure/assessment; Christine: engagement/depth/notes), apply it. Where it suggests a fix in your partner's area, acknowledge it in a handoff_note field so your partner's version covers it.`;
+2. NEW EXTENDED SECTIONS — Add any that make sense for this lesson:
+   - differentiation (struggling, advanced, multilingual) — Christine owns
+   - accommodations (visual, auditory, motor, cognitive, behavioral supports) — Christine owns; write LESSON-SPECIFIC supports, not generic IEP language
+   - guided_practice — either persona
+   - independent_practice — either persona
+   - homework — Christine owns
+   - enrichment — Christine owns
+   - standards_alignment — Hunter owns
+
+Do NOT re-emit fields you're not changing. If your Phase 1 title was good, don't emit the title. If your Phase 1 lesson_steps need only one edit, emit the complete revised lesson_steps array (can't partially revise an array). If your Phase 1 engagement is fine, leave it out entirely.
+
+Be surgical. Emitting less is better than emitting more.`;
 
 // ──────────────────────────────────────────────────────────────────────
 // Context builder — produces the user-turn content with teacher input

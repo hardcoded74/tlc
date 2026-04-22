@@ -45,6 +45,19 @@ export function LessonPackageView({ pkg }: { pkg: LessonPackage }) {
         ))}
       </nav>
 
+      <div className="px-6 py-2 bg-hunter-50/30 border-b border-hunter-100 text-xs text-(--color-muted) flex flex-wrap items-center gap-3">
+        <span>Section ownership:</span>
+        <span className="inline-flex items-center gap-1.5">
+          <OwnerBadge owner="hunter" /> Hunter (structure)
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <OwnerBadge owner="christine" /> Christine (depth)
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <OwnerBadge owner="union" /> Both contributed
+        </span>
+      </div>
+
       <div className="px-6 py-6 lesson-prose text-[15px]">
         {active === "plan" && <PlanTab pkg={pkg} />}
         {active === "materials" && <MaterialsTab pkg={pkg} />}
@@ -64,29 +77,67 @@ export function LessonPackageView({ pkg }: { pkg: LessonPackage }) {
   );
 }
 
+type Owner = "hunter" | "christine" | "union";
+
 function Section({
   title,
+  owner,
   children,
 }: {
   title: string;
+  owner?: Owner;
   children: React.ReactNode;
 }) {
   return (
     <section className="mb-6">
-      <h3 className="font-serif text-lg text-ink mb-2">{title}</h3>
+      <h3 className="font-serif text-lg text-ink mb-2 flex items-center gap-2">
+        <span>{title}</span>
+        {owner && <OwnerBadge owner={owner} />}
+      </h3>
       {children}
     </section>
+  );
+}
+
+const OWNER_COPY: Record<Owner, { label: string; bg: string; tooltip: string }> = {
+  hunter: {
+    label: "H",
+    bg: "bg-hunter-700 text-white",
+    tooltip: "Hunter owns this section (structure & rigor).",
+  },
+  christine: {
+    label: "C",
+    bg: "bg-christine-500 text-white",
+    tooltip: "Christine owns this section (depth & engagement).",
+  },
+  union: {
+    label: "H+C",
+    bg: "bg-gradient-to-r from-hunter-500 to-christine-500 text-white",
+    tooltip: "Both personas contributed; merged with dedupe.",
+  },
+};
+
+function OwnerBadge({ owner }: { owner: Owner }) {
+  const copy = OWNER_COPY[owner];
+  return (
+    <span
+      className={`inline-flex items-center justify-center min-w-6 h-5 px-1.5 rounded-full text-[10px] font-semibold tracking-wide ${copy.bg}`}
+      title={copy.tooltip}
+      aria-label={copy.tooltip}
+    >
+      {copy.label}
+    </span>
   );
 }
 
 function PlanTab({ pkg }: { pkg: LessonPackage }) {
   return (
     <>
-      <Section title="Overview">
+      <Section title="Overview" owner="union">
         <p className="leading-relaxed">{pkg.overview}</p>
       </Section>
 
-      <Section title="Lesson steps">
+      <Section title="Lesson steps" owner="hunter">
         <ol className="space-y-3 list-none pl-0">
           {pkg.lesson_steps.map((s) => (
             <li key={s.step} className="pl-4 border-l-2 border-hunter-100">
@@ -110,7 +161,7 @@ function PlanTab({ pkg }: { pkg: LessonPackage }) {
 
 function MaterialsTab({ pkg }: { pkg: LessonPackage }) {
   return (
-    <Section title="Materials">
+    <Section title="Materials" owner="union">
       {pkg.materials.length === 0 ? (
         <p className="text-(--color-muted) italic">No materials listed.</p>
       ) : (
@@ -131,7 +182,7 @@ function MaterialsTab({ pkg }: { pkg: LessonPackage }) {
 function ActivitiesTab({ pkg }: { pkg: LessonPackage }) {
   return (
     <>
-      <Section title={`Engagement · ${pkg.engagement.minutes} min`}>
+      <Section title={`Engagement · ${pkg.engagement.minutes} min`} owner="christine">
         <p className="text-xs font-medium text-christine-700 mb-1">
           {pkg.engagement.type.replace(/_/g, " ")}
           <SourcePill origin={pkg.engagement.source_origin} />
@@ -140,7 +191,7 @@ function ActivitiesTab({ pkg }: { pkg: LessonPackage }) {
       </Section>
 
       {pkg.demo && (
-        <Section title="Demonstration">
+        <Section title="Demonstration" owner="christine">
           <p className="leading-relaxed">
             {pkg.demo.description}
             <SourcePill origin={pkg.demo.source_origin} />
@@ -164,7 +215,7 @@ function ActivitiesTab({ pkg }: { pkg: LessonPackage }) {
       )}
 
       {pkg.guided_practice && (
-        <Section title={`Guided practice · ${pkg.guided_practice.duration_minutes} min`}>
+        <Section title={`Guided practice · ${pkg.guided_practice.duration_minutes} min`} owner="union">
           <p className="text-xs text-(--color-muted) mb-1">
             {pkg.guided_practice.format.replace(/_/g, " ")}
             <SourcePill origin={pkg.guided_practice.source_origin} />
@@ -174,7 +225,7 @@ function ActivitiesTab({ pkg }: { pkg: LessonPackage }) {
       )}
 
       {pkg.independent_practice && (
-        <Section title={`Independent practice · ${pkg.independent_practice.duration_minutes} min`}>
+        <Section title={`Independent practice · ${pkg.independent_practice.duration_minutes} min`} owner="union">
           <p>
             {pkg.independent_practice.description}
             <SourcePill origin={pkg.independent_practice.source_origin} />
@@ -192,7 +243,7 @@ function ActivitiesTab({ pkg }: { pkg: LessonPackage }) {
 
 function AssessmentTab({ pkg }: { pkg: LessonPackage }) {
   return (
-    <Section title={`Assessment · ${pkg.assessment.format.replace(/_/g, " ")} · ${pkg.assessment.estimated_minutes} min`}>
+    <Section title={`Assessment · ${pkg.assessment.format.replace(/_/g, " ")} · ${pkg.assessment.estimated_minutes} min`} owner="hunter">
       <ol className="space-y-4 list-none pl-0">
         {pkg.assessment.questions.map((q) => (
           <li key={q.id} className="pl-4 border-l-2 border-hunter-100">
@@ -220,13 +271,13 @@ function NotesTab({ pkg }: { pkg: LessonPackage }) {
   return (
     <>
       {pkg.teacher_notes && (
-        <Section title="Teacher notes">
+        <Section title="Teacher notes" owner="christine">
           <p className="whitespace-pre-wrap">{pkg.teacher_notes}</p>
         </Section>
       )}
 
       {pkg.discussion_prompts.length > 0 && (
-        <Section title="Discussion prompts">
+        <Section title="Discussion prompts" owner="christine">
           <ul className="space-y-2">
             {pkg.discussion_prompts.map((d, i) => (
               <li key={i}>
@@ -242,7 +293,7 @@ function NotesTab({ pkg }: { pkg: LessonPackage }) {
       )}
 
       {pkg.vocabulary.length > 0 && (
-        <Section title="Vocabulary">
+        <Section title="Vocabulary" owner="christine">
           <dl className="space-y-2">
             {pkg.vocabulary.map((v, i) => (
               <div key={i}>
@@ -265,7 +316,7 @@ function NotesTab({ pkg }: { pkg: LessonPackage }) {
       )}
 
       {pkg.misconceptions.length > 0 && (
-        <Section title="Common misconceptions">
+        <Section title="Common misconceptions" owner="christine">
           <ul className="space-y-3">
             {pkg.misconceptions.map((m, i) => (
               <li key={i} className="pl-3 border-l-2 border-christine-300">
@@ -285,7 +336,7 @@ function NotesTab({ pkg }: { pkg: LessonPackage }) {
       )}
 
       {pkg.differentiation && (
-        <Section title="Differentiation">
+        <Section title="Differentiation" owner="christine">
           <p>
             <strong>Struggling:</strong> {pkg.differentiation.struggling}
           </p>
@@ -304,7 +355,7 @@ function NotesTab({ pkg }: { pkg: LessonPackage }) {
       {pkg.accommodations && <AccommodationsBlock a={pkg.accommodations} />}
 
       {pkg.homework && (
-        <Section title={`Homework${pkg.homework.optional ? " (optional)" : ""}`}>
+        <Section title={`Homework${pkg.homework.optional ? " (optional)" : ""}`} owner="christine">
           <p>{pkg.homework.description}</p>
           <p className="text-sm text-(--color-muted) mt-1">
             Estimated {pkg.homework.estimated_minutes} min
@@ -313,7 +364,7 @@ function NotesTab({ pkg }: { pkg: LessonPackage }) {
       )}
 
       {pkg.enrichment && (
-        <Section title="Enrichment">
+        <Section title="Enrichment" owner="christine">
           <p className="text-sm text-(--color-muted) mb-1">
             For students who: {pkg.enrichment.for_students_who}
           </p>
@@ -322,7 +373,7 @@ function NotesTab({ pkg }: { pkg: LessonPackage }) {
       )}
 
       {pkg.standards_alignment?.standards_cited.length && (
-        <Section title="Standards">
+        <Section title="Standards" owner="hunter">
           <ul className="space-y-1.5">
             {pkg.standards_alignment.standards_cited.map((s, i) => (
               <li key={i}>
@@ -356,7 +407,7 @@ function AccommodationsBlock({ a }: { a: NonNullable<LessonPackage["accommodatio
   if (active.length === 0 && !a.general_notes) return null;
 
   return (
-    <Section title="Accommodations for students with disabilities">
+    <Section title="Accommodations for students with disabilities" owner="christine">
       <p className="text-sm text-(--color-muted) mb-3">
         Specific supports for IEP/504 accommodations tied to this lesson&rsquo;s
         content. Pair with the student&rsquo;s existing plan.

@@ -256,6 +256,31 @@ export const PersonaScaffoldSchema = z.object({
   handoff_notes: z.array(HandoffNoteSchema).default([]),
 });
 
+/**
+ * Delta-shape emitted by PACKAGE_TOOL in Phase 3. Everything optional
+ * except persona — the merge layer inherits unset fields from the
+ * corresponding Phase 1 scaffold. Extended fields (differentiation,
+ * accommodations, etc.) are attached separately via PackagePhaseExtended.
+ */
+export const PersonaScaffoldDeltaSchema = z.object({
+  persona: z.enum(["hunter", "christine"]),
+  title: z.string().min(1).optional(),
+  objective: z.string().min(1).optional(),
+  grade_level: z.string().min(1).optional(),
+  estimated_minutes: z.number().int().positive().optional(),
+  overview: z.string().min(1).optional(),
+  materials: z.array(MaterialSchema).optional(),
+  lesson_steps: z.array(LessonStepSchema).optional(),
+  engagement: EngagementSchema.optional(),
+  demo: nullishObject(DemonstrationSchema),
+  assessment: AssessmentSchema.optional(),
+  teacher_notes: nullishString(),
+  discussion_prompts: z.array(DiscussionPromptSchema).optional(),
+  vocabulary: z.array(VocabularyTermSchema).optional(),
+  misconceptions: z.array(MisconceptionSchema).optional(),
+  handoff_notes: z.array(HandoffNoteSchema).optional(),
+});
+
 export const ReviewIssueSchema = z.object({
   id: z.string().regex(/^issue-\d+$/),
   issue_type: z.enum([

@@ -320,17 +320,89 @@ export const REVIEW_TOOL: FunctionDeclaration = {
 };
 
 // ──────────────────────────────────────────────────────────────────────
-// PACKAGE — used in Phase 3 (final output per persona)
+// PACKAGE (delta) — used in Phase 3 (final contribution per persona)
+//
+// Emits ONLY fields the persona wants to revise (based on Review findings)
+// plus the optional extended sections that didn't exist in Build. The merge
+// inherits every other field from the Build-phase scaffold. This prevents
+// drift between Build and Package and cuts the Package output by ~50%.
 // ──────────────────────────────────────────────────────────────────────
 
+/**
+ * Minimal required fields — just persona. Every other field is optional.
+ * The persona is told via the addendum to emit only deltas + extended fields.
+ */
 export const PACKAGE_TOOL: FunctionDeclaration = {
   name: "emit_lesson_package",
   description:
-    "Emit the finalized lesson contribution for the Package phase. Applies review findings. Adds optional sections if teacher requested them.",
+    "Emit ONLY the revisions to apply to your Phase 1 scaffold (based on Review findings) plus any optional extended sections (guided/independent practice, differentiation, accommodations, homework, enrichment, standards). Any field you do NOT emit inherits unchanged from your Phase 1 output. This is a DELTA — be surgical, not comprehensive.",
   parameters: {
     type: "object",
     properties: {
-      ...SCAFFOLD_TOOL.parameters.properties,
+      persona: { type: "string", enum: ["hunter", "christine"] },
+      // Revisable scaffold fields — emit a field ONLY if you're revising it
+      // in response to a Review finding. Structure-owned fields are Hunter's
+      // to revise; depth-owned are Christine's; the merge enforces ownership.
+      title: { type: "string", nullable: true, description: "Emit ONLY if revising the title based on a review finding." },
+      objective: { type: "string", nullable: true, description: "Emit ONLY if revising the objective." },
+      overview: { type: "string", nullable: true, description: "Emit ONLY if revising the overview." },
+      estimated_minutes: { type: "integer", nullable: true, description: "Emit ONLY if time allocation is changing." },
+      materials: {
+        type: "array",
+        nullable: true,
+        description: "Emit the COMPLETE materials list ONLY if adding/removing items from the Phase 1 list.",
+        items: (SCAFFOLD_TOOL.parameters.properties.materials as { items: unknown }).items,
+      },
+      lesson_steps: {
+        type: "array",
+        nullable: true,
+        description: "Emit the COMPLETE revised lesson_steps ONLY if restructuring the step sequence based on review findings.",
+        items: LESSON_STEP_PROP,
+      },
+      engagement: {
+        type: "object",
+        nullable: true,
+        description: "Emit ONLY if revising the engagement. Christine owns this; Hunter should not emit.",
+        properties: (ENGAGEMENT_PROP as { properties: unknown }).properties,
+      },
+      demo: {
+        type: "object",
+        nullable: true,
+        description: "Emit ONLY if revising or newly adding the demo. Christine owns this.",
+        properties: ((SCAFFOLD_TOOL.parameters.properties.demo as { properties: unknown }).properties),
+      },
+      assessment: {
+        type: "object",
+        nullable: true,
+        description: "Emit ONLY if revising assessment questions or the answer key. Hunter owns this.",
+        properties: (ASSESSMENT_PROP as { properties: unknown }).properties,
+      },
+      teacher_notes: { type: "string", nullable: true, description: "Emit ONLY if revising. Christine owns this." },
+      discussion_prompts: {
+        type: "array",
+        nullable: true,
+        description: "Emit the complete list ONLY if adding prompts. Christine owns this.",
+        items: ((SCAFFOLD_TOOL.parameters.properties.discussion_prompts as { items: unknown }).items),
+      },
+      vocabulary: {
+        type: "array",
+        nullable: true,
+        description: "Emit the complete list ONLY if adding terms. Christine owns this.",
+        items: ((SCAFFOLD_TOOL.parameters.properties.vocabulary as { items: unknown }).items),
+      },
+      misconceptions: {
+        type: "array",
+        nullable: true,
+        description: "Emit the complete list ONLY if adding entries. Christine owns this.",
+        items: ((SCAFFOLD_TOOL.parameters.properties.misconceptions as { items: unknown }).items),
+      },
+      handoff_notes: {
+        type: "array",
+        nullable: true,
+        items: ((SCAFFOLD_TOOL.parameters.properties.handoff_notes as { items: unknown }).items),
+      },
+      // Grade level is authoritative from Build — don't repeat.
+      grade_level: { type: "string", nullable: true, description: "Optional echo from Phase 1." },
       // Package adds optional fields beyond scaffold:
       differentiation: {
         type: "object",
@@ -430,6 +502,6 @@ export const PACKAGE_TOOL: FunctionDeclaration = {
         required: ["description", "duration_minutes", "source_origin"],
       },
     },
-    required: SCAFFOLD_TOOL.parameters.required,
+    required: ["persona"],
   },
 };

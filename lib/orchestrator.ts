@@ -27,6 +27,7 @@ import {
 import { SCAFFOLD_TOOL, PACKAGE_TOOL, REVIEW_TOOL } from "./tools";
 import {
   PersonaScaffoldSchema,
+  PersonaScaffoldDeltaSchema,
   ReviewReportSchema,
   LessonPackageSchema,
   validateInvariants,
@@ -36,6 +37,7 @@ import type {
   ErrorEntry,
   LessonPackage,
   PersonaScaffold,
+  PersonaScaffoldDelta,
   PhaseTimings,
   ReviewReport,
   RunStatus,
@@ -154,36 +156,42 @@ export async function orchestrate({ runId }: OrchestrateOptions): Promise<void> 
       review,
     });
 
-    const [hunterPackage, christinePackage] = await Promise.all([
-      runPersona({
+    const [hunterDelta, christineDelta] = await Promise.all([
+      runPersonaDelta({
         runId,
         persona: "hunter",
         systemPrompt: HUNTER_SYSTEM_PROMPT + PHASE_3_PACKAGE_ADDENDUM,
         userPrompt: phase3Context,
         tool: PACKAGE_TOOL,
         usage,
-        phase: "package",
       }),
-      runPersona({
+      runPersonaDelta({
         runId,
         persona: "christine",
         systemPrompt: CHRISTINE_SYSTEM_PROMPT + PHASE_3_PACKAGE_ADDENDUM,
         userPrompt: phase3Context,
         tool: PACKAGE_TOOL,
         usage,
-        phase: "package",
       }),
     ]);
     timings.package_ms = Date.now() - packageStart;
-    timings.package_hunter_ms = hunterPackage.latencyMs;
-    timings.package_christine_ms = christinePackage.latencyMs;
+    timings.package_hunter_ms = hunterDelta.latencyMs;
+    timings.package_christine_ms = christineDelta.latencyMs;
+
+    // Apply each delta on top of its Phase 1 scaffold to produce the
+    // effective Phase 3 scaffold that the merge layer consumes.
+    const hunterPackage = applyDelta(hunterBuild.scaffold, hunterDelta.delta);
+    const christinePackage = applyDelta(
+      christineBuild.scaffold,
+      christineDelta.delta,
+    );
 
     const finalPackage = mergeAndValidate({
       runId,
-      hunterPackage: hunterPackage.scaffold,
-      christinePackage: christinePackage.scaffold,
-      hunterPackageExtended: hunterPackage.extended,
-      christinePackageExtended: christinePackage.extended,
+      hunterPackage,
+      christinePackage,
+      hunterPackageExtended: hunterDelta.extended,
+      christinePackageExtended: christineDelta.extended,
       review,
       sourceId: run.sourceUploadId,
       subject: run.subject,
@@ -195,8 +203,8 @@ export async function orchestrate({ runId }: OrchestrateOptions): Promise<void> 
       where: { id: runId },
       data: {
         status: "complete" satisfies RunStatus,
-        hunterPackage: hunterPackage.scaffold as unknown as object,
-        christinePackage: christinePackage.scaffold as unknown as object,
+        hunterPackage: hunterPackage as unknown as object,
+        christinePackage: christinePackage as unknown as object,
         finalPackage: finalPackage as unknown as object,
         timings: timings as unknown as object,
         tokenUsage: usage as unknown as object,
@@ -276,6 +284,87 @@ async function runPersona(args: PersonaRunArgs): Promise<PersonaRunResult> {
     extended: extractExtended(result.toolArgs),
     latencyMs: result.latencyMs,
   };
+}
+
+// ──────────────────────────────────────────────────────────────────────
+// Phase 3 delta helpers
+// ──────────────────────────────────────────────────────────────────────
+
+interface PersonaDeltaRunArgs {
+  runId: string;
+  persona: "hunter" | "christine";
+  systemPrompt: string;
+  userPrompt: string;
+  tool: typeof PACKAGE_TOOL;
+  usage: TokenUsage;
+}
+
+interface PersonaDeltaResult {
+  delta: PersonaScaffoldDelta;
+  extended: PackagePhaseExtended | null;
+  latencyMs: number;
+}
+
+async function runPersonaDelta(args: PersonaDeltaRunArgs): Promise<PersonaDeltaResult> {
+  const result = await callGemma({
+    systemPrompt: args.systemPrompt,
+    userPrompt: args.userPrompt,
+    tool: args.tool,
+  });
+
+  const withPersona = { persona: args.persona, ...result.toolArgs };
+  const parsed = PersonaScaffoldDeltaSchema.safeParse(withPersona);
+
+  if (!parsed.success) {
+    const retryPrompt =
+      args.userPrompt +
+      "\n\n--- RETRY CONTEXT ---\nYour previous delta output failed validation:\n" +
+      parsed.error.issues.map((i) => `  - ${i.path.join(".")}: ${i.message}`).join("\n") +
+      "\nRe-emit ONLY the fields you actually want to change or add. Don't re-emit fields you're leaving as-is.";
+    const retry = await callGemma({
+      systemPrompt: args.systemPrompt,
+      userPrompt: retryPrompt,
+      tool: args.tool,
+    });
+    const retryWithPersona = { persona: args.persona, ...retry.toolArgs };
+    const retryParsed = PersonaScaffoldDeltaSchema.safeParse(retryWithPersona);
+    if (!retryParsed.success) {
+      throw new Error(
+        `Persona ${args.persona} delta failed validation twice. Issues: ${JSON.stringify(retryParsed.error.issues).slice(0, 500)}`,
+      );
+    }
+    bumpUsage(args.usage, args.persona, "package", retry.tokensIn, retry.tokensOut);
+    return {
+      delta: retryParsed.data as PersonaScaffoldDelta,
+      extended: extractExtended(retry.toolArgs),
+      latencyMs: result.latencyMs + retry.latencyMs,
+    };
+  }
+
+  bumpUsage(args.usage, args.persona, "package", result.tokensIn, result.tokensOut);
+  return {
+    delta: parsed.data as PersonaScaffoldDelta,
+    extended: extractExtended(result.toolArgs),
+    latencyMs: result.latencyMs,
+  };
+}
+
+/**
+ * Apply a Phase 3 delta on top of a Phase 1 scaffold. Any field set on
+ * the delta replaces the Build value; any field absent inherits from Build.
+ * Null is treated as "explicitly unset this field" for nullable fields.
+ */
+function applyDelta(
+  build: PersonaScaffold,
+  delta: PersonaScaffoldDelta,
+): PersonaScaffold {
+  const effective: PersonaScaffold = { ...build };
+  for (const [key, value] of Object.entries(delta)) {
+    if (key === "persona") continue;
+    if (value === undefined) continue;
+    (effective as unknown as Record<string, unknown>)[key] = value;
+  }
+  return effective;
 }
 
 function extractExtended(toolArgs: Record<string, unknown>): PackagePhaseExtended | null {
