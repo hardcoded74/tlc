@@ -180,9 +180,21 @@ export const StandardReferenceSchema = z.object({
   description: z.string().min(1),
 });
 
+// Be lenient: Gemma sometimes omits standards_cited entirely or uses
+// confidence values like "low" / "high" that aren't in our enum.
+// Default the array, coerce unknown confidence values to "inferred".
 export const StandardsAlignmentSchema = z.object({
-  standards_cited: z.array(StandardReferenceSchema),
-  confidence: z.enum(["teacher_provided", "inferred", "none"]),
+  standards_cited: z.array(StandardReferenceSchema).default([]),
+  confidence: z
+    .preprocess(
+      (v) =>
+        typeof v === "string" &&
+        ["teacher_provided", "inferred", "none"].includes(v)
+          ? v
+          : "inferred",
+      z.enum(["teacher_provided", "inferred", "none"]),
+    )
+    .default("inferred"),
   notes: nullishString(),
 });
 
