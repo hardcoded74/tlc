@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PersonaAvatar } from "@/components/persona-avatar";
 
 export default function LandingPage() {
   return (
@@ -71,9 +72,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
             <article className="rounded-lg border border-hunter-200 bg-paper p-6 space-y-3">
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-full bg-hunter-700 text-white font-serif text-xl flex items-center justify-center">
-                  H
-                </div>
+                <PersonaAvatar persona="hunter" size="lg" />
                 <div>
                   <p className="font-serif text-xl">Hunter</p>
                   <p className="text-xs uppercase tracking-wider text-(--color-muted)">
@@ -93,9 +92,7 @@ export default function LandingPage() {
 
             <article className="rounded-lg border border-christine-200 bg-paper p-6 space-y-3">
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-full bg-christine-500 text-white font-serif text-xl flex items-center justify-center">
-                  C
-                </div>
+                <PersonaAvatar persona="christine" size="lg" />
                 <div>
                   <p className="font-serif text-xl">Christine</p>
                   <p className="text-xs uppercase tracking-wider text-(--color-muted)">

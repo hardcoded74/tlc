@@ -1,6 +1,7 @@
 "use client";
 
 import type { PersonaScaffold } from "@/lib/types";
+import { PersonaAvatar } from "./persona-avatar";
 
 type PersonaId = "hunter" | "christine";
 
@@ -40,11 +41,7 @@ export function PersonaPanel({
   return (
     <div className={`rounded-lg border ${copy.cardClass} p-5 flex flex-col gap-4 min-h-64`}>
       <header className="flex items-center gap-3">
-        <div
-          className={`h-10 w-10 rounded-full ${copy.ribbonClass} flex items-center justify-center font-serif text-lg`}
-        >
-          {copy.name[0]}
-        </div>
+        <PersonaAvatar persona={persona} size="md" />
         <div className="flex-1">
           <h3 className="font-serif text-lg leading-tight">{copy.name}</h3>
           <p className="text-xs text-(--color-muted)">{copy.role}</p>

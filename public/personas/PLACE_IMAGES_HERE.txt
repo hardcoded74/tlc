@@ -1,0 +1,24 @@
+Persona avatar images go here.
+
+Expected files:
+  hunter.png     — Hunter avatar (structure & rigor specialist)
+  christine.png  — Christine avatar (depth & engagement specialist)
+
+Constraints:
+- Square aspect ratio (the UI crops to a circle via object-cover).
+- At least 256×256, ideally 512×512 so they stay crisp on retina.
+- Transparent or plain-background PNGs work best since the avatar
+  container has its own border/bg per page.
+- Keep file size under ~200KB each (they load on every page).
+
+Style guidance (for consistency with the site palette):
+- Hunter tones: slate / deep blue-gray (palette var --color-hunter-700 is #1e2d42).
+- Christine tones: warm sand / terracotta (--color-christine-500 is #a87640).
+- Editorial / flat-vector style reads better than photoreal for
+  children's-education tools.
+
+No config change needed once files are dropped — components/persona-avatar.tsx
+loads from /personas/{id}.png automatically and falls back to the letter
+circle if the file is missing or fails to load.
+
+You can delete this file once the images are in place.

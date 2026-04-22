@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PersonaAvatar } from "@/components/persona-avatar";
 
 export default function AboutPage() {
   return (
@@ -31,22 +32,32 @@ export default function AboutPage() {
             work across two specialist personas:
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-lg border border-hunter-100 bg-hunter-50/30 p-5 space-y-2">
-              <p className="font-serif text-xl text-hunter-700">Hunter</p>
-              <p className="text-xs uppercase tracking-widest text-(--color-muted)">
-                Structure &amp; rigor
-              </p>
+            <div className="rounded-lg border border-hunter-100 bg-hunter-50/30 p-5 space-y-3">
+              <div className="flex items-center gap-3">
+                <PersonaAvatar persona="hunter" size="lg" />
+                <div>
+                  <p className="font-serif text-xl text-hunter-700">Hunter</p>
+                  <p className="text-xs uppercase tracking-widest text-(--color-muted)">
+                    Structure &amp; rigor
+                  </p>
+                </div>
+              </div>
               <p className="text-sm leading-relaxed">
                 The lesson architect. Objective, lesson steps, assessment,
                 answer key, time allocation. Direct. Precise. Doesn&rsquo;t
                 soften.
               </p>
             </div>
-            <div className="rounded-lg border border-christine-100 bg-christine-50/30 p-5 space-y-2">
-              <p className="font-serif text-xl text-christine-700">Christine</p>
-              <p className="text-xs uppercase tracking-widest text-(--color-muted)">
-                Depth &amp; engagement
-              </p>
+            <div className="rounded-lg border border-christine-100 bg-christine-50/30 p-5 space-y-3">
+              <div className="flex items-center gap-3">
+                <PersonaAvatar persona="christine" size="lg" />
+                <div>
+                  <p className="font-serif text-xl text-christine-700">Christine</p>
+                  <p className="text-xs uppercase tracking-widest text-(--color-muted)">
+                    Depth &amp; engagement
+                  </p>
+                </div>
+              </div>
               <p className="text-sm leading-relaxed">
                 The pedagogue. Engagement, demonstrations, teacher notes,
                 discussion prompts, misconception recovery. Warm. Practical.
