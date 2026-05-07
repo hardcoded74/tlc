@@ -22,7 +22,7 @@ export default function LandingPage() {
             A lesson-building tool powered by{" "}
             <span className="text-ink font-medium">Gemma 4</span> and guided
             by two collaborating specialists. Hand it a topic, a grade level,
-            and forty-five minutes of class time. Walk away with a complete,
+            and how long your class runs. Walk away with a complete,
             classroom-ready plan — objective, steps, assessment, teacher
             notes, misconceptions, accommodations, the whole deck.
           </p>
