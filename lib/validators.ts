@@ -294,7 +294,7 @@ export const PersonaScaffoldDeltaSchema = z.object({
 });
 
 export const ReviewIssueSchema = z.object({
-  id: z.string().regex(/^issue-(?:verify-)?\d+$/),
+  id: z.string().regex(/^issue-(?:verify-(?:std-)?)?\d+$/),
   issue_type: z.enum([
     "grade_fit",
     "structure",

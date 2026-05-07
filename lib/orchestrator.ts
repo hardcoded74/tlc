@@ -37,6 +37,7 @@ import { mergePackages, type PackagePhaseExtended } from "./merge";
 import {
   verifyLesson,
   verificationToReviewIssues,
+  extendWithStandardsCodes,
 } from "./verify";
 import type {
   ErrorEntry,
@@ -286,6 +287,14 @@ export async function orchestrate({ runId }: OrchestrateOptions): Promise<void> 
       sourceId: run.sourceUploadId,
       subject: run.subject,
     });
+
+    // Post-merge: validate any cited standards codes against published
+    // formats and extend the verification report. Standards alignment
+    // doesn't exist until Phase 3, so this is the first chance to check.
+    review.verification = extendWithStandardsCodes(
+      review.verification,
+      finalPackage.standards_alignment,
+    );
 
     timings.total_ms = Date.now() - startedAt;
 

@@ -18,7 +18,8 @@
 
 import { callGemma } from "./gemma";
 import type { FunctionDeclaration } from "./tools";
-import type { PersonaScaffold, ReviewIssue } from "./types";
+import type { PersonaScaffold, ReviewIssue, StandardsAlignment } from "./types";
+import { validateStandardsCodes } from "./sources/standards-codes";
 
 const WIKIPEDIA_REST_BASE = "https://en.wikipedia.org/api/rest_v1/page/summary";
 const WIKIDATA_API = "https://www.wikidata.org/w/api.php";
@@ -424,13 +425,62 @@ export async function verifyLesson(
 }
 
 // ──────────────────────────────────────────────────────────────────────
+// Standards-code validation (Phase 3 — runs after merge, no network)
+// ──────────────────────────────────────────────────────────────────────
+
+/**
+ * Build standards-code findings from a merged package's
+ * standards_alignment block. Returned findings are appended to the
+ * existing verification report by the orchestrator after Phase 3.
+ */
+export function verifyStandardsCodes(
+  alignment: StandardsAlignment | null,
+  startId = 0,
+): VerificationFinding[] {
+  if (!alignment?.standards_cited?.length) return [];
+  return validateStandardsCodes(alignment.standards_cited).map((cr, i) => ({
+    id: `verify-std-${startId + i + 1}`,
+    claim_kind: "standards_code" as const,
+    claim_subject: `${cr.framework} ${cr.code}`,
+    claim_text: cr.description,
+    status: (cr.valid ? "verified" : "contradicted") as ClaimStatus,
+    sources: cr.referenceUrl
+      ? [
+          {
+            name: cr.frameworkLabel,
+            url: cr.referenceUrl,
+            excerpt: cr.note ?? null,
+          } satisfies SourceRef,
+        ]
+      : [],
+    notes: cr.valid ? null : (cr.note ?? "Code does not match the published format."),
+  }));
+}
+
+/**
+ * Append standards-code findings to an existing verification report and
+ * recompute counts.
+ */
+export function extendWithStandardsCodes(
+  report: VerificationReport | null | undefined,
+  alignment: StandardsAlignment | null,
+): VerificationReport {
+  const base = report ?? summarize([]);
+  const additions = verifyStandardsCodes(alignment, base.findings.length);
+  if (additions.length === 0) return base;
+  return summarize([...base.findings, ...additions]);
+}
+
+// ──────────────────────────────────────────────────────────────────────
 // Map verification findings → ReviewIssue[]
 // ──────────────────────────────────────────────────────────────────────
 
 /**
- * Contradicted claims become must_fix issues. Unverified vocabulary
- * surfaces in the verification block but doesn't fail the build — many
- * K-12 vocab terms simply aren't standalone Wikipedia entries.
+ * Contradicted claims become must_fix issues. Standards-code mismatches
+ * become should_fix (they don't break the lesson, but a teacher pulling
+ * the file expects clean codes). Unverified vocabulary surfaces in the
+ * verification block but doesn't fail the build — many K-12 vocab terms
+ * simply aren't standalone Wikipedia entries.
  */
 export function verificationToReviewIssues(
   report: VerificationReport,
@@ -439,16 +489,23 @@ export function verificationToReviewIssues(
   for (const finding of report.findings) {
     if (finding.status !== "contradicted") continue;
 
+    const isStandard = finding.claim_kind === "standards_code";
     const sourceName = finding.sources[0]?.name ?? "trusted source";
     const sourceUrl = finding.sources[0]?.url;
 
     issues.push({
       id: `issue-${finding.id}`,
       issue_type: "source",
-      severity: "must_fix",
-      where: `${finding.claim_kind}: ${finding.claim_subject}`,
-      problem: `Lesson contradicts ${sourceName}: ${finding.notes ?? "factual mismatch"}.`,
-      fix: `Revise the ${finding.claim_kind} entry for "${finding.claim_subject}" to match the reference${sourceUrl ? ` (${sourceUrl})` : ""}.`,
+      severity: isStandard ? "should_fix" : "must_fix",
+      where: isStandard
+        ? `standards_alignment: ${finding.claim_subject}`
+        : `${finding.claim_kind}: ${finding.claim_subject}`,
+      problem: isStandard
+        ? `Cited standards code "${finding.claim_subject}" does not match the ${sourceName} format. ${finding.notes ?? ""}`.trim()
+        : `Lesson contradicts ${sourceName}: ${finding.notes ?? "factual mismatch"}.`,
+      fix: isStandard
+        ? `Replace or remove the malformed code; consult ${sourceUrl ?? "the published catalog"}.`
+        : `Revise the ${finding.claim_kind} entry for "${finding.claim_subject}" to match the reference${sourceUrl ? ` (${sourceUrl})` : ""}.`,
     });
   }
   return issues;
