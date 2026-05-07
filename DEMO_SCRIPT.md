@@ -111,7 +111,10 @@ seconds of ambient silence.
 > depth and engagement — the demonstration, the discussion prompts, the
 > classroom-practical teacher notes.
 >
-> They run in parallel. You watch both of them contribute, live.
+> They run in parallel. You watch both of them contribute, live. And
+> while Review checks the lesson, every fact-bearing term is
+> cross-referenced against Wikipedia and Wikidata — so the lesson is
+> auditable, not just well-formatted.
 
 ### On-screen actions
 - 0:45: the screen transitions — persona panels appear side by side
@@ -127,7 +130,10 @@ seconds of ambient silence.
   - "✓ 3 misconceptions flagged"
 - 1:05: phase indicator advances from Build to Review
 - 1:08–1:20: Review panel populates — grade fit, source alignment,
-  issues with severity
+  issues with severity, **and the source-verification block fills in:
+  every vocabulary term gets a green "Verified" badge with a Wikipedia
+  / Wikidata link**. Linger on this for ~3 seconds — it's the
+  anti-hallucination story made visible.
 - 1:20: phase advances to Package; persona panels pulse again as they
   finalize
 - 1:25: completion moment — panels collapse into summary bar, lesson
@@ -272,6 +278,8 @@ human if the desk shot is clean.
 > classroom-practical teacher notes.
 >
 > (1:00) They run in parallel. You watch both of them contribute, live.
+> And every fact-bearing term gets cross-referenced against Wikipedia
+> and Wikidata — auditable, not just well-formatted.
 >
 > (1:25) Fifty-eight seconds later, here's what the teacher gets. Not
 > an outline — a complete teaching kit. Materials, step-by-step plan

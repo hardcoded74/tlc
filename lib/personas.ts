@@ -135,15 +135,22 @@ Do your best on first pass — don't hold back expecting review to fix things �
 
 /**
  * Appended to Phase 1 prompts when Review flagged the FIRST attempt with
- * must-fix issues. Includes the previous scaffold and the review findings
- * so the model can write a structurally improved second pass.
+ * must-fix issues. Includes the previous scaffold, the review findings,
+ * and — when source verification flagged contradictions — excerpts from
+ * Wikipedia / Wikidata for the contradicted claims, so the model can
+ * self-correct from sources rather than just reading "fix this."
  */
 export function buildRetryAddendum(args: {
   previousScaffold: unknown;
   partnerScaffold: unknown;
   review: unknown;
+  contradictedExcerpts?: Array<{
+    subject: string;
+    sources: Array<{ name: string; url: string | null; excerpt: string | null }>;
+    reason: string | null;
+  }>;
 }): string {
-  return [
+  const blocks: string[] = [
     "",
     "---",
     "RETRY CONTEXT: Your first pass had must-fix issues per the review. Below is your previous scaffold, your partner's previous scaffold, and the review findings. Produce a second pass that resolves the must-fix issues. Stay in your ownership area.",
@@ -156,9 +163,32 @@ export function buildRetryAddendum(args: {
     "",
     "--- REVIEW FINDINGS ---",
     JSON.stringify(args.review, null, 2),
-    "",
+  ];
+
+  const excerpts = args.contradictedExcerpts ?? [];
+  if (excerpts.length > 0) {
+    blocks.push("");
+    blocks.push("--- TRUSTED SOURCE EXCERPTS FOR CONTRADICTED CLAIMS ---");
+    blocks.push(
+      "External verification (Wikipedia / Wikidata) flagged the claims below as contradicting trusted references. Use these excerpts to rewrite the affected fields accurately. Do NOT paraphrase the excerpts verbatim — translate to grade-appropriate language while preserving the facts.",
+    );
+    for (const e of excerpts) {
+      blocks.push("");
+      blocks.push(`* ${e.subject}`);
+      if (e.reason) blocks.push(`  why flagged: ${e.reason}`);
+      for (const s of e.sources) {
+        if (!s.excerpt) continue;
+        const url = s.url ? ` (${s.url})` : "";
+        blocks.push(`  [${s.name}]${url} ${s.excerpt}`);
+      }
+    }
+  }
+
+  blocks.push("");
+  blocks.push(
     "Re-emit the COMPLETE scaffold with corrections applied. The merge layer expects a full Phase 1 scaffold, not a delta.",
-  ].join("\n");
+  );
+  return blocks.join("\n");
 }
 
 export const PHASE_3_PACKAGE_ADDENDUM = `

@@ -511,6 +511,24 @@ export function verificationToReviewIssues(
   return issues;
 }
 
+/**
+ * Pull contradicted-claim excerpts out of a verification report so the
+ * regenerate-on-must-fix retry can splice them into the build prompt
+ * and self-correct from the source.
+ */
+export function contradictedSourceExcerpts(
+  report: VerificationReport | null | undefined,
+): Array<{ subject: string; sources: SourceRef[]; reason: string | null }> {
+  if (!report) return [];
+  return report.findings
+    .filter((f) => f.status === "contradicted" && f.sources.length > 0)
+    .map((f) => ({
+      subject: f.claim_subject,
+      sources: f.sources,
+      reason: f.notes,
+    }));
+}
+
 // ──────────────────────────────────────────────────────────────────────
 // Internal helpers
 // ──────────────────────────────────────────────────────────────────────

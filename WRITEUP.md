@@ -66,7 +66,7 @@ complete lesson package.
 - Class length
 - Subject area
 - Learning objective
-- Source material (paste text or upload `.txt`, `.md`, `.pdf`)
+- Source material (paste text or upload `.txt`, `.md`)
 
 **Optional input:**
 - Teaching notes, classroom constraints
@@ -153,27 +153,40 @@ teacher can see exactly who wrote what.
   └── Christine call → depth scaffold (JSON via tool call)
                 │
                 ▼
-  PHASE 2: REVIEW  (single call)
-  └── Review call → audits both scaffolds:
-        · grade-level fit
-        · structure & sequence
-        · source alignment
-        · assessment alignment with objective
-        · engagement quality
-        · completeness
-        → emits issues with severity (must_fix / should_fix / nice_to_fix)
+  PHASE 2: REVIEW  +  SOURCE VERIFICATION  (parallel)
+  ├── Review call → audits both scaffolds:
+  │     · grade-level fit
+  │     · structure & sequence
+  │     · source alignment
+  │     · assessment alignment with objective
+  │     · engagement quality
+  │     · completeness
+  │     → emits issues with severity (must_fix / should_fix / nice_to_fix)
+  └── Verifier (Wikipedia + Wikidata in parallel) →
+        · cross-references every vocabulary term + misconception
+        · batched Gemma fact-check on the excerpts
+        · contradicted claims become must_fix issues
+                │
+                ▼
+  REGENERATE-ON-MUST-FIX  (bounded, 1 retry max)
+  └── If review or verifier flagged must_fix issues, re-run Build with
+      review findings + contradicted-claim source excerpts spliced in.
                 │
                 ▼
   PHASE 3: PACKAGE  (parallel)
-  ├── Hunter call    → finalized structural sections (with review findings applied)
-  └── Christine call → finalized depth sections (with review findings applied)
+  ├── Hunter call    → finalized structural sections (delta only)
+  └── Christine call → finalized depth sections (delta only)
                 │
                 ▼
-  MERGE
-  └── Deterministic merge by field ownership → final LessonPackage
+  MERGE  +  STANDARDS-CODE VALIDATION
+  └── Deterministic merge by field ownership; cited NGSS / Common
+      Core codes regex-validated against published formats; final
+      verification report + LessonPackage persisted
 ```
 
-**Total: 5 Gemma 4 calls per lesson. ~60–90 seconds end-to-end.**
+**Total: 5–7 Gemma 4 calls per lesson** (5 base + 1 fact-check + 2
+regenerate when triggered). **~60–90 seconds end-to-end** on the
+no-regenerate path; ~90–120s when regenerate fires.
 
 Each call uses Gemma 4's native function-calling to emit structured
 JSON that's validated by Zod before storage. If validation fails, one
@@ -188,28 +201,41 @@ Accuracy is the hardest thing in AI-generated education content. TLC
 takes an honest posture:
 
 **What TLC does:**
-- Accepts teacher-provided source material (pasted text or `.txt`,
-  `.md`, `.pdf` upload)
+- Accepts teacher-provided source material (pasted text or `.txt` /
+  `.md` upload)
 - Prefers teacher source for factual content when provided
 - Labels every content section with its source origin
-- Retains source material for exactly 1 hour, then deletes it
+  (`grounded`, `scaffolded`, or `generated`)
+- Cross-references vocabulary terms and misconception corrections
+  against **Wikipedia and Wikidata** in parallel — every claim that
+  has a public-source counterpart gets a "Verified" badge linking to
+  the reference
+- Validates cited NGSS / Common Core codes against published formats
+- Treats clear contradictions between lesson content and trusted
+  sources as `must_fix` issues; the bounded regenerate loop receives
+  the source excerpts and rewrites the affected fields
+- Retains uploaded source material for exactly 1 hour, then deletes it
 - Surfaces the labels inline — every lesson section shows a pill
-  indicating `grounded`, `scaffolded`, or `generated`
+  indicating its origin, plus a separate verification block on the
+  Review panel
 
 **What TLC doesn't do:**
-- Claim fact-checked accuracy
-- Validate scientific or historical correctness
+- Claim final authoritative correctness — Wikipedia is also wrong
+  sometimes; verification surfaces *checkability*, not omniscience
+- Validate every claim — vocabulary definitions and misconception
+  corrections are the highest-signal targets and the only ones we
+  cross-reference today
 - Replace a teacher's final review of output before classroom use
 
 The final accuracy check is always the teacher. That's not a limitation
 — it's the design. Teachers are education's accuracy layer; TLC
-provides the scaffolding.
+provides the scaffolding *and* the receipts.
 
 ---
 
 ## Architecture
 
-TLC is a single Next.js 15 application running TypeScript end-to-end,
+TLC is a single Next.js 16 application running TypeScript end-to-end,
 backed by Postgres (Neon) and Google AI Studio's Gemma 4 API.
 
 ### Stack summary
@@ -217,14 +243,15 @@ backed by Postgres (Neon) and Google AI Studio's Gemma 4 API.
 | Layer | Choice |
 |---|---|
 | Language | TypeScript (frontend + API routes) |
-| Framework | Next.js 15, App Router |
-| UI | Tailwind + shadcn/ui + Lucide icons |
+| Framework | Next.js 16, App Router |
+| UI | Tailwind v4 |
 | Hosting | Vercel |
 | Database | Neon Postgres + Prisma ORM |
-| AI | Google AI Studio, model `gemma-4-e4b-it` |
+| AI | Google AI Studio, model `gemma-4-31b-it` (dense; chosen for structured-output fidelity over the MoE variant) |
 | Streaming | Server-Sent Events (Node runtime) |
-| Source parsing | pdf-parse (Node) |
-| Observability | Vercel logs + Sentry + BetterStack |
+| Source parsing | UTF-8 text + Markdown (PDF support deferred — pdf-parse's native bindings interact poorly with Vercel's runtimes; UI prompts the teacher to paste excerpts instead) |
+| External verification | Wikipedia REST summary API + Wikidata `wbsearchentities` (no API keys; concurrency-capped at 6 in flight) |
+| Observability | Vercel logs + BetterStack uptime monitor |
 
 ### Why this stack
 
@@ -375,9 +402,13 @@ and in the gallery.
   end-to-end as JSON
 - Week 2 — Core flow: teacher input form, live-streaming persona panel,
   review report UI, tabbed lesson package viewer, source upload pipeline,
-  download endpoints (`.md` / `.html` / `.json`)
-- Week 3 — Polish: landing page, gallery with 6 pre-generated lessons,
-  public status page, judge mode inspector, visual design pass
+  download endpoints (`.md` / `.html` / `.json`), per-IP rate limits
+- Week 3 — Polish + verification: landing page, gallery with 6
+  pre-generated lessons, public status page, judge mode inspector with
+  contribution breakdown, regenerate-on-must-fix loop,
+  accommodations for students with disabilities, **source verification
+  against Wikipedia + Wikidata, NGSS / Common Core code validation,
+  verification-aware regenerate**
 - Week 4 — Submission: demo video, screenshots, this writeup
 
 Full timeline breakdown: [BUILD_PLAN.md](https://github.com/YOUR_HANDLE/tlc/blob/main/BUILD_PLAN.md)
@@ -415,8 +446,11 @@ Things we'd build if TLC became a real product:
   questions")
 - **Curriculum pack ingestion** — upload an entire unit's source
   material once, then generate multiple linked lessons from it
-- **Standards cross-reference** — automatically match generated content
-  to state standards databases (NGSS, Common Core, state-specific)
+- **Standards auto-suggestion** — beyond the format validation we
+  already do on cited codes, suggest matching NGSS / Common Core codes
+  for lessons that don't cite any
+- **Additional verification sources** — NASA / NOAA / USGS for science
+  topics; PBS LearningMedia and OER Commons for vetted lesson context
 - **Slide deck generation** — emit a Google Slides-compatible output
   alongside the lesson
 - **Assessment feedback loop** — if a teacher marks a question
@@ -467,12 +501,13 @@ Every teacher deserves TLC.
 ## Credits
 
 - **Built by:** [Sam] · [sam@tgcfl.com]
-- **Model:** Gemma 4 (`gemma-4-e4b-it`) via Google AI Studio
+- **Model:** Gemma 4 (`gemma-4-31b-it`, dense variant) via Google AI Studio
 - **Personas:** Hunter (structure & rigor), Christine (depth &
   engagement)
 - **UI illustrations:** [credit if commissioned; otherwise omit]
-- **Source parsing:** `pdf-parse` (MIT)
-- **Framework:** Next.js 15, Tailwind, shadcn/ui, Prisma
+- **External verification:** Wikipedia REST summary API · Wikidata
+  `wbsearchentities` (CC BY-SA + CC0 respectively)
+- **Framework:** Next.js 16, Tailwind v4, Prisma
 - **Hosting:** Vercel (frontend + API), Neon (database), Google AI
   Studio (model)
 

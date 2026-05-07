@@ -38,6 +38,7 @@ import {
   verifyLesson,
   verificationToReviewIssues,
   extendWithStandardsCodes,
+  contradictedSourceExcerpts,
 } from "./verify";
 import type {
   ErrorEntry,
@@ -163,6 +164,7 @@ export async function orchestrate({ runId }: OrchestrateOptions): Promise<void> 
       emit(runId, "phase_start", { phase: "building", reason: "regenerate_on_must_fix" });
 
       const retryStart = Date.now();
+      const contradictedExcerpts = contradictedSourceExcerpts(review.verification);
       const [hunterRetry, christineRetry] = await Promise.all([
         runPersona({
           runId,
@@ -174,6 +176,7 @@ export async function orchestrate({ runId }: OrchestrateOptions): Promise<void> 
               previousScaffold: hunterBuild.scaffold,
               partnerScaffold: christineBuild.scaffold,
               review,
+              contradictedExcerpts,
             }),
           tool: SCAFFOLD_TOOL,
           usage,
@@ -188,6 +191,7 @@ export async function orchestrate({ runId }: OrchestrateOptions): Promise<void> 
               previousScaffold: christineBuild.scaffold,
               partnerScaffold: hunterBuild.scaffold,
               review,
+              contradictedExcerpts,
             }),
           tool: SCAFFOLD_TOOL,
           usage,
