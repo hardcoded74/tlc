@@ -294,7 +294,7 @@ export const PersonaScaffoldDeltaSchema = z.object({
 });
 
 export const ReviewIssueSchema = z.object({
-  id: z.string().regex(/^issue-\d+$/),
+  id: z.string().regex(/^issue-(?:verify-)?\d+$/),
   issue_type: z.enum([
     "grade_fit",
     "structure",
@@ -309,6 +309,31 @@ export const ReviewIssueSchema = z.object({
   where: z.string(),
   problem: z.string().min(1),
   fix: z.string().min(1),
+});
+
+export const VerificationSourceRefSchema = z.object({
+  name: z.string(),
+  url: z.string().url().nullable(),
+  excerpt: z.string().nullable(),
+});
+
+export const VerificationFindingSchema = z.object({
+  id: z.string().regex(/^verify-(?:std-)?\d+$/),
+  claim_kind: z.enum(["vocabulary", "misconception", "standards_code"]),
+  claim_subject: z.string().min(1),
+  claim_text: z.string().min(1),
+  status: z.enum(["verified", "unverified", "contradicted"]),
+  sources: z.array(VerificationSourceRefSchema).default([]),
+  notes: nullishString(),
+});
+
+export const VerificationReportSchema = z.object({
+  generated_at: z.string(),
+  total_checked: z.number().int().nonnegative(),
+  verified_count: z.number().int().nonnegative(),
+  unverified_count: z.number().int().nonnegative(),
+  contradicted_count: z.number().int().nonnegative(),
+  findings: z.array(VerificationFindingSchema),
 });
 
 export const ReviewReportSchema = z.object({
@@ -332,6 +357,7 @@ export const ReviewReportSchema = z.object({
   should_fix_count: z.number().int().nonnegative(),
   nice_to_fix_count: z.number().int().nonnegative(),
   ready_for_packaging: z.boolean(),
+  verification: nullishObject(VerificationReportSchema),
 });
 
 // ──────────────────────────────────────────────────────────────────────

@@ -300,6 +300,43 @@ export interface ReviewReport {
   should_fix_count: number;
   nice_to_fix_count: number;
   ready_for_packaging: boolean;
+  /**
+   * External-source verification — vocabulary/misconception claims
+   * cross-referenced against Wikipedia. Null until Phase 2 verification
+   * completes; on a fresh run this is always populated.
+   */
+  verification?: VerificationReport | null;
+}
+
+export type VerificationClaimKind =
+  | "vocabulary"
+  | "misconception"
+  | "standards_code";
+export type VerificationStatus = "verified" | "unverified" | "contradicted";
+
+export interface VerificationSourceRef {
+  name: string;
+  url: string | null;
+  excerpt: string | null;
+}
+
+export interface VerificationFinding {
+  id: string;
+  claim_kind: VerificationClaimKind;
+  claim_subject: string;
+  claim_text: string;
+  status: VerificationStatus;
+  sources: VerificationSourceRef[];
+  notes: string | null;
+}
+
+export interface VerificationReport {
+  generated_at: string;
+  total_checked: number;
+  verified_count: number;
+  unverified_count: number;
+  contradicted_count: number;
+  findings: VerificationFinding[];
 }
 
 export type IssueType =

@@ -117,6 +117,28 @@ export function JudgeInspector({ runId }: { runId: string }) {
         />
       </div>
 
+      {data.review?.verification ? (
+        <div className="px-5 pb-5 border-t border-hunter-100 pt-4">
+          <p className="text-xs font-medium text-hunter-700 mb-2">
+            Source verification
+          </p>
+          <div className="grid grid-cols-3 gap-2 text-xs font-mono">
+            <Stat
+              label="Verified"
+              value={String(data.review.verification.verified_count)}
+            />
+            <Stat
+              label="Not found"
+              value={String(data.review.verification.unverified_count)}
+            />
+            <Stat
+              label="Contradicted"
+              value={String(data.review.verification.contradicted_count)}
+            />
+          </div>
+        </div>
+      ) : null}
+
       {isOpen && (
         <div className="px-5 pb-5 space-y-4 border-t border-hunter-100 pt-4">
           {data.tokenUsage && (

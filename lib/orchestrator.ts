@@ -34,6 +34,10 @@ import {
   validateInvariants,
 } from "./validators";
 import { mergePackages, type PackagePhaseExtended } from "./merge";
+import {
+  verifyLesson,
+  verificationToReviewIssues,
+} from "./verify";
 import type {
   ErrorEntry,
   LessonPackage,
@@ -292,6 +296,7 @@ export async function orchestrate({ runId }: OrchestrateOptions): Promise<void> 
         hunterPackage: hunterPackage as unknown as object,
         christinePackage: christinePackage as unknown as object,
         finalPackage: finalPackage as unknown as object,
+        review: review as unknown as object,
         timings: timings as unknown as object,
         tokenUsage: usage as unknown as object,
       },
@@ -490,24 +495,54 @@ async function runReview(args: ReviewRunArgs): Promise<ReviewReport> {
     hunterBuild: args.hunterBuild,
     christineBuild: args.christineBuild,
   });
-  const result = await callGemma({
-    systemPrompt: REVIEW_SYSTEM_PROMPT,
-    userPrompt,
-    tool: REVIEW_TOOL,
-    temperature: 0.3,
-  });
-  args.usage.by_phase.review.in += result.tokensIn;
-  args.usage.by_phase.review.out += result.tokensOut;
-  args.usage.total_in += result.tokensIn;
-  args.usage.total_out += result.tokensOut;
 
-  const parsed = ReviewReportSchema.safeParse(result.toolArgs);
+  // Run Gemma's review and the external-source verification in parallel.
+  // Verification is independent of the review prompt, so the Wikipedia
+  // round trips overlap with the Gemma call.
+  const [reviewResult, verification] = await Promise.all([
+    callGemma({
+      systemPrompt: REVIEW_SYSTEM_PROMPT,
+      userPrompt,
+      tool: REVIEW_TOOL,
+      temperature: 0.3,
+    }),
+    verifyLesson({
+      hunter: args.hunterBuild,
+      christine: args.christineBuild,
+    }).catch(() => null),
+  ]);
+
+  args.usage.by_phase.review.in += reviewResult.tokensIn;
+  args.usage.by_phase.review.out += reviewResult.tokensOut;
+  args.usage.total_in += reviewResult.tokensIn;
+  args.usage.total_out += reviewResult.tokensOut;
+
+  const parsed = ReviewReportSchema.safeParse(reviewResult.toolArgs);
   if (!parsed.success) {
     throw new Error(
       `Review output failed schema validation: ${JSON.stringify(parsed.error.issues).slice(0, 500)}`,
     );
   }
-  return parsed.data;
+  const review = parsed.data;
+
+  if (verification) {
+    const verifyIssues = verificationToReviewIssues(verification);
+    review.issues = [...review.issues, ...verifyIssues];
+    review.must_fix_count += verifyIssues.filter(
+      (i) => i.severity === "must_fix",
+    ).length;
+    review.should_fix_count += verifyIssues.filter(
+      (i) => i.severity === "should_fix",
+    ).length;
+    review.nice_to_fix_count += verifyIssues.filter(
+      (i) => i.severity === "nice_to_fix",
+    ).length;
+    review.verification = verification;
+  } else {
+    review.verification = null;
+  }
+
+  return review;
 }
 
 // ──────────────────────────────────────────────────────────────────────
