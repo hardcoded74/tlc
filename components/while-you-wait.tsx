@@ -16,6 +16,7 @@ import type { RunStatus } from "@/lib/types";
  */
 
 const SNIPPETS: Array<{ body: string; credit?: string }> = [
+  // ─── Phase narration ──────────────────────────────────────────────
   {
     body:
       "Hunter is mapping lesson steps and the assessment. Christine is writing the hook, the discussion prompts, and the misconceptions. Neither sees the other's draft yet.",
@@ -30,6 +31,16 @@ const SNIPPETS: Array<{ body: string; credit?: string }> = [
   },
   {
     body:
+      "If the reviewer flags a must-fix issue, the affected scaffold is regenerated with the trusted source excerpt spliced into the prompt. The model corrects from the reference, not from a vague note.",
+  },
+  {
+    body:
+      "Standards codes (NGSS, Common Core) get regex-validated post-merge. A fabricated code becomes a should-fix on its way out the door.",
+  },
+
+  // ─── Pedagogy ─────────────────────────────────────────────────────
+  {
+    body:
       "Cognitive Load Theory says working memory holds about 4±1 chunks at a time. Lesson steps stay short on purpose.",
   },
   {
@@ -38,19 +49,90 @@ const SNIPPETS: Array<{ body: string; credit?: string }> = [
   },
   {
     body:
+      "Vygotsky's zone of proximal development is the gap between what a learner can do alone and what they can do with help. Most lesson design is just naming that gap precisely.",
+  },
+  {
+    body:
+      "Bloom's taxonomy ranks cognition: remember, understand, apply, analyze, evaluate, create. A worksheet that only asks 'remember' is doing one-sixth of its job.",
+  },
+  {
+    body:
+      "Dual-coding theory: pairing words with images cuts cognitive load and roughly doubles retention. The diagrams in a good lesson aren't there to look nice.",
+  },
+  {
+    body:
+      "Retrieval practice — pulling information out of memory — beats re-reading by a wide margin for long-term retention. Quiz before you re-teach.",
+  },
+
+  // ─── Teacher trivia ───────────────────────────────────────────────
+  {
+    body:
       "K-12 teachers make roughly 1,500 educational decisions per school day. TLC is meant to take the lesson-prep ones off the pile.",
   },
   {
     body:
-      "Every vocabulary term and misconception correction is cross-referenced against Wikipedia and Wikidata while you wait. Standards codes are regex-validated against published frameworks.",
+      "U.S. teachers spend a median of 7 hours a week on lesson prep — most of it unpaid, most of it after the kids go home. That's the time we're trying to give back.",
   },
+  {
+    body:
+      "Teachers in their first year leave at roughly twice the rate of teachers in their fifth. The single biggest predictor isn't pay — it's whether they had time to prepare.",
+  },
+  {
+    body:
+      "On average, a U.S. teacher spends about $750 of their own money each year on classroom supplies and curriculum. The 'free' lesson plan is rarely free.",
+  },
+
+  // ─── Verifier brag ────────────────────────────────────────────────
+  {
+    body:
+      "Every vocabulary term and misconception correction is cross-referenced against Wikipedia and Wikidata while you wait.",
+  },
+  {
+    body:
+      "Standards codes are regex-validated against the published NGSS and Common Core formats. 'CCSS.MATH.CONTENT.5.NF.B.4' is real; '5-FAKE-99' isn't, and the verifier knows the difference.",
+  },
+
+  // ─── Whimsy ───────────────────────────────────────────────────────
   {
     body:
       "This is a good moment for a cup of tea. Kettle's worth of water in 90 seconds.",
   },
   {
+    body:
+      "Hunter's personal favorite way to wait: a nap. He's very serious about it.",
+  },
+  {
+    body:
+      "An apple, a window, and a few minutes. Three teachers' favorite recipe for not staring at a screen.",
+  },
+  {
+    body:
+      "Stretch your shoulders. Look at something more than ten feet away. Your eyes will thank you, and the lesson will still be writing when you get back.",
+  },
+
+  // ─── Educator quotes ──────────────────────────────────────────────
+  {
     body: "The art of teaching is the art of assisting discovery.",
     credit: "Mark Van Doren",
+  },
+  {
+    body: "The greatest sign of success for a teacher is to be able to say, 'The children are now working as if I did not exist.'",
+    credit: "Maria Montessori",
+  },
+  {
+    body:
+      "Education is not preparation for life; education is life itself.",
+    credit: "John Dewey",
+  },
+  {
+    body:
+      "Every child deserves a champion — an adult who will never give up on them, who understands the power of connection, and insists they become the best they can possibly be.",
+    credit: "Rita Pierson",
+  },
+  {
+    body:
+      "Differentiation is simply a teacher attending to the learning needs of a particular student or small group of students, rather than the more typical pattern of teaching the class as though all individuals in it were basically alike.",
+    credit: "Carol Ann Tomlinson",
   },
 ];
 

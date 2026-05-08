@@ -1,18 +1,54 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import type { PersonaScaffold } from "@/lib/types";
 import { PersonaAvatar } from "./persona-avatar";
 
 type PersonaId = "hunter" | "christine";
 
+const NARRATION_INTERVAL_MS = 12_000;
+const FADE_MS = 250;
+
+// First-person thoughts the persona seems to be having while drafting.
+// Rotated inside ThinkingState. Voice stays in character: Hunter is
+// direct/declarative, Christine is warm/named-pitfalls.
+const HUNTER_THOUGHTS: string[] = [
+  "Mapping the lesson sequence — each step has to set up the next one.",
+  "Working out the assessment. The questions need to actually test the objective, not adjacent vocabulary.",
+  "Counting time blocks. A 45-minute class is 45 minutes — not 60.",
+  "Sketching the answer key as I go. Hard questions need clean rubric notes.",
+  "Drafting the standards alignment. Being honest when nothing fits is a feature.",
+  "Re-reading the objective. If it isn't measurable, it isn't an objective.",
+  "Sequencing the warm-up into the main concept. No lurches.",
+  "Picking concrete materials. 'Three graduated cylinders,' not 'measurement tools.'",
+];
+
+const CHRISTINE_THOUGHTS: string[] = [
+  "Hunting for an opener that actually hooks 5th graders, not one that says 'get curious.'",
+  "Drafting a misconception — the interesting ones are the ones I see in real classrooms.",
+  "Writing the demo. It has to work with normal supplies, no Bunsen burners.",
+  "Naming pitfalls in teacher_notes. Where does this lesson typically go sideways?",
+  "Adding accommodations — concrete supports for specific disability types, not generic IEP language.",
+  "Reading the objective sideways. What would a quiet student need to grasp this?",
+  "Finding three discussion prompts that provoke thinking, not recall.",
+  "Picking vocabulary terms a 5th grader doesn't already own.",
+];
+
 const PERSONA_COPY: Record<
   PersonaId,
-  { name: string; role: string; pendingLine: string; cardClass: string; ribbonClass: string; dotClass: string }
+  {
+    name: string;
+    role: string;
+    thoughts: string[];
+    cardClass: string;
+    ribbonClass: string;
+    dotClass: string;
+  }
 > = {
   hunter: {
     name: "Hunter",
     role: "Structure & rigor",
-    pendingLine: "Laying out the lesson steps and the assessment.",
+    thoughts: HUNTER_THOUGHTS,
     cardClass: "border-hunter-100 bg-hunter-50/30",
     ribbonClass: "bg-hunter-700 text-white",
     dotClass: "bg-hunter-500",
@@ -20,12 +56,21 @@ const PERSONA_COPY: Record<
   christine: {
     name: "Christine",
     role: "Depth & engagement",
-    pendingLine: "Writing the hook, the discussion prompts, and the teacher notes.",
+    thoughts: CHRISTINE_THOUGHTS,
     cardClass: "border-christine-100 bg-christine-50/30",
     ribbonClass: "bg-christine-500 text-white",
     dotClass: "bg-christine-500",
   },
 };
+
+function shuffle<T>(arr: T[]): T[] {
+  const out = arr.slice();
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
 
 export function PersonaPanel({
   persona,
@@ -68,7 +113,9 @@ export function PersonaPanel({
 
       <div className="flex-1">
         {phase === "waiting" && <WaitingState />}
-        {phase === "thinking" && <ThinkingState line={copy.pendingLine} dotClass={copy.dotClass} />}
+        {phase === "thinking" && (
+          <ThinkingState thoughts={copy.thoughts} dotClass={copy.dotClass} />
+        )}
         {phase === "complete" && scaffold && <ScaffoldPreview scaffold={scaffold} />}
         {phase === "complete" && !scaffold && (
           <p className="text-sm text-(--color-muted) italic">
@@ -107,16 +154,50 @@ function WaitingState() {
   );
 }
 
-function ThinkingState({ line, dotClass }: { line: string; dotClass: string }) {
+function ThinkingState({
+  thoughts,
+  dotClass,
+}: {
+  thoughts: string[];
+  dotClass: string;
+}) {
+  // Shuffle once on mount, iterate linearly so the user sees every line
+  // before any repeats. 12s cadence with a 250ms opacity fade.
+  const order = useMemo(() => shuffle(thoughts.map((_, i) => i)), [thoughts]);
+  const [step, setStep] = useState(0);
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const id = setInterval(() => {
+      setVisible(false);
+      const t = setTimeout(() => {
+        setStep((s) => (s + 1) % order.length);
+        setVisible(true);
+      }, FADE_MS);
+      return () => clearTimeout(t);
+    }, NARRATION_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [order.length]);
+
+  const line = thoughts[order[step]];
+
   return (
     <div className="flex flex-col items-start gap-3 py-4">
-      <div className="flex items-center gap-2 text-sm text-ink">
-        <span className="inline-flex gap-1">
+      <div className="flex items-center gap-2 text-sm">
+        <span className="inline-flex gap-1 shrink-0">
           <span className={`h-1.5 w-1.5 rounded-full ${dotClass} animate-bounce`} />
           <span className={`h-1.5 w-1.5 rounded-full ${dotClass} animate-bounce [animation-delay:0.15s]`} />
           <span className={`h-1.5 w-1.5 rounded-full ${dotClass} animate-bounce [animation-delay:0.3s]`} />
         </span>
-        <span>{line}</span>
+        <span
+          className="italic text-ink leading-snug transition-opacity ease-out"
+          style={{
+            opacity: visible ? 1 : 0,
+            transitionDuration: `${FADE_MS}ms`,
+          }}
+          aria-live="polite"
+        >
+          {line}
+        </span>
       </div>
       <div className="w-full space-y-1.5 pt-1">
         <div className="h-2 rounded bg-hunter-100/70 w-5/6 animate-pulse" />

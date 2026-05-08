@@ -6,6 +6,7 @@ import { PersonaPanel } from "@/components/persona-panel";
 import { PhasePipeline, PendingSection } from "@/components/phase-pipeline";
 import { WhileYouWait } from "@/components/while-you-wait";
 import { WaitNotice } from "@/components/wait-notice";
+import { TopicHook } from "@/components/topic-hook";
 import { ReviewPanel } from "@/components/review-report";
 import { LessonPackageView } from "@/components/lesson-package";
 import { DownloadButtons } from "@/components/download-buttons";
@@ -73,6 +74,11 @@ export function LessonRunView({ initial }: { initial: InitialState }) {
       <PhasePipeline status={status} />
 
       <WhileYouWait status={status} createdAt={initial.createdAt} />
+
+      <TopicHook
+        topic={initial.topic}
+        hidden={status === "complete" || status === "failed"}
+      />
 
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <PersonaPanel persona="hunter" scaffold={hunter} phase={hunterPhase} />
