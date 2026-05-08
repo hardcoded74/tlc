@@ -54,7 +54,9 @@ export function PersonaPanel({
         {phase === "thinking" && <ThinkingState line={copy.pendingLine} dotClass={copy.dotClass} />}
         {phase === "complete" && scaffold && <ScaffoldPreview scaffold={scaffold} />}
         {phase === "complete" && !scaffold && (
-          <p className="text-sm text-(--color-muted) italic">No scaffold returned.</p>
+          <p className="text-sm text-(--color-muted) italic">
+            Done — contributions rolled into the final package below.
+          </p>
         )}
       </div>
     </div>

@@ -143,10 +143,12 @@ function phaseFor(
   status: RunStatus,
   scaffold: PersonaScaffold | null,
 ): "waiting" | "thinking" | "complete" {
+  // Terminal states win: once the run is complete or failed, the panel
+  // should stop pretending the persona is still working. Otherwise an
+  // already-finished lesson page shows perpetual "thinking" placeholders
+  // sitting next to a fully-rendered final package.
+  if (status === "complete" || status === "failed") return "complete";
   if (scaffold) return "complete";
   if (status === "pending") return "waiting";
-  if (status === "building") return "thinking";
-  // If we're past building and still have no scaffold, something's off.
-  // Show thinking so the UI doesn't look frozen; DB poll should catch up.
   return "thinking";
 }
