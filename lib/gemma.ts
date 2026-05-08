@@ -254,11 +254,12 @@ async function callGemmaStudio(
     forceToolCall = true,
     temperature = 0.7,
     maxRetries = 2,
-    // 90s per call — paid AI Studio Phase-1 with slim prompts comes back
-    // in 30-60s healthy, but the slow lane occasionally drifts over 60s.
-    // 90s leaves room while still failing fast enough that two attempts
-    // don't blow past Vercel's 300s function ceiling on a 5-call lesson.
-    timeoutMs = 90_000,
+    // Per-call timeout. With WORKER_MODE=1 the orchestrator runs on a
+    // long-lived worker (no Vercel function ceiling), so we can be
+    // patient with Studio's occasional slow lane. The studio backend
+    // will surface 429s instantly via isQuotaError; this 240s ceiling
+    // only kicks in for genuine slow generations or backend stalls.
+    timeoutMs = 240_000,
     phase,
   } = params;
 
