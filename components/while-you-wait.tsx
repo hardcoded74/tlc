@@ -145,11 +145,12 @@ function ElapsedHalf({ seconds }: { seconds: number }) {
               : "text-(--color-muted)"
         }`}
       >
-        {tone === "normal" && "Typical lesson runs 60–180s end-to-end."}
+        {tone === "normal" &&
+          "Lessons typically take 4–8 minutes end-to-end."}
         {tone === "warm" &&
-          "Taking a little longer than usual — paid lane should still finish; hang tight."}
+          "Taking a little longer than usual — the run should still finish; hang tight."}
         {tone === "long" &&
-          "Past the typical Vercel function window. The run may have stalled — try a fresh lesson if it doesn't resolve in the next minute."}
+          "This is past the usual range. The run may still finish; if it doesn't resolve in the next few minutes, try a fresh lesson."}
       </p>
     </div>
   );
@@ -162,8 +163,11 @@ function formatElapsed(seconds: number): string {
 }
 
 function pickTone(seconds: number): "normal" | "warm" | "long" {
-  if (seconds < 180) return "normal";
-  if (seconds < 300) return "warm";
+  // Tuned for worker-mode + local Selene: 4–8 min normal, 8–15 min
+  // warm, 15+ min long. Studio backend is faster but the same copy
+  // still reads OK for 60–120s runs.
+  if (seconds < 8 * 60) return "normal";
+  if (seconds < 15 * 60) return "warm";
   return "long";
 }
 
