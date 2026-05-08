@@ -1,0 +1,170 @@
+# Data privacy
+
+This document describes what TLC does and does not collect, how long
+each piece of data lives, and the design choices that keep teacher
+and student data out of model weights.
+
+It is meant to be specific enough that a hackathon judge or a school
+district reviewer can verify each claim against the code.
+
+---
+
+## What TLC asks for
+
+The lesson form (`/create`) collects only what is needed to plan a
+lesson. None of the inputs are about specific students.
+
+| Field                  | Required? | Stored?         |
+|------------------------|-----------|-----------------|
+| Topic                  | yes       | yes (LessonRun) |
+| Grade level            | yes       | yes             |
+| Class length (minutes) | optional  | yes             |
+| Subject area           | optional  | yes             |
+| Learning objective     | optional  | yes             |
+| Teaching notes         | optional  | yes             |
+| Source material        | optional  | yes (1 hour)    |
+
+There is no field for student name, ID, demographic, IEP detail, or
+any other personally identifiable information about a learner. The
+form is structured for *lesson* planning; student-specific data has
+no place in it.
+
+---
+
+## What TLC does **not** ask for or store
+
+- **No student PII.** No names, emails, IDs, photos, or grades.
+- **No teacher accounts.** No sign-up, no login, no email collection.
+- **No raw IP addresses.** The IP of the requester is hashed before
+  it ever touches the database (see "IP hashing" below).
+- **No tracking pixels, no third-party analytics.** The page is
+  Vercel + Next.js + a Postgres connection — no Google Analytics, no
+  Mixpanel, no behavioral fingerprinting.
+
+---
+
+## Retention windows
+
+| Data                            | Retention                                  |
+|---------------------------------|--------------------------------------------|
+| Lesson runs (`LessonRun`)       | 30 days, then auto-pruned by daily cron    |
+| Uploaded source text            | 1 hour, then deleted                       |
+| Rate-limit buckets              | 24 hours per window                        |
+
+The cron job at `/api/cron/prune` runs daily at 04:00 UTC and deletes
+any row past its `expiresAt`. A `CRON_SECRET` Bearer token gates the
+endpoint so only Vercel's scheduler can trigger it.
+
+The 1-hour source-text retention is intentional: pasted source
+material may be excerpts of copyrighted curricula, third-party
+articles, or district documents. It lives only long enough for the
+orchestrator to consume it during the run.
+
+---
+
+## IP hashing — exactly how it works
+
+When the API needs to attribute a request (rate limiting, audit), it
+hashes the IP through this function (`lib/ip.ts:28`):
+
+```ts
+export function hashIp(ipOrReq: string | Request): string {
+  const ip = typeof ipOrReq === "string" ? ipOrReq : extractIp(ipOrReq);
+  const h = createHash("sha256");
+  h.update(`${env.ipSalt}:${todaySaltKey()}:${ip}`);
+  return h.digest("hex");
+}
+```
+
+Three properties matter:
+
+1. **One-way.** SHA-256 is not reversible. The raw IP is never
+   stored, never logged, and is unrecoverable from the hash.
+2. **Daily salt rotation.** `todaySaltKey()` returns the current UTC
+   date, so the same IP produces a different hash every day. A hash
+   from yesterday cannot be linked to a hash from today without
+   already knowing the IP.
+3. **Server salt.** `IP_SALT` is a 32-byte random secret stored only
+   in the production environment. Without it, even a brute-force
+   pre-image attempt against the daily-rotated hash is infeasible.
+
+---
+
+## TLC and the model: the data flow that **does not** happen
+
+Cloud Gemma 4 inference is **stateless from the user's perspective.**
+Each request is one round-trip to Google AI Studio (`@google/genai`):
+
+```
+TLC server  →  generativelanguage.googleapis.com  →  Gemma 4 response
+```
+
+There is **no fine-tuning loop** in this codebase. TLC does not:
+
+- Train, fine-tune, LoRA-adapt, or otherwise modify Gemma 4.
+- Store conversation history beyond the single lesson run.
+- Send any user data to a third-party model trainer.
+- Embed user data into long-term memory or a vector store.
+
+This means **no teacher input and no source material ever lands in
+model weights.** The model that responds to the next user is the
+same Gemma 4 that responded to the previous user. There is no
+mechanism in the deployed system by which one teacher's lesson
+could leak into another teacher's lesson.
+
+(Google's own AI Studio terms govern what they do with the API
+traffic on their side. TLC does not retain a copy of the request
+beyond what's needed to render the page and then prune at 30 days.)
+
+---
+
+## External-source verification
+
+Phase 2 of the lesson run cross-references vocabulary terms and
+misconception corrections against:
+
+- **Wikipedia** REST API (`en.wikipedia.org/api/rest_v1`)
+- **Wikidata** `wbsearchentities` endpoint
+
+These are public read-only APIs that take a single search term and
+return a public encyclopedia summary or structured fact. **No user
+PII or lesson context is sent to either service** — only the
+vocabulary term itself ("photosynthesis", "waxing"). The User-Agent
+identifies the app per Wikipedia's API etiquette guidelines.
+
+Standards-code validation is **fully local** — regex against the
+documented format for NGSS and Common Core. No network call.
+
+---
+
+## Inspectability
+
+Every prompt sent to Gemma 4 is in the public repository under
+[`prompts/`](./prompts/). They are versioned with semver headers so
+that anyone reviewing TLC's behavior can see exactly what
+instructions the model received and how those instructions have
+evolved.
+
+Every section of every generated lesson is attributed in the UI
+(Hunter, Christine, or Both) and in the downloaded JSON via the
+`generated_by` block. Source-grounded claims are flagged separately
+from generated claims via the `source_origin` field on each section.
+
+---
+
+## Summary for school-district review
+
+- No PII collected.
+- No accounts, no profiles, no cross-session tracking.
+- Lesson runs auto-prune at 30 days; uploaded sources at 1 hour.
+- IPs are hashed daily with a server-side salt; no raw IP is ever
+  stored.
+- The model is hosted, stateless, and not fine-tuned on user data.
+- Verification calls go to public encyclopedia APIs with no user
+  context attached.
+- All prompts, schemas, and orchestration logic are public, MIT-
+  licensed, and inspectable.
+
+If you find a privacy issue, please open a GitHub issue at
+<https://github.com/hardcoded74/tlc/issues> — security-relevant
+reports get prioritized.

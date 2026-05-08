@@ -5,6 +5,11 @@ It's a product spec, not just a prompt library — every field in the
 system prompts traces to a deliberate UX choice visible in the final
 lesson package and in the streaming panels judges watch.
 
+> **Looking for the actual prompt strings sent to Gemma 4?** They live in
+> [`prompts/`](./prompts/), one versioned markdown file per prompt with
+> YAML frontmatter tracking version + change date. This document is the
+> design rationale; that directory is the source of truth.
+
 ---
 
 ## 1. Design Principles
