@@ -72,7 +72,7 @@ seconds of ambient silence.
 
 ### On-screen during VO
 - 0:05–0:10: landing page loads, camera pans slowly down the hero
-- 0:10–0:15: hover over the three-card persona intro (Hunter /
+- 0:10–0:15: hover over the three-card assistant intro (Hunter /
   Christine / Gemma 4) — each card briefly highlights
 - 0:15–0:25: click "Create a Lesson" — smooth transition into `/create`
 
@@ -105,7 +105,7 @@ seconds of ambient silence.
 
 ### Voiceover
 
-> Now the interesting part. TLC uses two Gemma 4-powered personas,
+> Now the interesting part. TLC uses two Gemma 4-powered Teacher's Assistants,
 > Hunter and Christine. Hunter handles structure and rigor — the
 > lesson sequence, the assessment, the time math. Christine handles
 > depth and engagement — the demonstration, the discussion prompts, the
@@ -117,7 +117,7 @@ seconds of ambient silence.
 > auditable, not just well-formatted.
 
 ### On-screen actions
-- 0:45: the screen transitions — persona panels appear side by side
+- 0:45: the screen transitions — assistant panels appear side by side
 - 0:47–1:00: tokens stream into Hunter's panel (bullet items appear):
   - "✓ Objective locked"
   - "✓ 6 steps, 45 min total"
@@ -134,13 +134,13 @@ seconds of ambient silence.
   every vocabulary term gets a green "Verified" badge with a Wikipedia
   / Wikidata link**. Linger on this for ~3 seconds — it's the
   anti-hallucination story made visible.
-- 1:20: phase advances to Package; persona panels pulse again as they
+- 1:20: phase advances to Package; assistant panels pulse again as they
   finalize
 - 1:25: completion moment — panels collapse into summary bar, lesson
   title fades in
 
 **This is the moment the video earns the product.** Don't cut it short;
-judges need to see both personas actively working.
+judges need to see both Teacher's Assistants actively working.
 
 ---
 
@@ -271,7 +271,7 @@ human if the desk shot is clean.
 > to 5th graders in 45 minutes, and I'm dropping in a paragraph from the
 > Next Generation Science Standards for grade-level anchoring.
 >
-> (0:45) Now the interesting part. TLC uses two Gemma 4-powered personas,
+> (0:45) Now the interesting part. TLC uses two Gemma 4-powered Teacher's Assistants,
 > Hunter and Christine. Hunter handles structure and rigor — the lesson
 > sequence, the assessment, the time math. Christine handles depth and
 > engagement — the demonstration, the discussion prompts, the
@@ -316,7 +316,7 @@ For the Kaggle submission + YouTube upload, the thumbnail should be:
   display font
 - **Bottom bar:** "Built on Gemma 4" with small Gemma logo
 
-Judges scrolling through submissions see the personas + the Gemma
+Judges scrolling through submissions see the Teacher's Assistants + the Gemma
 attribution instantly. That's the hook.
 
 ---
@@ -344,7 +344,7 @@ attribution instantly. That's the hook.
 If we make the finals or get feedback post-submission, a 5-minute
 "deep dive" video for the community is worth making:
 - More on the architecture
-- Walkthrough of the persona prompt design
+- Walkthrough of the assistant prompt design
 - Source-grounding demonstration with a real PDF
 - Behind-the-scenes on the merge logic
 

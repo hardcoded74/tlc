@@ -64,7 +64,7 @@ contradicted finding flagged and resolved.
 
 > The output is a complete lesson package. Objective, steps, assessment,
 > teacher notes, accommodations, the misconceptions block — every section
-> attributed to the persona who owns it. Download as Markdown, HTML, or
+> attributed to the assistant who owns it. Download as Markdown, HTML, or
 > JSON. Or share by link.
 >
 > Every claim that could be fact-checked has been. Standards codes are
@@ -92,6 +92,6 @@ Gemma 4 for the Gemma 4 Good Hackathon.*
 - If the run feels long, cut. The recipe is anchored well enough that you
   can record one clean take and edit the wait down to a tight 10-second
   sequence.
-- The persona portraits at the top of each card are illustrated by SDXL
+- The assistant portraits at the top of each card are illustrated by SDXL
   running locally on an Intel Arc B570 — worth a one-line aside for the
   hackathon judges if it fits.

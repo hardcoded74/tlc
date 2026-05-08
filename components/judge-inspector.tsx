@@ -107,7 +107,7 @@ export function JudgeInspector({ runId }: { runId: string }) {
 
       <div className="px-5 pb-5 border-t border-hunter-100 pt-4">
         <p className="text-xs font-medium text-hunter-700 mb-3">
-          Persona contribution breakdown
+          Teacher&rsquo;s Assistant contribution breakdown
         </p>
         <ContributionBreakdown
           hunterBuild={data.hunterBuild}

@@ -29,10 +29,10 @@ export default function LandingPage() {
           <p className="max-w-2xl mx-auto text-lg md:text-xl text-(--color-muted) leading-relaxed">
             A lesson-building tool powered by{" "}
             <span className="text-ink font-medium">Gemma 4</span> and guided
-            by two collaborating specialists. Hand it a topic, a grade level,
-            and how long your class runs. Walk away with a complete,
-            classroom-ready plan — objective, steps, assessment, teacher
-            notes, misconceptions, accommodations, the whole deck.
+            by two collaborating Teacher&rsquo;s Assistants. Hand it a topic,
+            a grade level, and how long your class runs. Walk away with a
+            complete, classroom-ready plan — objective, steps, assessment,
+            teacher notes, misconceptions, accommodations, the whole deck.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
@@ -57,7 +57,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Two personas */}
+      {/* Two Teacher's Assistants */}
       <section className="px-6 py-16 bg-hunter-50/30 border-y border-hunter-100">
         <div className="max-w-5xl mx-auto space-y-10">
           <div className="max-w-2xl mx-auto text-center space-y-3">

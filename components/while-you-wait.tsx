@@ -26,7 +26,7 @@ const SNIPPETS: Array<{ body: string; credit?: string }> = [
   },
   {
     body:
-      "Phase 3 lets each persona revise in light of the review, then a deterministic merge layer assembles the final package by field ownership.",
+      "Phase 3 lets each Teacher's Assistant revise in light of the review, then a deterministic merge layer assembles the final package by field ownership.",
   },
   {
     body:

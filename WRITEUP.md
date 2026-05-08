@@ -4,7 +4,7 @@
 
 A Gemma 4-powered lesson-building tool that turns a topic and grade
 level into a complete, classroom-ready lesson package — guided by two
-collaborating personas, Hunter and Christine.
+collaborating Teacher's Assistants, Hunter and Christine.
 
 **[Live demo →](https://tlc-demo.vercel.app)** | **[Source code →](https://github.com/YOUR_HANDLE/tlc)** | **[Demo video →](https://youtu.be/YOUR_ID)** | **[Status page →](https://tlc-demo.vercel.app/status)**
 
@@ -23,7 +23,7 @@ timed sections, materials list, engagement moment, hands-on
 demonstration when appropriate, guided and independent practice,
 assessment with answer key, and teacher notes on common misconceptions.
 
-Two Gemma 4-powered personas run in parallel: **Hunter** handles
+Two Gemma 4-powered Teacher's Assistants run in parallel: **Hunter** handles
 structure and rigor; **Christine** handles depth and engagement. A
 review phase audits both contributions before packaging. Teachers
 watch the collaboration happen live.
@@ -102,7 +102,7 @@ tomorrow morning.
 
 ## The Two-Persona Design
 
-TLC uses two Gemma 4 personas that collaborate — not cosmetically, but
+TLC uses two Gemma 4-powered Teacher's Assistants that collaborate — not cosmetically, but
 structurally.
 
 ### Hunter — Structure and Rigor
@@ -138,7 +138,7 @@ Christine wins on pedagogical ones, unions on shared fields), the
 result has both the rigor of a department chair and the practicality of
 an experienced classroom teacher.
 
-The two personas aren't a story. They're an architecture decision with
+The two Teacher's Assistants aren't a story. They're an architecture decision with
 a visible product artifact: every section in the final lesson is
 attributable to one or the other (or the review phase), and the
 teacher can see exactly who wrote what.
@@ -350,7 +350,7 @@ higher throughput can contact [YOUR_EMAIL] for a whitelist.
    source upload, optional advanced settings)
 3. **Collaboration panel** — when you submit, the screen splits into
    two panels showing Hunter and Christine contributing in real time.
-   Each persona's card streams bullet items as Gemma 4 emits them.
+   Each assistant's card streams bullet items as Gemma 4 emits them.
 4. **Review report** — Phase 2 output with grade fit, source
    alignment, and any issues flagged by severity
 5. **Final lesson package** — tabbed view (Plan / Materials /
@@ -400,7 +400,7 @@ and in the gallery.
 - Week 1 — Foundation: Next.js scaffold, Vercel + Neon deployment,
   Google AI Studio integration, three-phase orchestration running
   end-to-end as JSON
-- Week 2 — Core flow: teacher input form, live-streaming persona panel,
+- Week 2 — Core flow: teacher input form, live-streaming assistant panel,
   review report UI, tabbed lesson package viewer, source upload pipeline,
   download endpoints (`.md` / `.html` / `.json`), per-IP rate limits
 - Week 3 — Polish + verification: landing page, gallery with 6
@@ -466,10 +466,10 @@ quota is shared by all five (sometimes seven) calls per lesson, so
 the orchestration is tuned for a small token budget rather than for
 maximum reasoning per call:
 
-- **Phase 3 context is persona-scoped.** Each Package call sees its
+- **Phase 3 context is assistant-scoped.** Each Package call sees its
   own Phase 1 scaffold in full but only a title + objective +
   handoff-notes summary of the partner's. The partner's full content
-  isn't re-sent because the persona never revises partner fields.
+  isn't re-sent because the assistant never revises partner fields.
 - **The regenerate-on-must-fix loop is bounded to one extra Build
   pass.** A second regenerate would be useful when the verifier finds
   a contradiction in a multi-part definition; we cap it because it
@@ -508,7 +508,7 @@ Gemma 4's strengths map directly onto what lesson building needs:
   parsing or prompt engineering around format
 - **Coherent long-form generation** — producing a full lesson package
   (often 2,000+ tokens) without drift
-- **Fast inference** — interactive demo latency (~10-20s per persona
+- **Fast inference** — interactive demo latency (~10-20s per assistant
   call) is viable on the free AI Studio tier
 - **Open model family** — the open weights let us reason about the
   model's behavior and debug prompts against local copies during
@@ -516,7 +516,7 @@ Gemma 4's strengths map directly onto what lesson building needs:
 
 TLC is a demonstration of Gemma 4 as a *conductor* of a specialist
 workflow rather than a single generalist AI. That framing makes the
-product stronger: two personas, three phases, source grounding,
+product stronger: two Teacher's Assistants, three phases, source grounding,
 structured output — each layer uses Gemma 4 for what it's best at.
 
 ---

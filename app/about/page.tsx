@@ -25,11 +25,11 @@ export default function AboutPage() {
         </header>
 
         <section className="space-y-4">
-          <h2 className="font-serif text-2xl">Why two personas</h2>
+          <h2 className="font-serif text-2xl">Why two Teacher&rsquo;s Assistants</h2>
           <p className="leading-relaxed">
             One-pass lesson generation is usually flat. Every section sounds
             the same because one model is doing every job. TLC splits the
-            work across two specialist personas:
+            work across two specialist Teacher&rsquo;s Assistants:
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="rounded-lg border border-hunter-100 bg-hunter-50/30 p-5 space-y-3">
@@ -145,8 +145,8 @@ export default function AboutPage() {
             </a>
             , Impact Track. Model: Gemma 4 via Google AI Studio. Stack:
             Next.js + Tailwind + Prisma + Neon Postgres + Vercel. Two
-            personas, one goal: teachers get a lesson they can teach
-            tomorrow.
+            Teacher&rsquo;s Assistants, one goal: teachers get a lesson
+            they can teach tomorrow.
           </p>
         </section>
 

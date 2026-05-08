@@ -113,7 +113,7 @@ const OWNER_COPY: Record<Owner, { label: string; bg: string; tooltip: string }> 
   union: {
     label: "H+C",
     bg: "bg-gradient-to-r from-hunter-500 to-christine-500 text-white",
-    tooltip: "Both personas contributed; merged with dedupe.",
+    tooltip: "Both Teacher's Assistants contributed; merged with dedupe.",
   },
 };
 

@@ -9,7 +9,7 @@ const STYLES: Record<SourceOrigin, { label: string; className: string; hint: str
   scaffolded: {
     label: "scaffolded",
     className: "bg-sky-50 text-sky-700 border-sky-200",
-    hint: "Source shaped the structure; wording is the persona's.",
+    hint: "Source shaped the structure; wording is the assistant's.",
   },
   generated: {
     label: "AI-generated — review",

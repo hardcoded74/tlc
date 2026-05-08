@@ -48,7 +48,7 @@ export function ReviewPanel({ review }: { review: ReviewReport }) {
         <div>
           <h3 className="font-serif text-xl">Review findings</h3>
           <p className="text-xs text-(--color-muted) mt-0.5">
-            TLC audits both personas before packaging.
+            TLC audits both Teacher&rsquo;s Assistants before packaging.
           </p>
         </div>
         <div className="flex items-center gap-3 text-xs">

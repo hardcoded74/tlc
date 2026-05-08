@@ -180,7 +180,7 @@ export function TeacherInputForm() {
       </div>
 
       <div>
-        <Label htmlFor="notes">Notes for the personas (optional)</Label>
+        <Label htmlFor="notes">Notes for the assistants (optional)</Label>
         <Textarea
           id="notes"
           value={notes}

@@ -4,7 +4,7 @@
 
 A Gemma 4-powered lesson-building tool that turns a topic and grade
 level into a complete, classroom-ready lesson package — guided by two
-collaborating personas, Hunter and Christine.
+collaborating Teacher's Assistants, Hunter and Christine.
 
 ## Quick Links
 
