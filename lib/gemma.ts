@@ -235,13 +235,33 @@ function extractUsage(response: unknown): { in: number; out: number } {
 // ──────────────────────────────────────────────────────────────────────
 
 export async function callGemma(params: GemmaCallParams): Promise<GemmaCallResult> {
-  // Backend dispatch — local Selene gets the same callGemma() shape but
-  // routes through lib/gemma-local.ts (OpenAI-compatible /v1/chat/completions
-  // against a tunneled llama.cpp server).
+  // Backend dispatch with quota fallback.
+  //
+  //   GEMMA_BACKEND=local  → straight to local Selene
+  //   GEMMA_BACKEND=studio → try AI Studio first; on a 429/quota error,
+  //                          if GEMMA_LOCAL_URL is set, retry the same
+  //                          call against local Selene transparently.
+  //                          Set GEMMA_LOCAL_FALLBACK=0 to disable.
+  //
+  // The fallback is what keeps judges from seeing "rate limited" on the
+  // live URL during a viewing window — when Studio's per-minute bucket
+  // is full we silently downshift to slow-but-reliable local hardware.
   if (selectedBackend() === "local") {
     return callGemmaLocal(params);
   }
-  return callGemmaStudio(params);
+  try {
+    return await callGemmaStudio(params);
+  } catch (err) {
+    const fallbackEnabled = process.env.GEMMA_LOCAL_FALLBACK !== "0";
+    const localAvailable = !!process.env.GEMMA_LOCAL_URL;
+    if (isQuotaError(err) && fallbackEnabled && localAvailable) {
+      console.warn(
+        "[gemma] studio quota exhausted; falling back to local Selene for this call",
+      );
+      return callGemmaLocal(params);
+    }
+    throw err;
+  }
 }
 
 async function callGemmaStudio(

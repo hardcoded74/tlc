@@ -5,6 +5,7 @@ import { useLessonStream } from "@/lib/stream";
 import { PersonaPanel } from "@/components/persona-panel";
 import { PhasePipeline, PendingSection } from "@/components/phase-pipeline";
 import { WhileYouWait } from "@/components/while-you-wait";
+import { WaitNotice } from "@/components/wait-notice";
 import { ReviewPanel } from "@/components/review-report";
 import { LessonPackageView } from "@/components/lesson-package";
 import { DownloadButtons } from "@/components/download-buttons";
@@ -66,6 +67,8 @@ export function LessonRunView({ initial }: { initial: InitialState }) {
         </div>
         <StatusBadge status={status} error={live.error} />
       </header>
+
+      <WaitNotice activeRun={status !== "complete" && status !== "failed"} />
 
       <PhasePipeline status={status} />
 
