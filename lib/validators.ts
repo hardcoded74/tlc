@@ -65,14 +65,47 @@ export const LessonStepSchema = z.object({
   source_origin: SourceOriginSchema,
 });
 
+const ENGAGEMENT_TYPE_SYNONYMS: Record<string, string> = {
+  "warm up": "warm_up",
+  "warm-up": "warm_up",
+  warmup: "warm_up",
+  hook: "warm_up",
+  opener: "warm_up",
+  "do now": "warm_up",
+  "bell ringer": "warm_up",
+  "partner activity": "partner_activity",
+  "partner-activity": "partner_activity",
+  pair: "partner_activity",
+  "pair share": "partner_activity",
+  "think-pair-share": "partner_activity",
+  "small group": "partner_activity",
+  "quick check": "quick_check",
+  "quick-check": "quick_check",
+  check: "quick_check",
+  "check for understanding": "quick_check",
+  cfu: "quick_check",
+  "interactive prompt": "interactive_prompt",
+  "interactive-prompt": "interactive_prompt",
+  prompt: "interactive_prompt",
+  poll: "interactive_prompt",
+  question: "interactive_prompt",
+};
+
 export const EngagementSchema = z.object({
-  type: z.enum([
-    "warm_up",
-    "discussion",
-    "partner_activity",
-    "quick_check",
-    "interactive_prompt",
-  ]),
+  type: z.preprocess(
+    (v) => {
+      if (typeof v !== "string") return v;
+      const norm = v.toLowerCase().trim();
+      return ENGAGEMENT_TYPE_SYNONYMS[norm] ?? v;
+    },
+    z.enum([
+      "warm_up",
+      "discussion",
+      "partner_activity",
+      "quick_check",
+      "interactive_prompt",
+    ]),
+  ),
   prompt: z.string().min(1),
   minutes: z.number().int().positive(),
   source_origin: SourceOriginSchema,
@@ -108,14 +141,53 @@ export const AssessmentQuestionSchema = z.object({
   source_origin: SourceOriginSchema,
 });
 
+// Common natural-language variants the model emits → our canonical
+// snake_case enum values. Selene's local 26B-A4B is sloppier with
+// strict enums than dense Gemma 4 — coercion here keeps a single
+// stylistic miss from failing the whole lesson.
+const ASSESSMENT_FORMAT_SYNONYMS: Record<string, string> = {
+  "exit ticket": "exit_ticket",
+  "exit-ticket": "exit_ticket",
+  exitticket: "exit_ticket",
+  ticket: "exit_ticket",
+  test: "quiz",
+  exam: "quiz",
+  examination: "quiz",
+  assessment: "quiz",
+  "comprehension check": "comprehension_check",
+  "comprehension-check": "comprehension_check",
+  comprehension: "comprehension_check",
+  "check for understanding": "comprehension_check",
+  observation: "comprehension_check",
+  oral: "comprehension_check",
+  verbal: "comprehension_check",
+  discussion: "comprehension_check",
+  demonstration: "comprehension_check",
+  performance: "comprehension_check",
+  "written response": "written_response",
+  "written-response": "written_response",
+  writing: "written_response",
+  essay: "written_response",
+  paragraph: "written_response",
+  homework: "written_response",
+  assignment: "written_response",
+};
+
 export const AssessmentSchema = z.object({
-  format: z.enum([
-    "exit_ticket",
-    "quiz",
-    "worksheet",
-    "comprehension_check",
-    "written_response",
-  ]),
+  format: z.preprocess(
+    (v) => {
+      if (typeof v !== "string") return v;
+      const norm = v.toLowerCase().trim();
+      return ASSESSMENT_FORMAT_SYNONYMS[norm] ?? v;
+    },
+    z.enum([
+      "exit_ticket",
+      "quiz",
+      "worksheet",
+      "comprehension_check",
+      "written_response",
+    ]),
+  ),
   questions: z.array(AssessmentQuestionSchema).min(1),
   estimated_minutes: z.number().int().positive(),
 });
