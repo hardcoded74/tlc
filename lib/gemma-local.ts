@@ -45,6 +45,105 @@ interface OAIResponse {
   };
 }
 
+interface OAIStreamDelta {
+  role?: string;
+  content?: string | null;
+  tool_calls?: Array<{
+    index?: number;
+    id?: string;
+    type?: "function";
+    function?: { name?: string; arguments?: string };
+  }>;
+}
+
+interface OAIStreamChunk {
+  choices?: Array<{ delta?: OAIStreamDelta; finish_reason?: string }>;
+  usage?: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+    total_tokens?: number;
+  };
+}
+
+/**
+ * Read an OpenAI SSE stream and reduce it to a single OAIResponse-shaped
+ * object, accumulating tool-call argument deltas across chunks. Cloudflare
+ * Free has a 100s proxy timeout for non-streaming responses; streaming
+ * keeps the connection alive as long as bytes are flowing, which lets
+ * locally-hosted models with longer wall-clock runs reach the client.
+ */
+async function consumeStream(res: Response): Promise<{
+  toolCalls: NonNullable<OAIChoiceMessage["tool_calls"]>;
+  content: string;
+  usage: { prompt_tokens: number; completion_tokens: number };
+}> {
+  if (!res.body) throw new Error("Local Gemma stream had no body");
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder("utf-8");
+  let buffer = "";
+  let content = "";
+  // Tool calls are accumulated by index — llama.cpp streams the JSON
+  // arguments incrementally across many chunks.
+  const calls = new Map<
+    number,
+    { id: string; name: string; args: string }
+  >();
+  let usage = { prompt_tokens: 0, completion_tokens: 0 };
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let nl: number;
+    // SSE messages are separated by blank lines; we process line-by-line.
+    while ((nl = buffer.indexOf("\n")) !== -1) {
+      const line = buffer.slice(0, nl).trim();
+      buffer = buffer.slice(nl + 1);
+      if (!line) continue;
+      if (!line.startsWith("data:")) continue;
+      const payload = line.slice(5).trim();
+      if (payload === "[DONE]") break;
+      let chunk: OAIStreamChunk;
+      try {
+        chunk = JSON.parse(payload) as OAIStreamChunk;
+      } catch {
+        continue;
+      }
+      const choice = chunk.choices?.[0];
+      const delta = choice?.delta;
+      if (delta?.content) content += delta.content;
+      if (delta?.tool_calls) {
+        for (const tc of delta.tool_calls) {
+          const idx = tc.index ?? 0;
+          const cur =
+            calls.get(idx) ?? { id: "", name: "", args: "" };
+          if (tc.id) cur.id = tc.id;
+          if (tc.function?.name) cur.name = tc.function.name;
+          if (tc.function?.arguments) cur.args += tc.function.arguments;
+          calls.set(idx, cur);
+        }
+      }
+      if (chunk.usage) {
+        usage = {
+          prompt_tokens: chunk.usage.prompt_tokens ?? usage.prompt_tokens,
+          completion_tokens:
+            chunk.usage.completion_tokens ?? usage.completion_tokens,
+        };
+      }
+    }
+  }
+
+  const toolCalls: NonNullable<OAIChoiceMessage["tool_calls"]> = [];
+  for (const c of calls.values()) {
+    toolCalls.push({
+      id: c.id,
+      type: "function",
+      function: { name: c.name, arguments: c.args },
+    });
+  }
+  return { toolCalls, content, usage };
+}
+
 function parseJsonFromText(text: string): Record<string, unknown> | null {
   let cleaned = text.trim();
   if (cleaned.startsWith("```")) {
@@ -110,8 +209,12 @@ export async function callGemmaLocal(
     tool,
     forceToolCall = true,
     temperature = 0.7,
-    maxRetries = 2,
-    timeoutMs = 120_000, // local can be slower per call; allow more headroom
+    // Local Selene per-call latency on a 26B-A4B MoE on Arc B570 sits
+    // around 200-300s for a Phase 1 build and similar for Phase 3.
+    // Default of 1 attempt + 10-minute hard ceiling gives margin without
+    // wasting retries (re-running a slow call doesn't make Selene faster).
+    maxRetries = 1,
+    timeoutMs = 600_000,
   } = params;
 
   const startedAt = Date.now();
@@ -128,11 +231,16 @@ export async function callGemmaLocal(
         tools: [toOAITool(tool)],
         tool_choice: forceToolCall ? "auto" : "none",
         temperature,
-        // No max_tokens — let the model run to its natural stop on tool call.
+        // Stream so Cloudflare's 100-second proxy timeout doesn't cut us
+        // off mid-generation when Selene's wall-clock runs long.
+        stream: true,
+        // Ask llama-server to include final usage figures in the stream.
+        stream_options: { include_usage: true },
       };
 
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
+        Accept: "text/event-stream",
       };
       if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
 
@@ -150,16 +258,13 @@ export async function callGemmaLocal(
         throw new Error(`Local Gemma HTTP ${res.status}: ${text.slice(0, 300)}`);
       }
 
-      const json = (await res.json()) as OAIResponse;
-      const choice = json.choices?.[0];
-      const message = choice?.message;
-      const usage = json.usage ?? {};
-      const tokensIn = usage.prompt_tokens ?? 0;
-      const tokensOut = usage.completion_tokens ?? 0;
+      const reduced = await consumeStream(res);
+      const tokensIn = reduced.usage.prompt_tokens;
+      const tokensOut = reduced.usage.completion_tokens;
       const latencyMs = Date.now() - startedAt;
 
       // 1. Native tool call path
-      const toolCall = message?.tool_calls?.find(
+      const toolCall = reduced.toolCalls.find(
         (tc) => tc.function?.name === tool.name,
       );
       if (toolCall?.function?.arguments) {
@@ -170,7 +275,6 @@ export async function callGemmaLocal(
             unknown
           >;
         } catch {
-          // Some local models emit slightly malformed JSON in arguments.
           const fb = parseJsonFromText(toolCall.function.arguments);
           if (fb) parsed = fb;
         }
@@ -186,7 +290,7 @@ export async function callGemmaLocal(
       }
 
       // 2. JSON-in-content fallback
-      const rawText = message?.content ?? "";
+      const rawText = reduced.content;
       const fallback = parseJsonFromText(rawText);
       if (fallback) {
         return {

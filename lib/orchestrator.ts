@@ -695,7 +695,7 @@ async function recordFailure(runId: string, err: unknown): Promise<void> {
   const friendly = isQuota
     ? "Rate limit hit on Google AI Studio (per-minute input-token cap). The bucket resets every minute — try the same lesson again in 60–90 seconds."
     : isTimeout
-      ? "A Gemma call took longer than the 60-second per-call budget. AI Studio's slow lane was probably backed up. Try again in a minute."
+      ? "A Gemma call took longer than the per-call budget. The model may be under heavy load or the inference backend is offline. Try again in a minute."
       : null;
   const message = friendly ?? rawMessage;
   const entry: ErrorEntry = {
