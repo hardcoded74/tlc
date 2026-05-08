@@ -254,7 +254,11 @@ async function callGemmaStudio(
     forceToolCall = true,
     temperature = 0.7,
     maxRetries = 2,
-    timeoutMs = 60_000,
+    // 90s per call — paid AI Studio Phase-1 with slim prompts comes back
+    // in 30-60s healthy, but the slow lane occasionally drifts over 60s.
+    // 90s leaves room while still failing fast enough that two attempts
+    // don't blow past Vercel's 300s function ceiling on a 5-call lesson.
+    timeoutMs = 90_000,
     phase,
   } = params;
 
