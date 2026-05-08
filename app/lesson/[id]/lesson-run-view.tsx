@@ -76,7 +76,7 @@ export function LessonRunView({ initial }: { initial: InitialState }) {
         <section>
           <ReviewPanel review={review} />
         </section>
-      ) : status === "reviewing" ? (
+      ) : status === "reviewing" || status === "packaging" ? (
         <PendingSection
           title="Reviewing both scaffolds"
           description="Auditing structure, depth, and alignment — and cross-referencing every vocabulary term and misconception correction against Wikipedia and Wikidata."
@@ -91,7 +91,8 @@ export function LessonRunView({ initial }: { initial: InitialState }) {
           </div>
           <LessonPackageView pkg={finalPackage} />
         </section>
-      ) : status === "packaging" ? (
+      ) : status === "packaging" ||
+        (status === "reviewing" && review) ? (
         <PendingSection
           title="Finalizing the lesson package"
           description="Hunter and Christine emit a delta with their revisions; the merge layer assembles the final package by field ownership."
