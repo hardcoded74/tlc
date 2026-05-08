@@ -19,9 +19,18 @@ import { z } from "zod";
  */
 function nullishString() {
   return z
-    .string()
-    .nullable()
-    .optional()
+    .preprocess(
+      (v) => {
+        if (Array.isArray(v)) {
+          return v
+            .filter((x) => x != null)
+            .map((x) => (typeof x === "string" ? x : JSON.stringify(x)))
+            .join(" ");
+        }
+        return v;
+      },
+      z.string().nullable().optional(),
+    )
     .transform((v) => (v == null || v === "" ? null : v));
 }
 
@@ -30,6 +39,29 @@ function nullishObject<T extends z.ZodTypeAny>(schema: T) {
     .nullable()
     .optional()
     .transform((v) => v ?? null);
+}
+
+/**
+ * Local Selene 26B-A4B sometimes returns prose fields as arrays of
+ * strings (e.g. lesson_steps[i].student_action = ["Read silently",
+ * "Discuss with partner"]) when the schema expects a single string.
+ * Cloud Gemma 4 dense honors the string type more reliably. This
+ * helper accepts string|string[] and joins arrays with " " so the
+ * lesson still succeeds — same content, single field.
+ */
+function flexibleString() {
+  return z.preprocess(
+    (v) => {
+      if (Array.isArray(v)) {
+        return v
+          .filter((x) => x != null)
+          .map((x) => (typeof x === "string" ? x : JSON.stringify(x)))
+          .join(" ");
+      }
+      return v;
+    },
+    z.string().min(1),
+  );
 }
 
 // ──────────────────────────────────────────────────────────────────────
@@ -60,8 +92,8 @@ export const MaterialSchema = z.object({
 export const LessonStepSchema = z.object({
   step: z.number().int().positive(),
   minutes: z.number().int().positive(),
-  teacher_action: z.string().min(1),
-  student_action: z.string().min(1),
+  teacher_action: flexibleString(),
+  student_action: flexibleString(),
   source_origin: SourceOriginSchema,
 });
 
@@ -106,13 +138,13 @@ export const EngagementSchema = z.object({
       "interactive_prompt",
     ]),
   ),
-  prompt: z.string().min(1),
+  prompt: flexibleString(),
   minutes: z.number().int().positive(),
   source_origin: SourceOriginSchema,
 });
 
 export const DemonstrationSchema = z.object({
-  description: z.string().min(1),
+  description: flexibleString(),
   materials_needed: z.array(z.string()),
   teacher_tip: nullishString(),
   safety_notes: nullishString(),
@@ -120,14 +152,14 @@ export const DemonstrationSchema = z.object({
 });
 
 export const GuidedPracticeSchema = z.object({
-  description: z.string().min(1),
+  description: flexibleString(),
   format: z.enum(["whole_class", "pair", "small_group"]),
   duration_minutes: z.number().int().positive(),
   source_origin: SourceOriginSchema,
 });
 
 export const IndependentPracticeSchema = z.object({
-  description: z.string().min(1),
+  description: flexibleString(),
   duration_minutes: z.number().int().positive(),
   deliverable: nullishString(),
   source_origin: SourceOriginSchema,
@@ -135,8 +167,8 @@ export const IndependentPracticeSchema = z.object({
 
 export const AssessmentQuestionSchema = z.object({
   id: z.string().regex(/^q\d+$/, "question IDs must match /^q\\d+$/"),
-  question: z.string().min(1),
-  expected_answer: z.string().min(1),
+  question: flexibleString(),
+  expected_answer: flexibleString(),
   rubric_notes: nullishString(),
   source_origin: SourceOriginSchema,
 });
@@ -193,7 +225,7 @@ export const AssessmentSchema = z.object({
 });
 
 export const DiscussionPromptSchema = z.object({
-  prompt: z.string().min(1),
+  prompt: flexibleString(),
   purpose: z.enum([
     "activate_prior_knowledge",
     "deepen_understanding",
@@ -205,20 +237,20 @@ export const DiscussionPromptSchema = z.object({
 
 export const VocabularyTermSchema = z.object({
   term: z.string().min(1),
-  definition: z.string().min(1),
+  definition: flexibleString(),
   example: nullishString(),
   source_origin: SourceOriginSchema,
 });
 
 export const MisconceptionSchema = z.object({
-  misconception: z.string().min(1),
-  correction: z.string().min(1),
-  how_to_address: z.string().min(1),
+  misconception: flexibleString(),
+  correction: flexibleString(),
+  how_to_address: flexibleString(),
 });
 
 export const DifferentiationSchema = z.object({
-  struggling: z.string().min(1),
-  advanced: z.string().min(1),
+  struggling: flexibleString(),
+  advanced: flexibleString(),
   multilingual_learners: nullishString(),
   source_origin: SourceOriginSchema,
 });
@@ -234,22 +266,22 @@ export const AccommodationsSchema = z.object({
 });
 
 export const HomeworkSchema = z.object({
-  description: z.string().min(1),
+  description: flexibleString(),
   estimated_minutes: z.number().int().positive(),
   optional: z.boolean(),
   source_origin: SourceOriginSchema,
 });
 
 export const EnrichmentSchema = z.object({
-  description: z.string().min(1),
-  for_students_who: z.string().min(1),
+  description: flexibleString(),
+  for_students_who: flexibleString(),
   source_origin: SourceOriginSchema,
 });
 
 export const StandardReferenceSchema = z.object({
   framework: z.string().min(1),
   code: z.string().min(1),
-  description: z.string().min(1),
+  description: flexibleString(),
 });
 
 // Be lenient: Gemma sometimes omits standards_cited entirely or uses
@@ -323,11 +355,11 @@ export const LessonPackageSchema = z.object({
 
 export const PersonaScaffoldSchema = z.object({
   persona: z.enum(["hunter", "christine"]),
-  title: z.string().min(1),
-  objective: z.string().min(1),
+  title: flexibleString(),
+  objective: flexibleString(),
   grade_level: z.string().min(1),
   estimated_minutes: z.number().int().positive(),
-  overview: z.string().min(1),
+  overview: flexibleString(),
   materials: z.array(MaterialSchema),
   lesson_steps: z.array(LessonStepSchema),
   engagement: EngagementSchema,
@@ -379,8 +411,8 @@ export const ReviewIssueSchema = z.object({
   ]),
   severity: z.enum(["must_fix", "should_fix", "nice_to_fix"]),
   where: z.string(),
-  problem: z.string().min(1),
-  fix: z.string().min(1),
+  problem: flexibleString(),
+  fix: flexibleString(),
 });
 
 export const VerificationSourceRefSchema = z.object({
