@@ -14,8 +14,8 @@ import { PrismaClient } from "@prisma/client";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, basename, extname } from "node:path";
 import { createHash } from "node:crypto";
-import { LessonPackageSchema } from "../lib/validators";
-import type { LessonPackage } from "../lib/types";
+import { LessonPackageSchema, ReviewReportSchema } from "../lib/validators";
+import type { LessonPackage, ReviewReport } from "../lib/types";
 
 const SEED_DIR = join(process.cwd(), "examples", "seed_lessons");
 const GALLERY_IP_HASH = "__gallery_seed__";
@@ -33,7 +33,9 @@ function idFromFilename(filename: string): string {
   ].join("-");
 }
 
-async function loadLesson(filePath: string): Promise<LessonPackage> {
+async function loadLesson(
+  filePath: string,
+): Promise<{ pkg: LessonPackage; review: ReviewReport | null }> {
   const raw = readFileSync(filePath, "utf-8");
   const parsed = JSON.parse(raw);
   const result = LessonPackageSchema.safeParse(parsed);
@@ -42,7 +44,24 @@ async function loadLesson(filePath: string): Promise<LessonPackage> {
       `Invalid seed lesson ${basename(filePath)}: ${JSON.stringify(result.error.issues, null, 2)}`,
     );
   }
-  return result.data;
+  // Optional gallery-only metadata: a hand-crafted Review report whose
+  // verification block tells a story (e.g. the manufactured-contradiction
+  // demo seed). LessonPackageSchema strips unknown top-level keys, so the
+  // raw JSON is what we read this from.
+  let review: ReviewReport | null = null;
+  const meta = (parsed as Record<string, unknown>)["$gallery_meta"];
+  if (meta && typeof meta === "object" && "review" in meta) {
+    const r = ReviewReportSchema.safeParse(
+      (meta as Record<string, unknown>).review,
+    );
+    if (!r.success) {
+      throw new Error(
+        `Invalid $gallery_meta.review in ${basename(filePath)}: ${JSON.stringify(r.error.issues, null, 2)}`,
+      );
+    }
+    review = r.data;
+  }
+  return { pkg: result.data, review };
 }
 
 async function main() {
@@ -67,7 +86,7 @@ async function main() {
       const filePath = join(SEED_DIR, file);
       const id = idFromFilename(basename(file, extname(file)));
       try {
-        const pkg = await loadLesson(filePath);
+        const { pkg, review } = await loadLesson(filePath);
         await prisma.lessonRun.upsert({
           where: { id },
           create: {
@@ -79,6 +98,7 @@ async function main() {
             subject: pkg.subject,
             objective: pkg.objective,
             finalPackage: pkg as unknown as object,
+            review: (review as unknown as object) ?? undefined,
             ipHash: GALLERY_IP_HASH,
             expiresAt: new Date(Date.now() + SIX_MONTHS_MS),
           },
@@ -89,10 +109,12 @@ async function main() {
             subject: pkg.subject,
             objective: pkg.objective,
             finalPackage: pkg as unknown as object,
+            review: (review as unknown as object) ?? null,
             expiresAt: new Date(Date.now() + SIX_MONTHS_MS),
           },
         });
-        console.log(`[seed] ✓ ${file} → ${id}`);
+        const tag = review ? "(+review)" : "";
+        console.log(`[seed] ✓ ${file} → ${id} ${tag}`);
       } catch (err) {
         console.error(`[seed] ✗ ${file}:`, err);
       }

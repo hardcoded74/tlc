@@ -38,10 +38,27 @@ export function PersonaPanel({
 }) {
   const copy = PERSONA_COPY[persona];
 
+  const isThinking = phase === "thinking";
   return (
-    <div className={`rounded-lg border ${copy.cardClass} p-5 flex flex-col gap-4 min-h-64`}>
+    <div
+      className={`rounded-lg border ${copy.cardClass} p-5 flex flex-col gap-4 min-h-64 transition-shadow duration-500 ${
+        isThinking ? "shadow-md shadow-hunter-200/50" : ""
+      }`}
+    >
       <header className="flex items-center gap-3">
-        <PersonaAvatar persona={persona} size="md" />
+        <span
+          className={`relative inline-flex transition-transform duration-300 ${
+            isThinking ? "scale-105" : ""
+          }`}
+        >
+          {isThinking && (
+            <span
+              aria-hidden
+              className={`absolute inset-0 rounded-full ${copy.dotClass} opacity-20 animate-ping`}
+            />
+          )}
+          <PersonaAvatar persona={persona} size="md" />
+        </span>
         <div className="flex-1">
           <h3 className="font-serif text-lg leading-tight">{copy.name}</h3>
           <p className="text-xs text-(--color-muted)">{copy.role}</p>

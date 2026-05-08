@@ -1,0 +1,277 @@
+{
+  "schema_version": "1.0",
+  "title": "Phases of the Moon: Why It Looks Different Every Night",
+  "objective": "Students will name the eight phases of the Moon in order, explain that the changing appearance is caused by which side is lit by the Sun, and distinguish 'waxing' (illuminated portion increasing) from 'waning' (illuminated portion decreasing).",
+  "grade_level": "5th grade",
+  "subject": "Science",
+  "estimated_minutes": 45,
+  "overview": "Most fifth graders have noticed the Moon changes shape but assume the Moon itself is changing — clouds in front, or the Moon shrinking and growing. This lesson untangles that misconception by anchoring the appearance change to a single fact: the Moon is always half-lit by the Sun, and we see different fractions of the lit half depending on where the Moon is in its orbit. Students model phases with a styrofoam ball and a flashlight, name them in order, and use the words waxing and waning correctly by exit ticket.",
+  "materials": [
+    { "name": "Styrofoam ball on a stick (one per student)", "quantity": "28", "source_origin": "scaffolded" },
+    { "name": "Flashlight (one per pair, bright enough to cast a clear shadow)", "quantity": "14", "source_origin": "scaffolded" },
+    { "name": "Phase-of-the-Moon order strip (printed, blank for student labeling)", "quantity": "28", "source_origin": "scaffolded" },
+    { "name": "Anchor poster of the eight phases (printed, large)", "quantity": "1", "source_origin": "scaffolded" },
+    { "name": "Exit ticket: 4 unlabeled phase images", "quantity": "28", "source_origin": "scaffolded" }
+  ],
+  "lesson_steps": [
+    {
+      "step": 1,
+      "minutes": 5,
+      "teacher_action": "Show a time-lapse of the Moon over a month. Ask: 'What is changing — the Moon, or the way we see it?' Take 3-4 student answers without correcting yet.",
+      "student_action": "Watch the time-lapse. Share predictions about what is causing the Moon to look different each night.",
+      "source_origin": "generated"
+    },
+    {
+      "step": 2,
+      "minutes": 10,
+      "teacher_action": "Teach the core idea: the Moon is always half-lit by the Sun. We see different fractions of that lit half because the Moon orbits Earth. Demonstrate with a flashlight and a ball at the front of the room.",
+      "student_action": "Watch the demonstration. Answer the check question: 'Is the Moon ever fully dark on its own?' (Answer: only the side facing away from the Sun.)",
+      "source_origin": "generated"
+    },
+    {
+      "step": 3,
+      "minutes": 18,
+      "teacher_action": "Pair students. Give each pair a flashlight and ball-on-stick. Walk them through the eight phases in order, pausing at each so they can see the lit fraction change. Introduce 'waxing' and 'waning' at first quarter and third quarter respectively.",
+      "student_action": "Model each phase with the ball and flashlight. Label the phase strip in order. Discuss with partner whether the Moon is currently waxing or waning.",
+      "source_origin": "generated"
+    },
+    {
+      "step": 4,
+      "minutes": 7,
+      "teacher_action": "Distribute the exit ticket: four unlabeled phase images. Students name each and mark waxing or waning. Collect.",
+      "student_action": "Complete the exit ticket independently.",
+      "source_origin": "generated"
+    },
+    {
+      "step": 5,
+      "minutes": 5,
+      "teacher_action": "Quick share-out: ask which phase is happening tonight (look it up live). Send students out with the homework: observe and sketch the Moon for three nights this week.",
+      "student_action": "Note tonight's expected phase. Take home the observation log.",
+      "source_origin": "generated"
+    }
+  ],
+  "vocabulary": [
+    { "term": "phase", "definition": "The shape of the lit part of the Moon as we see it from Earth.", "example": "Tonight's phase is a waxing crescent.", "source_origin": "scaffolded" },
+    { "term": "waxing", "definition": "When the lit portion of the Moon we can see is getting bigger night after night.", "example": "The Moon is waxing on its way from new to full.", "source_origin": "scaffolded" },
+    { "term": "waning", "definition": "When the lit portion of the Moon we can see is getting smaller night after night.", "example": "After full moon, the Moon is waning.", "source_origin": "scaffolded" },
+    { "term": "new moon", "definition": "The phase where the side of the Moon facing Earth is entirely in shadow.", "example": null, "source_origin": "scaffolded" },
+    { "term": "full moon", "definition": "The phase where the side of the Moon facing Earth is fully lit by the Sun.", "example": null, "source_origin": "scaffolded" }
+  ],
+  "discussion_prompts": [
+    { "prompt": "Why does the same Moon look different from one week to the next, even though it isn't changing shape?", "purpose": "deepen_understanding", "source_origin": "generated" },
+    { "prompt": "If you saw a 'C-shaped' Moon last night, would you expect to see a fuller Moon or a thinner Moon next week? How can you tell?", "purpose": "deepen_understanding", "source_origin": "generated" },
+    { "prompt": "Astronauts on the Moon would see Earth go through phases too. What do you think Earth would look like from the Moon during our 'full moon'?", "purpose": "extend_beyond_lesson", "source_origin": "generated" }
+  ],
+  "misconceptions": [
+    {
+      "misconception": "The Moon changes shape, getting bigger and smaller each month.",
+      "correction": "The Moon's shape is constant — only the part lit by the Sun and visible from Earth changes.",
+      "how_to_address": "Use the ball-and-flashlight demo. Walk a student around the room and ask: 'Is the ball changing shape, or is your view of the lit side changing?'"
+    },
+    {
+      "misconception": "Clouds or Earth's shadow cause the phases.",
+      "correction": "Phases are caused by the Moon's orbit around Earth, which changes the angle from which we see the Moon's lit half. Earth's shadow causes a lunar eclipse, which is rare and different from the regular monthly cycle.",
+      "how_to_address": "Show a diagram of Earth and Moon with the Sun off-screen. Trace the Moon around its orbit and point out that Earth's shadow only crosses the Moon during eclipses."
+    }
+  ],
+  "demo": {
+    "description": "One bright flashlight at the front of the room (the Sun) and a student holding a styrofoam ball at arm's length. The student slowly rotates in place while keeping the ball pointed at the flashlight. From the student's perspective, the lit fraction of the ball matches the eight phases in order.",
+    "materials_needed": ["bright flashlight", "styrofoam ball on a stick", "darkened room"],
+    "teacher_tip": "Dimming classroom lights makes the lit/unlit boundary on the ball much sharper. If you have a black backdrop, set the demo up against it for contrast.",
+    "safety_notes": null,
+    "source_origin": "generated"
+  },
+  "assessment": {
+    "format": "exit_ticket",
+    "estimated_minutes": 7,
+    "questions": [
+      {
+        "id": "q1",
+        "question": "Name the phase between New Moon and First Quarter.",
+        "expected_answer": "Waxing crescent.",
+        "rubric_notes": "Full credit for 'waxing crescent.' Half credit for 'crescent' alone.",
+        "source_origin": "scaffolded"
+      },
+      {
+        "id": "q2",
+        "question": "True or false: a waxing Moon means the lit part we see is getting smaller each night.",
+        "expected_answer": "False — that describes waning.",
+        "rubric_notes": "Award full credit only if student identifies the statement as describing waning rather than waxing.",
+        "source_origin": "scaffolded"
+      }
+    ]
+  },
+  "engagement": {
+    "type": "interactive_prompt",
+    "prompt": "Walk a student around the room with a styrofoam ball pointed at the flashlight. Ask the rest of the class to call out which phase they see at each step.",
+    "minutes": 8,
+    "source_origin": "generated"
+  },
+  "teacher_notes": "If you can, time this lesson to the week of a first-quarter or last-quarter Moon — students seeing 'tonight's' phase in the sky after class is the strongest hook back to the content. Some students will conflate phases with eclipses; note in step 2 that an eclipse is rare and different. The high-energy step is the ball-and-flashlight demo (step 3) — pre-set noise expectations and use a simple chime to call students back.",
+  "differentiation": {
+    "struggling": "Pair with a partner who has already grasped the orbit demo. Provide a printed phase-name word bank for the exit ticket. Allow drawing the lit fraction instead of writing the phase name.",
+    "advanced": "Ask: 'Why is there roughly 29.5 days between full moons but the Moon's orbit around Earth is 27.3 days?' (Earth has moved in its own orbit; the Moon has to catch up.)",
+    "multilingual_learners": "Pre-teach 'phase,' 'waxing,' 'waning,' 'orbit,' and 'illuminate' with cognates and visual labels on the anchor poster.",
+    "source_origin": "generated"
+  },
+  "accommodations": {
+    "visual_supports": "Anchor poster + ball/flashlight demo gives a visual reference at every step. For students with low vision, have them feel the ball during the demo to map lit vs. shadow tactilely (warm side faces the flashlight).",
+    "auditory_supports": "Repeat the 'half-lit always' core idea verbally three times: at intro, mid-demo, and exit ticket. Caption the time-lapse video.",
+    "motor_supports": "For students who cannot easily walk the orbit, partner them with a peer and have them rotate the ball in their hands while the partner moves the flashlight.",
+    "cognitive_supports": "Use the order strip as a visual scaffold for the exit ticket; allow it as a reference if needed.",
+    "behavioral_supports": "Step 3 is the high-energy phase. Pre-set noise expectations and use a simple chime to call students back.",
+    "source_origin": "generated"
+  },
+  "homework": {
+    "description": "Observe the Moon for three nights this week. Sketch what you see and note the time and rough direction. On a fourth blank space, predict what tomorrow's Moon will look like.",
+    "estimated_minutes": 15,
+    "optional": false,
+    "source_origin": "generated"
+  },
+  "enrichment": {
+    "description": "Research why we always see the same side of the Moon (tidal locking) and prepare a one-paragraph explanation for next class.",
+    "for_students_who": "finish the exit ticket early or want to dig deeper into orbital mechanics",
+    "source_origin": "generated"
+  },
+  "standards_alignment": {
+    "framework_summary": "NGSS 5-ESS1-2 anchors this lesson — observable patterns of motion in the sky.",
+    "standards_cited": [
+      {
+        "framework": "NGSS",
+        "code": "5-ESS1-2",
+        "description": "Represent data in graphical displays to reveal patterns of daily changes in length and direction of shadows, day and night, and the seasonal appearance of some stars in the night sky."
+      }
+    ]
+  },
+  "source_summary": {
+    "source_id": null,
+    "overall_grounding": "no_source",
+    "grounded_section_count": 0,
+    "generated_section_count": 7
+  },
+  "generated_by": {
+    "hunter_contribution_ids": ["build-hunter-moon01", "package-hunter-moon01"],
+    "christine_contribution_ids": ["build-christine-moon01", "package-christine-moon01"],
+    "review_id": "review-moon01"
+  },
+
+  "$gallery_meta": {
+    "comment": "Manufactured-contradiction demo seed. The first-pass scaffold defined 'waxing' as 'the Moon getting smaller and smaller each night.' The Phase 2 source verifier cross-checked the term against Wikipedia and Wikidata, flagged it as contradicted, and the regenerate-on-must-fix loop produced the corrected definition you see in the lesson above. The verification block + must-fix issue below are preserved so the demo viewer can see exactly what got caught.",
+    "review": {
+      "overall_assessment": "strong_first_pass",
+      "grade_fit": {
+        "rating": "appropriate",
+        "notes": "Vocabulary and demo align well with 5th-grade expectations; the orbital geometry is presented at the right level of abstraction."
+      },
+      "source_alignment": "fully_grounded",
+      "issues": [
+        {
+          "id": "issue-verify-2",
+          "issue_type": "source",
+          "severity": "must_fix",
+          "where": "vocabulary: waxing",
+          "problem": "Lesson contradicts Wikipedia: the original definition described 'waxing' as the lit portion shrinking, which is the opposite of the established meaning.",
+          "fix": "Revise the vocabulary entry for 'waxing' to match the reference (https://en.wikipedia.org/wiki/Lunar_phase)."
+        }
+      ],
+      "must_fix_count": 1,
+      "should_fix_count": 0,
+      "nice_to_fix_count": 0,
+      "ready_for_packaging": true,
+      "verification": {
+        "generated_at": "2026-05-08T00:00:00.000Z",
+        "total_checked": 5,
+        "verified_count": 4,
+        "unverified_count": 0,
+        "contradicted_count": 1,
+        "findings": [
+          {
+            "id": "verify-1",
+            "claim_kind": "vocabulary",
+            "claim_subject": "phase",
+            "claim_text": "The shape of the lit part of the Moon as we see it from Earth.",
+            "status": "verified",
+            "sources": [
+              {
+                "name": "Wikipedia",
+                "url": "https://en.wikipedia.org/wiki/Lunar_phase",
+                "excerpt": "The lunar phase or Moon phase is the apparent shape of the Moon's directly sunlit portion as viewed from the Earth..."
+              },
+              {
+                "name": "Wikidata",
+                "url": "https://www.wikidata.org/wiki/Q151885",
+                "excerpt": "lunar phase — shape of the directly sunlit portion of the Moon as viewed from Earth"
+              }
+            ],
+            "notes": null
+          },
+          {
+            "id": "verify-2",
+            "claim_kind": "vocabulary",
+            "claim_subject": "waxing",
+            "claim_text": "The Moon getting smaller and smaller each night until it disappears.",
+            "status": "contradicted",
+            "sources": [
+              {
+                "name": "Wikipedia",
+                "url": "https://en.wikipedia.org/wiki/Lunar_phase",
+                "excerpt": "The Moon is waxing when the lit fraction is increasing from new moon toward full moon, and waning when the lit fraction is decreasing from full moon toward new moon."
+              }
+            ],
+            "notes": "Lesson defined 'waxing' as the lit portion shrinking — the opposite of the standard astronomical meaning. Wikipedia and standard references describe waxing as the lit fraction increasing from new toward full."
+          },
+          {
+            "id": "verify-3",
+            "claim_kind": "vocabulary",
+            "claim_subject": "waning",
+            "claim_text": "When the lit portion of the Moon we can see is getting smaller night after night.",
+            "status": "verified",
+            "sources": [
+              {
+                "name": "Wikipedia",
+                "url": "https://en.wikipedia.org/wiki/Lunar_phase",
+                "excerpt": "...waning when the lit fraction is decreasing from full moon toward new moon."
+              }
+            ],
+            "notes": null
+          },
+          {
+            "id": "verify-4",
+            "claim_kind": "vocabulary",
+            "claim_subject": "new moon",
+            "claim_text": "The phase where the side of the Moon facing Earth is entirely in shadow.",
+            "status": "verified",
+            "sources": [
+              {
+                "name": "Wikipedia",
+                "url": "https://en.wikipedia.org/wiki/New_moon",
+                "excerpt": "In astronomy, the new moon is the first lunar phase, when the Moon and Sun have the same ecliptic longitude..."
+              },
+              {
+                "name": "Wikidata",
+                "url": "https://www.wikidata.org/wiki/Q1801",
+                "excerpt": "new moon — phase of the Moon when the Moon, in its monthly orbital motion around Earth, lies between Earth and the Sun"
+              }
+            ],
+            "notes": null
+          },
+          {
+            "id": "verify-5",
+            "claim_kind": "vocabulary",
+            "claim_subject": "full moon",
+            "claim_text": "The phase where the side of the Moon facing Earth is fully lit by the Sun.",
+            "status": "verified",
+            "sources": [
+              {
+                "name": "Wikipedia",
+                "url": "https://en.wikipedia.org/wiki/Full_moon",
+                "excerpt": "The full moon is the lunar phase when the Moon appears fully illuminated from Earth's perspective."
+              }
+            ],
+            "notes": null
+          }
+        ]
+      }
+    }
+  }
+}
