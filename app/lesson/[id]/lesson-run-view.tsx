@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useLessonStream } from "@/lib/stream";
 import { PersonaPanel } from "@/components/persona-panel";
+import { PhasePipeline, PendingSection } from "@/components/phase-pipeline";
 import { ReviewPanel } from "@/components/review-report";
 import { LessonPackageView } from "@/components/lesson-package";
 import { DownloadButtons } from "@/components/download-buttons";
@@ -64,16 +65,23 @@ export function LessonRunView({ initial }: { initial: InitialState }) {
         <StatusBadge status={status} error={live.error} />
       </header>
 
+      <PhasePipeline status={status} />
+
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <PersonaPanel persona="hunter" scaffold={hunter} phase={hunterPhase} />
         <PersonaPanel persona="christine" scaffold={christine} phase={christinePhase} />
       </section>
 
-      {review && (
+      {review ? (
         <section>
           <ReviewPanel review={review} />
         </section>
-      )}
+      ) : status === "reviewing" ? (
+        <PendingSection
+          title="Reviewing both scaffolds"
+          description="Auditing structure, depth, and alignment — and cross-referencing every vocabulary term and misconception correction against Wikipedia and Wikidata."
+        />
+      ) : null}
 
       {finalPackage ? (
         <section className="space-y-3">
@@ -83,6 +91,11 @@ export function LessonRunView({ initial }: { initial: InitialState }) {
           </div>
           <LessonPackageView pkg={finalPackage} />
         </section>
+      ) : status === "packaging" ? (
+        <PendingSection
+          title="Finalizing the lesson package"
+          description="Hunter and Christine emit a delta with their revisions; the merge layer assembles the final package by field ownership."
+        />
       ) : status === "complete" ? (
         <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           The run is marked complete but no final package is attached.
