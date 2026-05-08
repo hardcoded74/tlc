@@ -88,11 +88,25 @@ export async function POST(req: Request) {
     await consumeRateLimit(ipHash);
   }
 
-  // Fire-and-forget. Errors are caught inside orchestrate() and persisted
-  // to LessonRun.errorLog; we don't want to block the response on them.
-  void orchestrate({ runId: run.id }).catch((err) => {
-    console.error(`[TLC] orchestrator threw for run ${run.id}:`, err);
-  });
+  // Two modes:
+  //
+  // - WORKER_MODE=1 (default for the local-Selene deploy): leave the run
+  //   in `pending` and exit. A long-running worker on Sam's machine
+  //   polls Neon, picks pending runs, and orchestrates against
+  //   localhost:8090 — no Vercel function ceiling, no Cloudflare proxy
+  //   timeout, no tunnel hop.
+  //
+  // - WORKER_MODE unset / "0" (legacy): fire-and-forget orchestrate()
+  //   inside this function. Subject to Vercel's 300s ceiling and any
+  //   quota / rate-limit issues on the configured Gemma backend.
+  //
+  // Both paths persist failures to LessonRun.errorLog so the UI can
+  // surface them.
+  if (process.env.WORKER_MODE !== "1") {
+    void orchestrate({ runId: run.id }).catch((err) => {
+      console.error(`[TLC] orchestrator threw for run ${run.id}:`, err);
+    });
+  }
 
   const response: CreateLessonResponse = { runId: run.id };
   return NextResponse.json(response, { status: 202 });
