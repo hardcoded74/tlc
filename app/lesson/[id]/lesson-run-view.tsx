@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useLessonStream } from "@/lib/stream";
 import { PersonaPanel } from "@/components/persona-panel";
 import { PhasePipeline, PendingSection } from "@/components/phase-pipeline";
+import { WhileYouWait } from "@/components/while-you-wait";
 import { ReviewPanel } from "@/components/review-report";
 import { LessonPackageView } from "@/components/lesson-package";
 import { DownloadButtons } from "@/components/download-buttons";
@@ -21,6 +22,7 @@ export interface InitialState {
   gradeLevel: string;
   subject: string | null;
   classLength: number | null;
+  createdAt: string; // ISO 8601 — anchor for the in-flight elapsed timer
   hunterScaffold: PersonaScaffold | null;
   christineScaffold: PersonaScaffold | null;
   review: ReviewReport | null;
@@ -66,6 +68,8 @@ export function LessonRunView({ initial }: { initial: InitialState }) {
       </header>
 
       <PhasePipeline status={status} />
+
+      <WhileYouWait status={status} createdAt={initial.createdAt} />
 
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <PersonaPanel persona="hunter" scaffold={hunter} phase={hunterPhase} />

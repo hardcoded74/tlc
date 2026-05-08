@@ -51,6 +51,7 @@ export default async function LessonPage({
     gradeLevel: run.gradeLevel,
     subject: run.subject,
     classLength: run.classLength,
+    createdAt: run.createdAt.toISOString(),
     hunterScaffold: (run.hunterPackage ?? run.hunterBuild) as PersonaScaffold | null,
     christineScaffold: (run.christinePackage ?? run.christineBuild) as PersonaScaffold | null,
     review: run.review as ReviewReport | null,
