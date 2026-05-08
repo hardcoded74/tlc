@@ -1,22 +1,35 @@
 /**
- * Gemma 4 client — Google AI Studio via @google/genai.
+ * Gemma 4 client — dual backend.
  *
- * Responsibilities:
- *   - Build + cache a single GoogleGenAI instance.
- *   - Normalize tool-calling: we pass FunctionDeclaration[], we get back
- *     a parsed-JSON object (whatever the tool emitted).
- *   - Retry transient errors with exponential backoff.
+ *   GEMMA_BACKEND=studio  (default) → Google AI Studio via @google/genai
+ *   GEMMA_BACKEND=local            → llama.cpp / llama-server over the
+ *                                    OpenAI-compatible /v1/chat/completions
+ *                                    endpoint (typically a tunneled local
+ *                                    Selene)
+ *
+ * The orchestrator and verifier import callGemma from here and never see
+ * which backend ran their request. The local path lives in
+ * lib/gemma-local.ts; this file owns the studio path and the dispatcher.
+ *
+ * Responsibilities (studio path):
+ *   - Build + cache a single GoogleGenAI instance
+ *   - Normalize tool-calling: pass FunctionDeclaration[], get back a
+ *     parsed-JSON object (whatever the tool emitted)
+ *   - Bounded retries on transient errors; fail fast on quota
+ *   - Per-call timeout via Promise.race
  *   - Fall back to text/JSON parsing if the model returns text instead
- *     of a tool call (some Gemma variants don't fire tools reliably).
- *   - Track token usage and wall-clock timing per call.
- *
- * This is the ONE place in the codebase that talks to the model vendor.
- * Orchestrator code never imports @google/genai directly.
+ *     of a tool call (some Gemma variants don't fire tools reliably)
+ *   - Track token usage and wall-clock timing per call
  */
 
 import { GoogleGenAI, FunctionCallingConfigMode } from "@google/genai";
 import { requireGoogleKey } from "./env";
+import { callGemmaLocal, pingGemmaLocal } from "./gemma-local";
 import type { FunctionDeclaration } from "./tools";
+
+function selectedBackend(): "studio" | "local" {
+  return process.env.GEMMA_BACKEND === "local" ? "local" : "studio";
+}
 
 // ──────────────────────────────────────────────────────────────────────
 // Client singleton
@@ -222,6 +235,18 @@ function extractUsage(response: unknown): { in: number; out: number } {
 // ──────────────────────────────────────────────────────────────────────
 
 export async function callGemma(params: GemmaCallParams): Promise<GemmaCallResult> {
+  // Backend dispatch — local Selene gets the same callGemma() shape but
+  // routes through lib/gemma-local.ts (OpenAI-compatible /v1/chat/completions
+  // against a tunneled llama.cpp server).
+  if (selectedBackend() === "local") {
+    return callGemmaLocal(params);
+  }
+  return callGemmaStudio(params);
+}
+
+async function callGemmaStudio(
+  params: GemmaCallParams,
+): Promise<GemmaCallResult> {
   const {
     systemPrompt,
     userPrompt,
@@ -324,6 +349,9 @@ export async function callGemma(params: GemmaCallParams): Promise<GemmaCallResul
 // ──────────────────────────────────────────────────────────────────────
 
 export async function pingGemma(timeoutMs = 3000): Promise<boolean> {
+  if (selectedBackend() === "local") {
+    return pingGemmaLocal(timeoutMs);
+  }
   try {
     const key = requireGoogleKey();
     const res = await fetch(
