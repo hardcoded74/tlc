@@ -139,23 +139,45 @@ export function buildContext(input: ContextInput): string {
 }
 
 /**
- * Builds the Phase 3 context, which includes Phase 1 outputs + review findings.
+ * Build a per-persona Phase 3 context.
+ *
+ * Each Phase 3 call previously received both full scaffolds plus the
+ * review — ~8–10k input tokens per call, ~18k for the parallel pair.
+ * That blew past the AI Studio 16k-input-tokens-per-minute paid-tier
+ * cap on Gemma 4. The persona only needs their own scaffold in detail;
+ * the partner is summarized to title + objective + handoff_notes
+ * (everything they'd need to coordinate without re-reading partner
+ * field content). Saves ~3–4k tokens per Phase 3 call, ~6–8k across
+ * the parallel pair.
  */
 export function buildPhase3Context(args: {
   baseContext: string;
-  hunterBuild: unknown;
-  christineBuild: unknown;
+  ownPersona: "hunter" | "christine";
+  ownBuild: unknown;
+  partnerBuild: unknown;
   review: unknown;
 }): string {
+  const ownLabel = args.ownPersona === "hunter" ? "Hunter" : "Christine";
+  const partnerLabel = args.ownPersona === "hunter" ? "Christine" : "Hunter";
+
+  // Pull the small handful of partner fields we actually need for
+  // coordination. If the shape is unexpected, fall through with what
+  // we have rather than throw — Phase 3 should still run.
+  const p = args.partnerBuild as Record<string, unknown> | null | undefined;
+  const partnerSummary = {
+    title: p?.title,
+    objective: p?.objective,
+    handoff_notes: p?.handoff_notes,
+  };
+
   return [
     args.baseContext,
     "",
-    "--- PHASE 1 OUTPUTS ---",
-    "Hunter's scaffold:",
-    JSON.stringify(args.hunterBuild, null, 2),
+    `--- YOUR (${ownLabel}'s) PHASE 1 SCAFFOLD ---`,
+    JSON.stringify(args.ownBuild, null, 2),
     "",
-    "Christine's scaffold:",
-    JSON.stringify(args.christineBuild, null, 2),
+    `--- PARTNER (${partnerLabel}'s) SUMMARY — do not revise their fields ---`,
+    JSON.stringify(partnerSummary, null, 2),
     "",
     "--- REVIEW FINDINGS ---",
     JSON.stringify(args.review, null, 2),

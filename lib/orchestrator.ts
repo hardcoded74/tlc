@@ -244,10 +244,18 @@ export async function orchestrate({ runId }: OrchestrateOptions): Promise<void> 
     emit(runId, "phase_start", { phase: "packaging" });
 
     const packageStart = Date.now();
-    const phase3Context = buildPhase3Context({
+    const hunterPhase3Context = buildPhase3Context({
       baseContext,
-      hunterBuild: activeHunterBuild.scaffold,
-      christineBuild: activeChristineBuild.scaffold,
+      ownPersona: "hunter",
+      ownBuild: activeHunterBuild.scaffold,
+      partnerBuild: activeChristineBuild.scaffold,
+      review,
+    });
+    const christinePhase3Context = buildPhase3Context({
+      baseContext,
+      ownPersona: "christine",
+      ownBuild: activeChristineBuild.scaffold,
+      partnerBuild: activeHunterBuild.scaffold,
       review,
     });
 
@@ -256,7 +264,7 @@ export async function orchestrate({ runId }: OrchestrateOptions): Promise<void> 
         runId,
         persona: "hunter",
         systemPrompt: HUNTER_SYSTEM_PROMPT + PHASE_3_PACKAGE_ADDENDUM,
-        userPrompt: phase3Context,
+        userPrompt: hunterPhase3Context,
         tool: PACKAGE_TOOL,
         usage,
       }),
@@ -264,7 +272,7 @@ export async function orchestrate({ runId }: OrchestrateOptions): Promise<void> 
         runId,
         persona: "christine",
         systemPrompt: CHRISTINE_SYSTEM_PROMPT + PHASE_3_PACKAGE_ADDENDUM,
-        userPrompt: phase3Context,
+        userPrompt: christinePhase3Context,
         tool: PACKAGE_TOOL,
         usage,
       }),
