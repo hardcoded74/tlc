@@ -32,13 +32,32 @@ export function gemmaClient(): GoogleGenAI {
 }
 
 // Model ID — pinned via env so we can swap without redeploying code.
-// AI Studio surfaces two Gemma 4 variants as of 2026-04: gemma-4-26b-a4b-it
-// (MoE, ~4B active params, fast) and gemma-4-31b-it (dense, stronger, slower).
-// Default to the dense 31b for structured-output accuracy — the MoE had
-// visible drift between Build and Package in the simple-machines test run.
-// Override via GEMMA_MODEL_ID env var.
-export const MODEL_ID =
-  process.env.GEMMA_MODEL_ID ?? "gemma-4-31b-it";
+// AI Studio surfaces three Gemma 4 variants as of 2026-04:
+//   gemma-4-e4b-it      (4B dense, fastest, smallest reasoning)
+//   gemma-4-26b-a4b-it  (MoE, 4B active, balanced)
+//   gemma-4-31b-it      (dense, strongest reasoning, slowest)
+// Each model has its own per-minute input-token bucket on the paid tier
+// (~16k tokens/min in our region as of 2026-05). Mixing per phase is
+// supported via GEMMA_MODEL_BUILD / GEMMA_MODEL_REVIEW / GEMMA_MODEL_PACKAGE
+// — each falls back to GEMMA_MODEL_ID, which defaults to the dense 31b.
+const DEFAULT_MODEL_ID = process.env.GEMMA_MODEL_ID ?? "gemma-4-31b-it";
+
+export const MODEL_ID = DEFAULT_MODEL_ID;
+
+export type Phase = "build" | "review" | "package" | "verify";
+
+export function modelForPhase(phase: Phase): string {
+  switch (phase) {
+    case "build":
+      return process.env.GEMMA_MODEL_BUILD ?? DEFAULT_MODEL_ID;
+    case "review":
+      return process.env.GEMMA_MODEL_REVIEW ?? DEFAULT_MODEL_ID;
+    case "package":
+      return process.env.GEMMA_MODEL_PACKAGE ?? DEFAULT_MODEL_ID;
+    case "verify":
+      return process.env.GEMMA_MODEL_VERIFY ?? DEFAULT_MODEL_ID;
+  }
+}
 
 // ──────────────────────────────────────────────────────────────────────
 // Public call shape
@@ -52,8 +71,12 @@ export interface GemmaCallParams {
   forceToolCall?: boolean;
   /** Optional per-call override. */
   temperature?: number;
-  /** Max retries on transient errors. Default 3. */
+  /** Max retries on transient errors. Default 2 (so 3 total attempts). */
   maxRetries?: number;
+  /** Per-call hard timeout in ms. Default 60000 (60s). */
+  timeoutMs?: number;
+  /** Phase tag — selects model via modelForPhase(). Optional; falls back to MODEL_ID. */
+  phase?: Phase;
 }
 
 export interface GemmaCallResult {
@@ -80,18 +103,52 @@ function isTransientError(err: unknown): boolean {
   if (!(err instanceof Error)) return false;
   const m = err.message.toLowerCase();
   return (
-    m.includes("429") ||
-    m.includes("rate") ||
     m.includes("503") ||
     m.includes("502") ||
     m.includes("500") ||
-    m.includes("timeout") ||
     m.includes("network")
+  );
+}
+
+/**
+ * 429 quota errors are NOT transient in our retry window — AI Studio
+ * tells us "retry in 59s" but we only have a 300s function budget for
+ * the whole lesson, so retrying a 429 just eats more of that budget.
+ * Fail fast and let the orchestrator surface the error to the user;
+ * they'll get a clean "rate-limited, try again in a minute" experience
+ * instead of a 300s timeout.
+ */
+function isQuotaError(err: unknown): boolean {
+  if (!(err instanceof Error)) return false;
+  const m = err.message.toLowerCase();
+  return (
+    m.includes("429") ||
+    m.includes("rate") ||
+    m.includes("resource_exhausted") ||
+    m.includes("quota")
   );
 }
 
 async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** Race a promise against a timeout. Throws "Gemma call timed out after Xs". */
+async function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+  let to: ReturnType<typeof setTimeout> | null = null;
+  try {
+    return await Promise.race([
+      p,
+      new Promise<T>((_, reject) => {
+        to = setTimeout(
+          () => reject(new Error(`Gemma call timed out after ${ms}ms`)),
+          ms,
+        );
+      }),
+    ]);
+  } finally {
+    if (to) clearTimeout(to);
+  }
 }
 
 // ──────────────────────────────────────────────────────────────────────
@@ -171,38 +228,44 @@ export async function callGemma(params: GemmaCallParams): Promise<GemmaCallResul
     tool,
     forceToolCall = true,
     temperature = 0.7,
-    maxRetries = 3,
+    maxRetries = 2,
+    timeoutMs = 60_000,
+    phase,
   } = params;
 
   const client = gemmaClient();
+  const model = phase ? modelForPhase(phase) : MODEL_ID;
   const startedAt = Date.now();
 
   let lastErr: unknown = null;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      const response = await client.models.generateContent({
-        model: MODEL_ID,
-        contents: [{ role: "user", parts: [{ text: userPrompt }] }],
-        config: {
-          systemInstruction: systemPrompt,
-          temperature,
-          tools: [{ functionDeclarations: [tool as unknown as never] }],
-          // NOTE: Gemma 4 hangs (60s+ no response) when mode=ANY forces a
-          // tool call. mode=AUTO still calls the named tool reliably
-          // because the system prompt tells it to — and if the model
-          // ever emits JSON as text instead, parseJsonFromText() below
-          // catches it. Empirically tested against gemma-4-26b-a4b-it
-          // 2026-04-21. Don't flip back to ANY without re-testing.
-          toolConfig: forceToolCall
-            ? {
-                functionCallingConfig: {
-                  mode: FunctionCallingConfigMode.AUTO,
-                },
-              }
-            : undefined,
-        },
-      });
+      const response = await withTimeout(
+        client.models.generateContent({
+          model,
+          contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+          config: {
+            systemInstruction: systemPrompt,
+            temperature,
+            tools: [{ functionDeclarations: [tool as unknown as never] }],
+            // NOTE: Gemma 4 hangs (60s+ no response) when mode=ANY forces a
+            // tool call. mode=AUTO still calls the named tool reliably
+            // because the system prompt tells it to — and if the model
+            // ever emits JSON as text instead, parseJsonFromText() below
+            // catches it. Empirically tested against gemma-4-26b-a4b-it
+            // 2026-04-21. Don't flip back to ANY without re-testing.
+            toolConfig: forceToolCall
+              ? {
+                  functionCallingConfig: {
+                    mode: FunctionCallingConfigMode.AUTO,
+                  },
+                }
+              : undefined,
+          },
+        }),
+        timeoutMs,
+      );
 
       const latencyMs = Date.now() - startedAt;
       const usage = extractUsage(response);
@@ -241,6 +304,10 @@ export async function callGemma(params: GemmaCallParams): Promise<GemmaCallResul
       );
     } catch (err) {
       lastErr = err;
+      // Fail fast on quota errors — retrying a 429 burns the function
+      // budget without ever waiting long enough for the per-minute window
+      // to reset.
+      if (isQuotaError(err)) throw err;
       if (attempt >= maxRetries || !isTransientError(err)) {
         throw err;
       }

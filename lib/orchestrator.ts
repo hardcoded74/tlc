@@ -357,6 +357,7 @@ async function runPersona(args: PersonaRunArgs): Promise<PersonaRunResult> {
     systemPrompt: args.systemPrompt,
     userPrompt: args.userPrompt,
     tool: args.tool,
+    phase,
   });
 
   // Ensure persona field is present (model sometimes omits it even though required).
@@ -374,6 +375,7 @@ async function runPersona(args: PersonaRunArgs): Promise<PersonaRunResult> {
       systemPrompt: args.systemPrompt,
       userPrompt: retryPrompt,
       tool: args.tool,
+      phase,
     });
     const retryWithPersona = { persona: args.persona, ...retry.toolArgs };
     const retryParsed = PersonaScaffoldSchema.safeParse(retryWithPersona);
@@ -422,6 +424,7 @@ async function runPersonaDelta(args: PersonaDeltaRunArgs): Promise<PersonaDeltaR
     systemPrompt: args.systemPrompt,
     userPrompt: args.userPrompt,
     tool: args.tool,
+    phase: "package",
   });
 
   const withPersona = { persona: args.persona, ...result.toolArgs };
@@ -437,6 +440,7 @@ async function runPersonaDelta(args: PersonaDeltaRunArgs): Promise<PersonaDeltaR
       systemPrompt: args.systemPrompt,
       userPrompt: retryPrompt,
       tool: args.tool,
+      phase: "package",
     });
     const retryWithPersona = { persona: args.persona, ...retry.toolArgs };
     const retryParsed = PersonaScaffoldDeltaSchema.safeParse(retryWithPersona);
@@ -526,6 +530,7 @@ async function runReview(args: ReviewRunArgs): Promise<ReviewReport> {
       userPrompt,
       tool: REVIEW_TOOL,
       temperature: 0.3,
+      phase: "review",
     }),
     verifyLesson({
       hunter: args.hunterBuild,
@@ -678,13 +683,27 @@ function emptyUsage(): TokenUsage {
 }
 
 async function recordFailure(runId: string, err: unknown): Promise<void> {
-  const message = err instanceof Error ? err.message : String(err);
+  const rawMessage = err instanceof Error ? err.message : String(err);
+  const lower = rawMessage.toLowerCase();
+  const isQuota =
+    lower.includes("429") ||
+    lower.includes("resource_exhausted") ||
+    lower.includes("quota");
+  const isTimeout = lower.includes("timed out") || lower.includes("timeout");
+  // Friendly user-facing message for the common transient cases; keep
+  // the raw error in error_message for the judge inspector.
+  const friendly = isQuota
+    ? "Rate limit hit on Google AI Studio (per-minute input-token cap). The bucket resets every minute — try the same lesson again in 60–90 seconds."
+    : isTimeout
+      ? "A Gemma call took longer than the 60-second per-call budget. AI Studio's slow lane was probably backed up. Try again in a minute."
+      : null;
+  const message = friendly ?? rawMessage;
   const entry: ErrorEntry = {
-    phase: inferPhase(message),
+    phase: inferPhase(rawMessage),
     persona: null,
-    error_code: "orchestrator_error",
+    error_code: isQuota ? "quota_exhausted" : isTimeout ? "call_timeout" : "orchestrator_error",
     error_message: message.slice(0, 2000),
-    recoverable: false,
+    recoverable: isQuota || isTimeout,
     retry_attempted: false,
     timestamp: new Date().toISOString(),
   };

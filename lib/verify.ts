@@ -301,6 +301,7 @@ async function batchCheckContradictions(
     userPrompt,
     tool: CONTRADICTION_TOOL,
     temperature: 0.2,
+    phase: "verify",
   });
 
   const args = result.toolArgs as { claims?: unknown };

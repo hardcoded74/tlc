@@ -186,7 +186,40 @@ export function buildPhase3Context(args: {
 }
 
 /**
- * Builds the review context — review sees both scaffolds + original input.
+ * Strip review-irrelevant noise from a scaffold so Phase 2 fits inside
+ * the per-minute input-token cap.
+ *
+ * Drops: source_origin (review's per-section judgment), schema_version,
+ * generated_by, source_summary. Truncates teacher_notes prose past 400
+ * chars — review checks completeness, not the full body of teacher tips.
+ */
+function slimScaffoldForReview(scaffold: unknown): unknown {
+  const DROP = new Set([
+    "source_origin",
+    "schema_version",
+    "generated_by",
+    "source_summary",
+  ]);
+  const stripped = JSON.parse(
+    JSON.stringify(scaffold, (k, v) => (DROP.has(k) ? undefined : v)),
+  );
+  if (
+    stripped &&
+    typeof stripped === "object" &&
+    typeof (stripped as Record<string, unknown>).teacher_notes === "string"
+  ) {
+    const tn = (stripped as Record<string, unknown>).teacher_notes as string;
+    if (tn.length > 400) {
+      (stripped as Record<string, unknown>).teacher_notes =
+        tn.slice(0, 400) + "… [truncated for review]";
+    }
+  }
+  return stripped;
+}
+
+/**
+ * Builds the review context — review sees both scaffolds (slimmed) +
+ * original input.
  */
 export function buildReviewContext(args: {
   baseContext: string;
@@ -197,10 +230,10 @@ export function buildReviewContext(args: {
     args.baseContext,
     "",
     "--- HUNTER'S SCAFFOLD (structure-focused) ---",
-    JSON.stringify(args.hunterBuild, null, 2),
+    JSON.stringify(slimScaffoldForReview(args.hunterBuild), null, 2),
     "",
     "--- CHRISTINE'S SCAFFOLD (depth-focused) ---",
-    JSON.stringify(args.christineBuild, null, 2),
+    JSON.stringify(slimScaffoldForReview(args.christineBuild), null, 2),
     "--- END SCAFFOLDS ---",
     "",
     "Review both scaffolds. Flag concrete issues. Propose fixes.",
