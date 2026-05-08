@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { PersonaAvatar } from "@/components/persona-avatar";
 
@@ -7,16 +8,23 @@ export default function LandingPage() {
       <SiteHeader />
 
       {/* Hero */}
-      <section className="px-6 pt-16 pb-20 md:pt-24 md:pb-28">
+      <section className="px-6 pt-12 pb-20 md:pt-16 md:pb-28">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <p className="text-xs md:text-sm uppercase tracking-widest text-christine-500 font-medium">
             Gemma 4 Good Hackathon &middot; Impact Track
           </p>
 
-          <h1 className="font-serif text-5xl md:text-7xl leading-[1.05] tracking-tight">
-            Every teacher deserves{" "}
-            <span className="text-hunter-700">TLC</span>.
+          <h1 className="sr-only">
+            Teacher&rsquo;s Lesson Creator — Every Teacher Deserves TLC.
           </h1>
+          <Image
+            src="/logo.png"
+            alt="Teacher's Lesson Creator — Every Teacher Deserves TLC."
+            width={720}
+            height={720}
+            priority
+            className="mx-auto w-full max-w-sm md:max-w-md h-auto"
+          />
 
           <p className="max-w-2xl mx-auto text-lg md:text-xl text-(--color-muted) leading-relaxed">
             A lesson-building tool powered by{" "}
