@@ -458,6 +458,45 @@ Things we'd build if TLC became a real product:
 
 ---
 
+## Operating constraints we worked under
+
+The hackathon build runs on Google AI Studio's paid tier with the
+default per-minute input-token quota for the Gemma 4 family. That
+quota is shared by all five (sometimes seven) calls per lesson, so
+the orchestration is tuned for a small token budget rather than for
+maximum reasoning per call:
+
+- **Phase 3 context is persona-scoped.** Each Package call sees its
+  own Phase 1 scaffold in full but only a title + objective +
+  handoff-notes summary of the partner's. The partner's full content
+  isn't re-sent because the persona never revises partner fields.
+- **The regenerate-on-must-fix loop is bounded to one extra Build
+  pass.** A second regenerate would be useful when the verifier finds
+  a contradiction in a multi-part definition; we cap it because it
+  could otherwise run away on input tokens.
+- **System prompts are written for tool-calling, not chain-of-thought.**
+  No "think step by step" preambles, no scratchpad — just the role
+  and the schema.
+
+In a production deployment with higher quotas (or self-hosted Gemma 4
+inference), TLC could **trade tokens for accuracy** in several ways:
+
+1. **Allow longer thinking on Phase 2 Review** — let the reviewer
+   produce a chain-of-thought before emitting the structured tool
+   call, with the thinking discarded but the final issues sharper.
+2. **Multi-pass review** — run a second review over the regenerated
+   scaffold so a fix that introduces a new issue gets caught.
+3. **Unbounded regenerate** — keep regenerating until the verifier
+   reports zero contradictions, instead of capping at one retry.
+4. **Re-include the partner scaffold in Phase 3** — restore the full
+   cross-context for tighter coordination on overlapping fields.
+
+These are levers that show up the moment the per-minute budget stops
+binding. For the hackathon submission we made the tradeoff toward
+*reliable runs inside quota* rather than maximum quality per run.
+
+---
+
 ## Why Gemma 4
 
 Gemma 4's strengths map directly onto what lesson building needs:
