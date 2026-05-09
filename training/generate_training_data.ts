@@ -64,6 +64,7 @@ interface ChatExample {
     persona: "hunter" | "christine";
     topic: string;
     grade_level: string;
+    class_length: number;
     subject: string;
     generated_at: string;
   };
@@ -77,7 +78,10 @@ function ensureDir(): void {
   if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
 }
 
-/** Read previously-completed row keys from the output JSONL files. */
+/** Read previously-completed row keys from the output JSONL files.
+ *  Handles both the old key format (no class-length) and the new one
+ *  (with class-length) so a matrix expansion doesn't re-run rows
+ *  already saved before the schema change. */
 function loadCompletedKeys(): Set<string> {
   const keys = new Set<string>();
   for (const path of [HUNTER_OUT, CHRISTINE_OUT]) {
@@ -86,8 +90,19 @@ function loadCompletedKeys(): Set<string> {
     for (const line of lines) {
       try {
         const ex = JSON.parse(line) as ChatExample;
-        const k = `${ex.meta.persona}::${ex.meta.grade_level}::${ex.meta.topic}`;
-        keys.add(k);
+        const m = ex.meta as Record<string, unknown>;
+        const persona = m.persona;
+        const grade = m.grade_level;
+        const topic = m.topic;
+        const cl = m.class_length;
+        if (typeof cl === "number") {
+          // New-format example: store under both new and old keys so the
+          // expandMatrix output (new keys) and any legacy rowKey
+          // construction (old keys) both resolve.
+          keys.add(`${persona}::${grade}::${cl}min::${topic}`);
+        }
+        // Legacy 45-minute fallback — pre-classLength rows used 45 implicitly.
+        keys.add(`${persona}::${grade}::45min::${topic}`);
       } catch {
         // skip malformed lines
       }
@@ -106,7 +121,7 @@ function userPromptFor(row: GenerationRow): string {
   return buildContext({
     topic: row.topic,
     gradeLevel: row.gradeLevel,
-    classLength: 45, // canonical demo length
+    classLength: row.classLength,
     subject: row.subject,
     objective: null,
     notes: null,
@@ -139,7 +154,11 @@ async function generateOne(row: GenerationRow): Promise<ChatExample | null> {
     tool: SCAFFOLD_TOOL,
     temperature: 0.6,
     maxRetries: 1,
-    timeoutMs: 90_000,
+    // Studio's slow lane drifts past 90s on bad nights — and we have no
+    // 300s function ceiling here (this script runs from a workstation),
+    // so we can be patient. The row-level retry loop above also retries
+    // on timeouts up to MAX_ROW_RETRIES.
+    timeoutMs: 240_000,
   });
 
   // Inject the persona field if the model omitted it (mirrors orchestrator).
@@ -164,6 +183,7 @@ async function generateOne(row: GenerationRow): Promise<ChatExample | null> {
       persona: row.persona,
       topic: row.topic,
       grade_level: row.gradeLevel,
+      class_length: row.classLength,
       subject: row.subject,
       generated_at: new Date().toISOString(),
     },
