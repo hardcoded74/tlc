@@ -11,3 +11,7 @@ build
 coverage
 next-env.d.ts
 tsconfig.tsbuildinfo
+
+# Locally trained LoRA adapters and Colab staging dir
+training/out/
+training/colab_bundle/

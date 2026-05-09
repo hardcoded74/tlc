@@ -90,6 +90,12 @@ export interface GemmaCallParams {
   timeoutMs?: number;
   /** Phase tag — selects model via modelForPhase(). Optional; falls back to MODEL_ID. */
   phase?: Phase;
+  /**
+   * Persona this call is on behalf of. Used by the local backend to
+   * activate the right LoRA adapter (hunter or christine) before calling
+   * the chat endpoint. Ignored by the studio backend.
+   */
+  persona?: "hunter" | "christine";
 }
 
 export interface GemmaCallResult {

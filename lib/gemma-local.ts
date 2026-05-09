@@ -12,6 +12,15 @@
  *   GEMMA_LOCAL_MODEL  — model alias to send (e.g. "selene-live")
  *   GEMMA_LOCAL_KEY    — optional Bearer token; sent if set
  *
+ * Per-persona LoRA hot-swap (optional):
+ *   GEMMA_LOCAL_PERSONA_LORA — JSON map of persona → llama-server lora
+ *                              adapter index, e.g. '{"hunter":0,"christine":1}'.
+ *                              When set, callGemmaLocal POSTs /lora-adapters
+ *                              before each /v1/chat/completions to activate
+ *                              the right LoRA (others scale=0). Requires
+ *                              llama-server launched with both LoRAs and
+ *                              --lora-init-without-apply.
+ *
  * The local backend has no per-minute quota, so the orchestrator's
  * fail-fast-on-quota path never fires here.
  */
@@ -191,6 +200,57 @@ function toOAITool(decl: FunctionDeclaration) {
   };
 }
 
+/**
+ * Parse GEMMA_LOCAL_PERSONA_LORA into a persona → adapter-id map.
+ * Returns null if unset or unparseable. Errors are silent so a malformed
+ * env var doesn't take down the worker.
+ */
+function loraMap(): Record<string, number> | null {
+  const raw = process.env.GEMMA_LOCAL_PERSONA_LORA;
+  if (!raw) return null;
+  try {
+    const obj = JSON.parse(raw) as Record<string, unknown>;
+    const out: Record<string, number> = {};
+    for (const [k, v] of Object.entries(obj)) {
+      if (typeof v === "number") out[k] = v;
+    }
+    return Object.keys(out).length ? out : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * POST /lora-adapters with the right scales for the active persona.
+ * Sets the requested persona's adapter to scale=1.0, all others to 0.0.
+ * If persona is undefined (e.g. review or verifier calls), every adapter
+ * is set to 0 — i.e. the call uses the bare base.
+ */
+async function setActiveLora(
+  baseUrl: string,
+  apiKey: string,
+  persona: "hunter" | "christine" | undefined,
+  map: Record<string, number>,
+): Promise<void> {
+  const adapters = Object.entries(map).map(([name, id]) => ({
+    id,
+    scale: persona === name ? 1.0 : 0.0,
+  }));
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
+  const res = await fetch(`${baseUrl}/lora-adapters`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(adapters),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(
+      `Local Gemma /lora-adapters HTTP ${res.status}: ${text.slice(0, 200)}`,
+    );
+  }
+}
+
 export async function callGemmaLocal(
   params: GemmaCallParams,
 ): Promise<GemmaCallResult> {
@@ -202,6 +262,7 @@ export async function callGemmaLocal(
   }
   const model = process.env.GEMMA_LOCAL_MODEL ?? "selene-live";
   const apiKey = process.env.GEMMA_LOCAL_KEY ?? "";
+  const lora = loraMap();
 
   const {
     systemPrompt,
@@ -215,6 +276,7 @@ export async function callGemmaLocal(
     // wasting retries (re-running a slow call doesn't make Selene faster).
     maxRetries = 1,
     timeoutMs = 600_000,
+    persona,
   } = params;
 
   const startedAt = Date.now();
@@ -222,6 +284,13 @@ export async function callGemmaLocal(
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
+      // Activate the right LoRA for this persona, if configured. We do
+      // this on every call so a process running multiple personas in
+      // sequence is correct without tracking server-side state.
+      if (lora) {
+        await setActiveLora(baseUrl, apiKey, persona, lora);
+      }
+
       const body = {
         model,
         messages: [

@@ -358,6 +358,7 @@ async function runPersona(args: PersonaRunArgs): Promise<PersonaRunResult> {
     userPrompt: args.userPrompt,
     tool: args.tool,
     phase,
+    persona: args.persona,
   });
 
   // Ensure persona field is present (model sometimes omits it even though required).
@@ -376,6 +377,7 @@ async function runPersona(args: PersonaRunArgs): Promise<PersonaRunResult> {
       userPrompt: retryPrompt,
       tool: args.tool,
       phase,
+      persona: args.persona,
     });
     const retryWithPersona = { persona: args.persona, ...retry.toolArgs };
     const retryParsed = PersonaScaffoldSchema.safeParse(retryWithPersona);
@@ -425,6 +427,7 @@ async function runPersonaDelta(args: PersonaDeltaRunArgs): Promise<PersonaDeltaR
     userPrompt: args.userPrompt,
     tool: args.tool,
     phase: "package",
+    persona: args.persona,
   });
 
   const withPersona = { persona: args.persona, ...result.toolArgs };
@@ -441,6 +444,7 @@ async function runPersonaDelta(args: PersonaDeltaRunArgs): Promise<PersonaDeltaR
       userPrompt: retryPrompt,
       tool: args.tool,
       phase: "package",
+      persona: args.persona,
     });
     const retryWithPersona = { persona: args.persona, ...retry.toolArgs };
     const retryParsed = PersonaScaffoldDeltaSchema.safeParse(retryWithPersona);
