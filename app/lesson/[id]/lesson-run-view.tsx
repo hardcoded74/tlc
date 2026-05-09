@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useLessonStream } from "@/lib/stream";
 import { PersonaPanel } from "@/components/persona-panel";
 import { PhasePipeline, PendingSection } from "@/components/phase-pipeline";
@@ -11,6 +11,8 @@ import { ReviewPanel } from "@/components/review-report";
 import { LessonPackageView } from "@/components/lesson-package";
 import { DownloadButtons } from "@/components/download-buttons";
 import { TeacherTestimonial, type Testimonial } from "@/components/teacher-testimonial";
+import { TriviaOpener, TriviaPopup, type TriviaScore } from "@/components/trivia-popup";
+import { CompletionScorecard } from "@/components/completion-scorecard";
 import type {
   LessonPackage,
   PersonaScaffold,
@@ -49,6 +51,20 @@ export function LessonRunView({ initial }: { initial: InitialState }) {
   const hunterPhase = phaseFor(status, hunter);
   const christinePhase = phaseFor(status, christine);
 
+  // Trivia state lifted up so the completion scorecard can read the score.
+  const [triviaOpen, setTriviaOpen] = useState(false);
+  const [triviaScore, setTriviaScore] = useState<TriviaScore>({
+    right: 0,
+    wrong: 0,
+    total: 0,
+  });
+  const handleScoreChange = useCallback(
+    (s: TriviaScore) => setTriviaScore(s),
+    [],
+  );
+
+  const inFlight = status !== "complete" && status !== "failed";
+
   const runHeaderSubject = useMemo(() => {
     const parts: string[] = [];
     parts.push(initial.gradeLevel);
@@ -76,6 +92,12 @@ export function LessonRunView({ initial }: { initial: InitialState }) {
       <PhasePipeline status={status} />
 
       <WhileYouWait status={status} createdAt={initial.createdAt} />
+
+      {inFlight ? (
+        <div className="flex justify-end">
+          <TriviaOpener onClick={() => setTriviaOpen(true)} />
+        </div>
+      ) : null}
 
       <TopicHook
         topic={initial.topic}
@@ -139,6 +161,14 @@ export function LessonRunView({ initial }: { initial: InitialState }) {
           </p>
         </div>
       ) : null}
+
+      <TriviaPopup
+        open={triviaOpen}
+        onClose={() => setTriviaOpen(false)}
+        onScoreChange={handleScoreChange}
+      />
+
+      <CompletionScorecard status={status} score={triviaScore} />
     </div>
   );
 }
