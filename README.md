@@ -15,6 +15,7 @@ collaborating Teacher's Assistants, Hunter and Christine.
 - **[Prompts directory](prompts/)** — versioned `.md` files for every string sent to Gemma 4 (source of truth)
 - **[Prompt design rationale](PROMPTS.md)** — why Hunter and Christine are split this way
 - **[Data privacy](DATA_PRIVACY.md)** — what TLC collects, retention windows, why no user data lands in model weights
+- **[Training pipeline](training/)** — fine-tune Gemma 4 E4B on cloud-Gemma-4-31B golden outputs to ship a local-first edge build of TLC
 - **[Schema](SCHEMA.md)** — structured output contract
 - **[UI](UI.md)** — screen-by-screen layout spec
 - **[Build plan](BUILD_PLAN.md)** — 27-day milestone schedule

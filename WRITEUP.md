@@ -458,6 +458,45 @@ Things we'd build if TLC became a real product:
 
 ---
 
+## Local-first deployment via fine-tuned Gemma 4 E4B
+
+The shipped TLC stack runs against cloud Gemma 4 31B on AI Studio's
+paid tier with a local-Selene fallback when the per-minute quota
+fires. That works, but cloud inference adds three drag factors:
+network latency on every call, a quota ceiling that bites under load,
+and a privacy story that ends with "we send the teacher's input to
+Google."
+
+The companion shipping artifact in [`training/`](training/) is the
+answer to all three. We use cloud Gemma 4 31B as a teacher, generate
+~250 schema-validated golden outputs per persona on a curated K-12
+topic × grade matrix, and SFT-train a QLoRA adapter on top of stock
+**Gemma 4 E4B** for each of Hunter and Christine. The 4B-parameter
+edge model can't reliably emit our `PersonaScaffoldSchema` from
+zero-shot; with ~250 examples it learns the strict-schema discipline
+end-to-end.
+
+The result: TLC can deploy with no API budget, no quotas, and no
+student data leaving the building. A single laptop GPU runs the
+whole stack — a school IT department's dream. The cloud path stays
+available as a faster fallback for installations that want it.
+
+This is the open-source pattern the Gemma 4 Good Hackathon's Impact
+Track explicitly wants to encourage: small open-weights models,
+fine-tuned on synthetic high-quality outputs from larger teachers,
+deployed where users actually are. Both adapters are MIT-licensed
+and live on Hugging Face Hub:
+
+- `hardcoded74/tlc-gemma-4-e4b-hunter-lora`
+- `hardcoded74/tlc-gemma-4-e4b-christine-lora`
+
+The full training pipeline (topic matrix, data-gen script, Colab
+T4 notebook, GGUF export) is reproducible from the
+[`training/README.md`](training/README.md) — anyone can re-run it
+with their own teacher model or topic mix.
+
+---
+
 ## Operating constraints we worked under
 
 The hackathon build runs on Google AI Studio's paid tier with the
