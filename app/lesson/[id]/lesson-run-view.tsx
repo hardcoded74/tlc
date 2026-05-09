@@ -10,6 +10,7 @@ import { TopicHook } from "@/components/topic-hook";
 import { ReviewPanel } from "@/components/review-report";
 import { LessonPackageView } from "@/components/lesson-package";
 import { DownloadButtons } from "@/components/download-buttons";
+import { TeacherTestimonial, type Testimonial } from "@/components/teacher-testimonial";
 import type {
   LessonPackage,
   PersonaScaffold,
@@ -29,6 +30,7 @@ export interface InitialState {
   christineScaffold: PersonaScaffold | null;
   review: ReviewReport | null;
   finalPackage: LessonPackage | null;
+  testimonial: Testimonial | null;
 }
 
 export function LessonRunView({ initial }: { initial: InitialState }) {
@@ -115,7 +117,17 @@ export function LessonRunView({ initial }: { initial: InitialState }) {
           The run is marked complete but no final package is attached.
           This is a bug — please report it.
         </div>
-      ) : status === "failed" ? (
+      ) : null}
+
+      {finalPackage ? (
+        <TeacherTestimonial
+          runId={initial.id}
+          status={status}
+          initial={initial.testimonial}
+        />
+      ) : null}
+
+      {status === "failed" ? (
         <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
           <strong>Lesson generation failed.</strong>
           {live.error ? <p className="mt-1">{live.error}</p> : null}

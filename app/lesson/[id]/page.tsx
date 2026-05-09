@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { LessonRunView } from "./lesson-run-view";
 import { JudgeInspector } from "@/components/judge-inspector";
+import type { Testimonial } from "@/components/teacher-testimonial";
 import type { PersonaScaffold, ReviewReport, LessonPackage, RunStatus } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -44,6 +45,16 @@ export default async function LessonPage({
     );
   }
 
+  const testimonial: Testimonial | null =
+    run.teacherName && run.teacherSchool && run.teacherReview
+      ? {
+          teacherName: run.teacherName,
+          teacherSchool: run.teacherSchool,
+          teacherReview: run.teacherReview,
+          testimonialAt: run.testimonialAt?.toISOString() ?? null,
+        }
+      : null;
+
   const initial = {
     id: run.id,
     status: run.status as RunStatus,
@@ -56,6 +67,7 @@ export default async function LessonPage({
     christineScaffold: (run.christinePackage ?? run.christineBuild) as PersonaScaffold | null,
     review: run.review as ReviewReport | null,
     finalPackage: run.finalPackage as LessonPackage | null,
+    testimonial,
   };
 
   return (

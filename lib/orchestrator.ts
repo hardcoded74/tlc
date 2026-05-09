@@ -351,55 +351,107 @@ interface PersonaRunResult {
   latencyMs: number;
 }
 
+// Maximum attempts per persona before runPersona surrenders (and the
+// orchestrator can try cross-fill from the sibling persona). Each attempt
+// after the first uses progressively sterner repair feedback in the
+// user prompt.
+const PERSONA_MAX_ATTEMPTS = 4;
+
+// Loose subtype of Zod's issue shape — we only read .path / .message / .code
+// and Zod's $ZodIssue has more variants than we care to enumerate here.
+type RepairIssue = { path: readonly (string | number | symbol)[]; message: string; code?: string };
+
+/**
+ * Format a Zod issue list into a per-field repair instruction block.
+ * Groups by top-level key so the model sees one bullet per area, not
+ * one per leaf — easier to act on. Distinguishes missing fields (the
+ * most important kind of error) from invalid values.
+ */
+function formatRepairIssues(issues: ReadonlyArray<RepairIssue>): string {
+  const missing: string[] = [];
+  const invalid: string[] = [];
+  for (const issue of issues) {
+    const path = issue.path.map(String).join(".");
+    const isMissing =
+      issue.code === "invalid_type" && /received undefined/i.test(issue.message);
+    if (isMissing) {
+      missing.push(`  • ${path || "<root>"} — REQUIRED but you did not emit it`);
+    } else {
+      invalid.push(`  • ${path || "<root>"} — ${issue.message}`);
+    }
+  }
+  const lines: string[] = [];
+  if (missing.length) {
+    lines.push("Missing required fields:");
+    lines.push(...missing);
+  }
+  if (invalid.length) {
+    if (missing.length) lines.push("");
+    lines.push("Invalid values:");
+    lines.push(...invalid);
+  }
+  return lines.join("\n");
+}
+
+/**
+ * Build the user-prompt addendum for retry attempts. Tone escalates with
+ * attempt number — by the last attempt the language is unmissable.
+ */
+function makeRepairAddendum(
+  issues: ReadonlyArray<RepairIssue>,
+  attemptNumber: number,
+  maxAttempts: number,
+): string {
+  const final = attemptNumber === maxAttempts;
+  const header = final
+    ? `--- FINAL ATTEMPT (${attemptNumber}/${maxAttempts}) — STRICT MODE ---\n` +
+      "Your output has been REJECTED on prior attempts. The tool schema is non-negotiable. " +
+      "This is your last chance. Re-emit the COMPLETE tool call with EVERY required field present " +
+      "and EVERY value matching its declared type/enum. Do not include commentary outside the tool call."
+    : `--- RETRY (${attemptNumber}/${maxAttempts}) ---\n` +
+      "Your previous output failed validation. Re-emit the COMPLETE tool call. " +
+      "Every required field must be present. Do not omit any field.";
+  return `\n\n${header}\n\n${formatRepairIssues(issues)}`;
+}
+
 async function runPersona(args: PersonaRunArgs): Promise<PersonaRunResult> {
   const phase = args.phase ?? "build";
-  const result = await callGemma({
-    systemPrompt: args.systemPrompt,
-    userPrompt: args.userPrompt,
-    tool: args.tool,
-    phase,
-    persona: args.persona,
-  });
+  let lastIssues: ReadonlyArray<RepairIssue> = [];
+  let totalLatency = 0;
+  let userPrompt = args.userPrompt;
 
-  // Ensure persona field is present (model sometimes omits it even though required).
-  const withPersona = { persona: args.persona, ...result.toolArgs };
-
-  const parsed = PersonaScaffoldSchema.safeParse(withPersona);
-  if (!parsed.success) {
-    // One retry with validation error context appended.
-    const retryPrompt =
-      args.userPrompt +
-      "\n\n--- RETRY CONTEXT ---\nYour previous output failed validation with the following issues:\n" +
-      parsed.error.issues.map((i) => `  - ${i.path.join(".")}: ${i.message}`).join("\n") +
-      "\nRe-emit the complete tool call with the schema honored exactly.";
-    const retry = await callGemma({
+  for (let attempt = 1; attempt <= PERSONA_MAX_ATTEMPTS; attempt++) {
+    const result = await callGemma({
       systemPrompt: args.systemPrompt,
-      userPrompt: retryPrompt,
+      userPrompt,
       tool: args.tool,
       phase,
       persona: args.persona,
     });
-    const retryWithPersona = { persona: args.persona, ...retry.toolArgs };
-    const retryParsed = PersonaScaffoldSchema.safeParse(retryWithPersona);
-    if (!retryParsed.success) {
-      throw new Error(
-        `Persona ${args.persona} failed schema validation twice. Issues: ${JSON.stringify(retryParsed.error.issues).slice(0, 500)}`,
-      );
+    totalLatency += result.latencyMs;
+    bumpUsage(args.usage, args.persona, phase, result.tokensIn, result.tokensOut);
+
+    const withPersona = { persona: args.persona, ...result.toolArgs };
+    const parsed = PersonaScaffoldSchema.safeParse(withPersona);
+    if (parsed.success) {
+      return {
+        scaffold: parsed.data,
+        extended: extractExtended(result.toolArgs),
+        latencyMs: totalLatency,
+      };
     }
-    bumpUsage(args.usage, args.persona, phase, retry.tokensIn, retry.tokensOut);
-    return {
-      scaffold: retryParsed.data,
-      extended: extractExtended(retry.toolArgs),
-      latencyMs: retry.latencyMs + result.latencyMs,
-    };
+
+    lastIssues = parsed.error.issues;
+    if (attempt < PERSONA_MAX_ATTEMPTS) {
+      userPrompt =
+        args.userPrompt + makeRepairAddendum(lastIssues, attempt + 1, PERSONA_MAX_ATTEMPTS);
+    }
   }
 
-  bumpUsage(args.usage, args.persona, phase, result.tokensIn, result.tokensOut);
-  return {
-    scaffold: parsed.data,
-    extended: extractExtended(result.toolArgs),
-    latencyMs: result.latencyMs,
-  };
+  throw new Error(
+    `Persona ${args.persona} failed schema validation after ${PERSONA_MAX_ATTEMPTS} attempts. ` +
+      `Issues: ${JSON.stringify(lastIssues).slice(0, 800)}`,
+  );
 }
 
 // ──────────────────────────────────────────────────────────────────────

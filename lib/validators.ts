@@ -68,12 +68,54 @@ function flexibleString() {
 // Source origin — required on every content field
 // ──────────────────────────────────────────────────────────────────────
 
-export const SourceOriginSchema = z.enum([
-  "grounded",
-  "scaffolded",
-  "generated",
-  "not_applicable",
-]);
+// Synonym map for source_origin — LoRA-tuned models sometimes emit
+// adjacent strings ("general_knowledge", "unknown", "from source") that
+// mean exactly one of the canonical values. Coerce silently before
+// hitting the strict enum so a near-miss doesn't waste a retry.
+const SOURCE_ORIGIN_SYNONYMS: Record<string, string> = {
+  // → generated
+  "general_knowledge": "generated",
+  "general knowledge": "generated",
+  "general": "generated",
+  "model": "generated",
+  "model_knowledge": "generated",
+  "ai": "generated",
+  "fabricated": "generated",
+  // → not_applicable
+  "unknown": "not_applicable",
+  "unspecified": "not_applicable",
+  "n/a": "not_applicable",
+  "na": "not_applicable",
+  "none": "not_applicable",
+  "null": "not_applicable",
+  "not applicable": "not_applicable",
+  // → grounded
+  "source": "grounded",
+  "from_source": "grounded",
+  "from source": "grounded",
+  "given": "grounded",
+  "provided": "grounded",
+  "verbatim": "grounded",
+  "direct": "grounded",
+  "direct_quote": "grounded",
+  // → scaffolded
+  "summary": "scaffolded",
+  "summarized": "scaffolded",
+  "paraphrased": "scaffolded",
+  "scaffold": "scaffolded",
+  "based_on_source": "scaffolded",
+  "derived": "scaffolded",
+  "rephrased": "scaffolded",
+};
+
+export const SourceOriginSchema = z.preprocess(
+  (v) => {
+    if (typeof v !== "string") return v;
+    const lc = v.trim().toLowerCase();
+    return SOURCE_ORIGIN_SYNONYMS[lc] ?? lc;
+  },
+  z.enum(["grounded", "scaffolded", "generated", "not_applicable"]),
+);
 
 // ──────────────────────────────────────────────────────────────────────
 // Leaf schemas

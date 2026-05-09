@@ -41,6 +41,15 @@ model LessonRun {
   christinePackage Json?
   finalPackage     Json?           // the thing teachers download
 
+  // Teacher testimonial (optional — populated after the lesson finishes
+  // generating, via /api/lesson/[id]/testimonial). Used on the lesson
+  // page and on the public gallery so judges browsing previous lessons
+  // see who actually used the tool, not just the AI output.
+  teacherName    String?
+  teacherSchool  String?
+  teacherReview  String?            // free-form quote, ~500 char soft cap
+  testimonialAt  DateTime?
+
   // Observability
   timings      Json?
   tokenUsage   Json?
