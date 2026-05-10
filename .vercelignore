@@ -1,0 +1,23 @@
+# Files that should not ship to Vercel.
+# Vercel deploys upload the working tree (not just git-tracked files), so
+# anything large or dev-only that's locally present needs explicit
+# exclusion here even if it's already in .gitignore.
+
+# Training pipeline — all dev/Colab artifacts; not used at runtime.
+# (LoRA adapters live on Sam's local box at ~/models/tlc/, not on Vercel.)
+training/
+
+# Build/dev caches.
+.next/
+node_modules/
+.turbo/
+tsconfig.tsbuildinfo
+
+# Local env scratch.
+.env.local
+.env.*.local
+
+# Editor + OS junk.
+.DS_Store
+*.swp
+*.tmp
