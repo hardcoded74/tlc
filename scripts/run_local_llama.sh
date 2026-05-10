@@ -42,4 +42,5 @@ exec "$LLAMACPP_DIR/build-vulkan/bin/llama-server" \
   --host 127.0.0.1 --port "$PORT" \
   --ctx-size 8192 \
   --gpu-layers 999 \
-  --jinja --flash-attn on --parallel 1
+  --jinja --flash-attn on --parallel 1 \
+  --reasoning off

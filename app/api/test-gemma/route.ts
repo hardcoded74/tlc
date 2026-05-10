@@ -53,6 +53,7 @@ export async function GET(req: Request) {
       systemPrompt,
       userPrompt,
       tool: SCAFFOLD_TOOL,
+      persona,
     });
 
     // Attach persona field if the model forgot to include it.
