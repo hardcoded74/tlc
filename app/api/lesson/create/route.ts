@@ -15,6 +15,7 @@ import { orchestrate } from "@/lib/orchestrator";
 import { CreateLessonRequestSchema } from "@/lib/validators";
 import { hashIp } from "@/lib/ip";
 import { checkRateLimit, consumeRateLimit } from "@/lib/rate_limit";
+import { getHandleFromRequest } from "@/lib/handle";
 import type { CreateLessonResponse } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -69,6 +70,26 @@ export async function POST(req: Request) {
   }
 
   const data = parsed.data;
+
+  // If a parentRunId was supplied, validate the parent exists and is not
+  // expired. We don't require it to be `complete` — judges might remix
+  // mid-stream — but a missing parent should not silently produce an
+  // orphan. SetNull on delete keeps the FK from blocking a parent's prune.
+  if (data.parentRunId) {
+    const parent = await prisma.lessonRun.findUnique({
+      where: { id: data.parentRunId },
+      select: { id: true, expiresAt: true },
+    });
+    if (!parent || parent.expiresAt < new Date()) {
+      return NextResponse.json(
+        { error: "parent_not_found" },
+        { status: 404 },
+      );
+    }
+  }
+
+  const authorHandle = getHandleFromRequest(req);
+
   const run = await prisma.lessonRun.create({
     data: {
       topic: data.topic,
@@ -78,6 +99,8 @@ export async function POST(req: Request) {
       objective: data.objective ?? null,
       notes: data.notes ?? null,
       sourceUploadId: data.sourceUploadId ?? null,
+      parentRunId: data.parentRunId ?? null,
+      authorHandle: authorHandle ?? null,
       ipHash,
       expiresAt: new Date(Date.now() + THIRTY_DAYS_MS),
     },

@@ -27,10 +27,12 @@ export function TeacherTestimonial({
   runId,
   status,
   initial,
+  defaultName,
 }: {
   runId: string;
   status: string;
   initial: Testimonial | null;
+  defaultName?: string | null;
 }) {
   const [saved, setSaved] = useState<Testimonial | null>(initial);
   const [editing, setEditing] = useState(false);
@@ -61,6 +63,7 @@ export function TeacherTestimonial({
   return (
     <TestimonialForm
       runId={runId}
+      defaultName={defaultName ?? ""}
       onSaved={(t) => {
         setSaved(t);
         setEditing(false);
@@ -72,14 +75,16 @@ export function TeacherTestimonial({
 
 function TestimonialForm({
   runId,
+  defaultName,
   onSaved,
   onCancel,
 }: {
   runId: string;
+  defaultName: string;
   onSaved: (t: Testimonial) => void;
   onCancel?: () => void;
 }) {
-  const [name, setName] = useState("");
+  const [name, setName] = useState(defaultName);
   const [school, setSchool] = useState("");
   const [review, setReview] = useState("");
   const [submitting, setSubmitting] = useState(false);

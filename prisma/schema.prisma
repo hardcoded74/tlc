@@ -50,6 +50,14 @@ model LessonRun {
   teacherReview  String?            // free-form quote, ~500 char soft cap
   testimonialAt  DateTime?
 
+  // Social layer (remix + reactions + pseudonymous attribution)
+  parentRunId    String?
+  parent         LessonRun?  @relation("Remix", fields: [parentRunId], references: [id], onDelete: SetNull)
+  remixes        LessonRun[] @relation("Remix")
+  authorHandle   String?            // pseudonymous handle captured at create time
+  reactionCount  Int         @default(0)
+  reactions      Reaction[]
+
   // Observability
   timings      Json?
   tokenUsage   Json?
@@ -62,6 +70,23 @@ model LessonRun {
   @@index([createdAt])
   @@index([expiresAt])
   @@index([ipHash])
+  @@index([parentRunId])
+}
+
+model Reaction {
+  // "Found this useful" reaction. The unique (lessonRunId, ipHash) IS the
+  // dedupe rate-limit — a counter column would re-implement that by hand.
+  // expiresAt lets the prune cron clear stale dedupe rows so a teacher who
+  // reacted yesterday can react again after the window.
+  id           String    @id @default(uuid())
+  lessonRunId  String
+  lessonRun    LessonRun @relation(fields: [lessonRunId], references: [id], onDelete: Cascade)
+  ipHash       String
+  createdAt    DateTime  @default(now())
+  expiresAt    DateTime
+
+  @@unique([lessonRunId, ipHash])
+  @@index([expiresAt])
 }
 
 model SourceUpload {

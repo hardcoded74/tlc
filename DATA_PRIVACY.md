@@ -14,15 +14,18 @@ district reviewer can verify each claim against the code.
 The lesson form (`/create`) collects only what is needed to plan a
 lesson. None of the inputs are about specific students.
 
-| Field                  | Required? | Stored?         |
-|------------------------|-----------|-----------------|
-| Topic                  | yes       | yes (LessonRun) |
-| Grade level            | yes       | yes             |
-| Class length (minutes) | optional  | yes             |
-| Subject area           | optional  | yes             |
-| Learning objective     | optional  | yes             |
-| Teaching notes         | optional  | yes             |
-| Source material        | optional  | yes (1 hour)    |
+| Field                  | Required?      | Stored?         |
+|------------------------|----------------|-----------------|
+| Topic                  | yes            | yes (LessonRun) |
+| Grade level            | yes            | yes             |
+| Class length (minutes) | optional       | yes             |
+| Subject area           | optional       | yes             |
+| Learning objective     | optional       | yes             |
+| Teaching notes         | optional       | yes             |
+| Source material        | optional       | yes (1 hour)    |
+| Pseudonymous handle    | auto-assigned  | yes (cookie + LessonRun.authorHandle) |
+| Testimonial name/quote | optional       | yes (LessonRun) |
+| "Found this useful"    | optional       | yes (Reaction, dedupe by ipHash) |
 
 There is no field for student name, ID, demographic, IEP detail, or
 any other personally identifiable information about a learner. The
@@ -50,6 +53,8 @@ no place in it.
 | Lesson runs (`LessonRun`)       | 30 days, then auto-pruned by daily cron    |
 | Uploaded source text            | 1 hour, then deleted                       |
 | Rate-limit buckets              | 24 hours per window                        |
+| Reactions (`Reaction`)          | tied to parent LessonRun (cascades on prune) |
+| Handle cookie (`tlc_handle`)    | 1 year (browser-controlled, user-clearable) |
 
 The cron job at `/api/cron/prune` runs daily at 04:00 UTC and deletes
 any row past its `expiresAt`. A `CRON_SECRET` Bearer token gates the
@@ -87,6 +92,44 @@ Three properties matter:
 3. **Server salt.** `IP_SALT` is a 32-byte random secret stored only
    in the production environment. Without it, even a brute-force
    pre-image attempt against the daily-rotated hash is infeasible.
+
+---
+
+## Pseudonymous handles
+
+On first visit, TLC's middleware (`middleware.ts`) issues a signed
+cookie containing a generated handle like `BraveOtter42` — adjective
++ animal + two digits, drawn from a fixed word list in
+`lib/handle.ts`. The cookie value is HMAC-signed with `IP_SALT` so it
+can't be forged client-side, then persisted for one year with
+`SameSite=Lax`.
+
+Three properties:
+
+1. **No PII.** A handle is generated server-side from a closed
+   vocabulary; it isn't derived from the IP, the timestamp, or any
+   user input. Two browsers may collide on the same handle and
+   nothing breaks — handles aren't identities.
+2. **Per-browser.** The cookie is browser-scoped, not device-scoped
+   or account-scoped. Clearing cookies (or using a private window)
+   yields a new handle on the next request.
+3. **User-clearable.** The demo-mode banner has a "new handle" link
+   that clears the cookie and re-issues. Past lessons keep crediting
+   the previous handle (the field is denormalized at create time on
+   purpose).
+
+The handle is used in two places:
+
+- **Testimonial form prefill** — the name input on a completed
+  lesson defaults to the viewer's current handle. Override with a
+  real name if you want to.
+- **Remix attribution** — when you remix a gallery lesson, the new
+  `LessonRun.authorHandle` records your handle, which renders as
+  "Created by BraveOtter42" on the lesson page and on the parent
+  lesson's "Remixes of this lesson" footer.
+
+The handle is **not** sent to Gemma 4, **not** logged for analytics,
+and **not** linked to your `ipHash` in the database.
 
 ---
 
@@ -155,7 +198,9 @@ from generated claims via the `source_origin` field on each section.
 ## Summary for school-district review
 
 - No PII collected.
-- No accounts, no profiles, no cross-session tracking.
+- No accounts, no profiles, no cross-device tracking. Each browser
+  gets a non-identifying handle (`BraveOtter42`) that is user-clearable
+  and never linked to its `ipHash`.
 - Lesson runs auto-prune at 30 days; uploaded sources at 1 hour.
 - IPs are hashed daily with a server-side salt; no raw IP is ever
   stored.

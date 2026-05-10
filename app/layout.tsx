@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { DemoModeBanner } from "@/components/demo-mode-banner";
 
 export const metadata: Metadata = {
   title: "TLC — Teacher's Lesson Creator",
@@ -20,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen flex flex-col">
+        <DemoModeBanner />
         {children}
       </body>
     </html>

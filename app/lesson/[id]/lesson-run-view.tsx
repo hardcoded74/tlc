@@ -9,7 +9,10 @@ import { WaitNotice } from "@/components/wait-notice";
 import { TopicHook } from "@/components/topic-hook";
 import { ReviewPanel } from "@/components/review-report";
 import { LessonPackageView } from "@/components/lesson-package";
+import Link from "next/link";
 import { DownloadButtons } from "@/components/download-buttons";
+import { RemixButton } from "@/components/remix-button";
+import { ReactionButton } from "@/components/reaction-button";
 import { TeacherTestimonial, type Testimonial } from "@/components/teacher-testimonial";
 import { TriviaOpener, TriviaPopup, type TriviaScore } from "@/components/trivia-popup";
 import { CompletionScorecard } from "@/components/completion-scorecard";
@@ -20,6 +23,14 @@ import type {
   RunStatus,
 } from "@/lib/types";
 
+export interface RemixSummary {
+  id: string;
+  title: string;
+  gradeLevel: string;
+  authorHandle: string | null;
+  createdAt: string;
+}
+
 export interface InitialState {
   id: string;
   status: RunStatus;
@@ -28,6 +39,12 @@ export interface InitialState {
   subject: string | null;
   classLength: number | null;
   createdAt: string; // ISO 8601 — anchor for the in-flight elapsed timer
+  authorHandle: string | null;
+  parent: { id: string; title: string } | null;
+  remixes: RemixSummary[];
+  reactionCount: number;
+  viewerHasReacted: boolean;
+  viewerHandle: string | null;
   hunterScaffold: PersonaScaffold | null;
   christineScaffold: PersonaScaffold | null;
   review: ReviewReport | null;
@@ -83,6 +100,25 @@ export function LessonRunView({ initial }: { initial: InitialState }) {
           <h1 className="font-serif text-3xl md:text-4xl mt-1 leading-tight">
             {finalPackage?.title ?? initial.topic}
           </h1>
+          {(initial.parent || initial.authorHandle) && (
+            <p className="mt-1.5 text-sm text-(--color-muted)">
+              {initial.parent && (
+                <>
+                  Remixed from{" "}
+                  <Link
+                    href={`/lesson/${initial.parent.id}`}
+                    className="underline hover:text-hunter-700"
+                  >
+                    {initial.parent.title}
+                  </Link>
+                </>
+              )}
+              {initial.parent && initial.authorHandle && " · "}
+              {initial.authorHandle && (
+                <>by <span className="text-hunter-700">{initial.authorHandle}</span></>
+              )}
+            </p>
+          )}
         </div>
         <StatusBadge status={status} error={live.error} />
       </header>
@@ -124,7 +160,15 @@ export function LessonRunView({ initial }: { initial: InitialState }) {
         <section className="space-y-3">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <h2 className="font-serif text-2xl">Final lesson package</h2>
-            <DownloadButtons runId={initial.id} />
+            <div className="flex items-center gap-2 flex-wrap">
+              <ReactionButton
+                runId={initial.id}
+                initialCount={initial.reactionCount}
+                initiallyReacted={initial.viewerHasReacted}
+              />
+              <DownloadButtons runId={initial.id} />
+              <RemixButton runId={initial.id} />
+            </div>
           </div>
           <LessonPackageView pkg={finalPackage} />
         </section>
@@ -146,6 +190,7 @@ export function LessonRunView({ initial }: { initial: InitialState }) {
           runId={initial.id}
           status={status}
           initial={initial.testimonial}
+          defaultName={initial.viewerHandle}
         />
       ) : null}
 
@@ -161,6 +206,35 @@ export function LessonRunView({ initial }: { initial: InitialState }) {
           </p>
         </div>
       ) : null}
+
+      {initial.remixes.length > 0 && (
+        <section className="space-y-3 pt-4 border-t border-hunter-100">
+          <h2 className="font-serif text-xl">
+            Remixes of this lesson
+            <span className="ml-2 text-sm text-(--color-muted) font-sans">
+              ({initial.remixes.length})
+            </span>
+          </h2>
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {initial.remixes.map((r) => (
+              <li key={r.id}>
+                <Link
+                  href={`/lesson/${r.id}`}
+                  className="block rounded-md border border-hunter-100 bg-paper px-4 py-3 hover:border-hunter-300 hover:shadow-sm transition"
+                >
+                  <p className="font-serif text-base leading-snug text-hunter-900">
+                    {r.title}
+                  </p>
+                  <p className="mt-1 text-xs text-(--color-muted)">
+                    {r.gradeLevel}
+                    {r.authorHandle ? ` · by ${r.authorHandle}` : ""}
+                  </p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <TriviaPopup
         open={triviaOpen}

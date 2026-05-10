@@ -64,6 +64,43 @@ function flexibleString() {
   );
 }
 
+/**
+ * Rename keys in an object using a `from → to` map. Only renames if the
+ * target key is not already present, so legitimate mixed-key inputs aren't
+ * clobbered. Used to coerce LoRA-tuned model quirks (e.g. "misception"
+ * → "misconception") into the canonical schema shape.
+ */
+function renameKeys(
+  obj: Record<string, unknown>,
+  map: Record<string, string>,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = { ...obj };
+  for (const [bad, good] of Object.entries(map)) {
+    if (bad in out && !(good in out)) {
+      out[good] = out[bad];
+      delete out[bad];
+    }
+  }
+  return out;
+}
+
+/**
+ * Array variant that silently drops entries that fail validation, instead
+ * of failing the whole lesson. Use for arrays where partial data is
+ * preferable to no data at all (vocabulary, misconceptions). The
+ * orchestrator's gatekeeper retry handles whole-scaffold failures; this
+ * just keeps a single bad entry from triggering one.
+ */
+function lossyArray<T extends z.ZodTypeAny>(schema: T) {
+  return z.preprocess(
+    (v) => {
+      if (!Array.isArray(v)) return v;
+      return v.filter((item) => schema.safeParse(item).success);
+    },
+    z.array(schema),
+  );
+}
+
 // ──────────────────────────────────────────────────────────────────────
 // Source origin — required on every content field
 // ──────────────────────────────────────────────────────────────────────
@@ -277,18 +314,49 @@ export const DiscussionPromptSchema = z.object({
   source_origin: SourceOriginSchema,
 });
 
-export const VocabularyTermSchema = z.object({
-  term: z.string().min(1),
-  definition: flexibleString(),
-  example: nullishString(),
-  source_origin: SourceOriginSchema,
-});
+// Christine v2 LoRA sometimes uses alternative key names for the term
+// (and occasionally drops it entirely — handled by lossyArray below).
+const VOCABULARY_KEY_ALIASES: Record<string, string> = {
+  name: "term",
+  word: "term",
+  vocab: "term",
+  vocabulary: "term",
+  vocabulary_term: "term",
+};
 
-export const MisconceptionSchema = z.object({
-  misconception: flexibleString(),
-  correction: flexibleString(),
-  how_to_address: flexibleString(),
-});
+export const VocabularyTermSchema = z.preprocess(
+  (v) =>
+    typeof v === "object" && v !== null && !Array.isArray(v)
+      ? renameKeys(v as Record<string, unknown>, VOCABULARY_KEY_ALIASES)
+      : v,
+  z.object({
+    term: z.string().min(1),
+    definition: flexibleString(),
+    example: nullishString(),
+    source_origin: SourceOriginSchema,
+  }),
+);
+
+// Christine v2 LoRA sometimes emits "misception" instead of "misconception"
+// (one-letter typo picked up during fine-tuning). Coerce common near-miss
+// key names so a single training quirk doesn't waste a gatekeeper retry.
+const MISCONCEPTION_KEY_ALIASES: Record<string, string> = {
+  misception: "misconception",
+  misconcept: "misconception",
+  misunderstanding: "misconception",
+};
+
+export const MisconceptionSchema = z.preprocess(
+  (v) =>
+    typeof v === "object" && v !== null && !Array.isArray(v)
+      ? renameKeys(v as Record<string, unknown>, MISCONCEPTION_KEY_ALIASES)
+      : v,
+  z.object({
+    misconception: flexibleString(),
+    correction: flexibleString(),
+    how_to_address: flexibleString(),
+  }),
+);
 
 export const DifferentiationSchema = z.object({
   struggling: flexibleString(),
@@ -371,8 +439,8 @@ export const LessonPackageSchema = z.object({
   assessment: AssessmentSchema,
   teacher_notes: nullishString(),
   discussion_prompts: z.array(DiscussionPromptSchema),
-  vocabulary: z.array(VocabularyTermSchema),
-  misconceptions: z.array(MisconceptionSchema),
+  vocabulary: lossyArray(VocabularyTermSchema),
+  misconceptions: lossyArray(MisconceptionSchema),
   differentiation: nullishObject(DifferentiationSchema),
   accommodations: nullishObject(AccommodationsSchema),
   homework: nullishObject(HomeworkSchema),
@@ -409,8 +477,8 @@ export const PersonaScaffoldSchema = z.object({
   assessment: AssessmentSchema,
   teacher_notes: nullishString(),
   discussion_prompts: z.array(DiscussionPromptSchema).default([]),
-  vocabulary: z.array(VocabularyTermSchema).default([]),
-  misconceptions: z.array(MisconceptionSchema).default([]),
+  vocabulary: lossyArray(VocabularyTermSchema).default([]),
+  misconceptions: lossyArray(MisconceptionSchema).default([]),
   handoff_notes: z.array(HandoffNoteSchema).default([]),
 });
 
@@ -434,8 +502,8 @@ export const PersonaScaffoldDeltaSchema = z.object({
   assessment: AssessmentSchema.optional(),
   teacher_notes: nullishString(),
   discussion_prompts: z.array(DiscussionPromptSchema).optional(),
-  vocabulary: z.array(VocabularyTermSchema).optional(),
-  misconceptions: z.array(MisconceptionSchema).optional(),
+  vocabulary: lossyArray(VocabularyTermSchema).optional(),
+  misconceptions: lossyArray(MisconceptionSchema).optional(),
   handoff_notes: z.array(HandoffNoteSchema).optional(),
 });
 
@@ -518,6 +586,7 @@ export const CreateLessonRequestSchema = z.object({
   objective: z.string().max(500).optional(),
   notes: z.string().max(2000).optional(),
   sourceUploadId: z.string().uuid().optional(),
+  parentRunId: z.string().uuid().optional(),
   options: z
     .object({
       differentiation: z.boolean().optional(),

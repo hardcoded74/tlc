@@ -37,14 +37,24 @@ const SUBJECT_OPTIONS = [
   "Other",
 ] as const;
 
-export function TeacherInputForm() {
+export interface TeacherInputFormInitial {
+  parentRunId?: string;
+  topic?: string;
+  gradeLevel?: string;
+  classLength?: number;
+  subject?: string;
+  objective?: string;
+  notes?: string;
+}
+
+export function TeacherInputForm({ initial }: { initial?: TeacherInputFormInitial } = {}) {
   const router = useRouter();
-  const [topic, setTopic] = useState("");
-  const [gradeLevel, setGradeLevel] = useState("5th grade");
-  const [classLength, setClassLength] = useState<number>(45);
-  const [subject, setSubject] = useState("");
-  const [objective, setObjective] = useState("");
-  const [notes, setNotes] = useState("");
+  const [topic, setTopic] = useState(initial?.topic ?? "");
+  const [gradeLevel, setGradeLevel] = useState(initial?.gradeLevel ?? "5th grade");
+  const [classLength, setClassLength] = useState<number>(initial?.classLength ?? 45);
+  const [subject, setSubject] = useState(initial?.subject ?? "");
+  const [objective, setObjective] = useState(initial?.objective ?? "");
+  const [notes, setNotes] = useState(initial?.notes ?? "");
   const [differentiation, setDifferentiation] = useState(true);
   const [homework, setHomework] = useState(false);
   const [enrichment, setEnrichment] = useState(false);
@@ -70,6 +80,7 @@ export function TeacherInputForm() {
           objective: objective.trim() || undefined,
           notes: notes.trim() || undefined,
           sourceUploadId: source?.sourceId ?? undefined,
+          parentRunId: initial?.parentRunId ?? undefined,
           options: { differentiation, homework, enrichment },
         }),
       });
@@ -241,7 +252,11 @@ export function TeacherInputForm() {
           disabled={disabled}
           className="px-6 py-3 rounded-md bg-hunter-700 text-white text-base font-medium hover:bg-hunter-900 disabled:opacity-50 disabled:cursor-not-allowed transition"
         >
-          {submitting ? "Sending to Hunter + Christine…" : "Build lesson"}
+          {submitting
+            ? "Sending to Hunter + Christine…"
+            : initial?.parentRunId
+              ? "Build remix"
+              : "Build lesson"}
         </button>
         <p className="text-xs text-(--color-muted)">
           Hunter handles structure. Christine handles engagement. Gemma 4 powers both.

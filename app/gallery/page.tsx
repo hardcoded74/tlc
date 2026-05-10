@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { listGalleryLessons, type GalleryListItem } from "@/lib/gallery";
+import { GalleryGrid } from "@/components/gallery-grid";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,7 +27,9 @@ export default async function GalleryPage() {
           <p className="text-(--color-muted) max-w-2xl leading-relaxed">
             Example lessons produced by Hunter and Christine. These are
             kept live so judges can explore the output even if the live
-            generation flow is temporarily unavailable.
+            generation flow is temporarily unavailable. Click any lesson to
+            view it, or hit <em>Remix</em> to pre-fill a new lesson from one
+            of these.
           </p>
         </header>
 
@@ -37,11 +40,7 @@ export default async function GalleryPage() {
         ) : lessons.length === 0 ? (
           <EmptyState />
         ) : (
-          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {lessons.map((l) => (
-              <GalleryCard key={l.id} lesson={l} />
-            ))}
-          </section>
+          <GalleryGrid lessons={lessons} />
         )}
 
         <div className="pt-6 border-t border-hunter-100">
@@ -54,32 +53,6 @@ export default async function GalleryPage() {
         </div>
       </div>
     </main>
-  );
-}
-
-function GalleryCard({ lesson }: { lesson: GalleryListItem }) {
-  return (
-    <Link
-      href={`/lesson/${lesson.id}`}
-      className="group rounded-lg border border-hunter-100 bg-paper p-5 hover:border-hunter-300 hover:shadow-sm transition flex flex-col gap-3"
-    >
-      <div className="flex items-center gap-2 text-xs text-(--color-muted)">
-        <span className="px-2 py-0.5 rounded-full bg-hunter-50 text-hunter-700">
-          {lesson.gradeLevel}
-        </span>
-        {lesson.subject && (
-          <span className="px-2 py-0.5 rounded-full bg-christine-50 text-christine-700">
-            {lesson.subject}
-          </span>
-        )}
-        <span>· {lesson.estimatedMinutes} min</span>
-      </div>
-      <h3 className="font-serif text-xl leading-tight group-hover:text-hunter-700">
-        {lesson.title}
-      </h3>
-      <p className="text-sm text-(--color-muted) line-clamp-3">{lesson.overview}</p>
-      <p className="text-xs text-(--color-muted) mt-auto">{lesson.groundingLabel}</p>
-    </Link>
   );
 }
 

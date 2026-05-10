@@ -16,17 +16,33 @@ function todaySaltKey(): string {
   return `${yyyy}-${mm}-${dd}`;
 }
 
+/** Anything with a Headers-shaped `.get(name)` — `Headers`, `ReadonlyHeaders`. */
+interface HeadersLike {
+  get(name: string): string | null;
+}
+
 export function extractIp(req: Request): string {
-  const xff = req.headers.get("x-forwarded-for");
+  return ipFromHeaders(req.headers);
+}
+
+function ipFromHeaders(headers: HeadersLike): string {
+  const xff = headers.get("x-forwarded-for");
   if (xff) return xff.split(",")[0].trim();
-  const xReal = req.headers.get("x-real-ip");
+  const xReal = headers.get("x-real-ip");
   if (xReal) return xReal.trim();
   // Fall back to a bucket so tests / localhost don't all collapse to empty string.
   return "unknown";
 }
 
-export function hashIp(ipOrReq: string | Request): string {
-  const ip = typeof ipOrReq === "string" ? ipOrReq : extractIp(ipOrReq);
+export function hashIp(input: string | Request | HeadersLike): string {
+  let ip: string;
+  if (typeof input === "string") {
+    ip = input;
+  } else if (input instanceof Request) {
+    ip = extractIp(input);
+  } else {
+    ip = ipFromHeaders(input);
+  }
   const h = createHash("sha256");
   h.update(`${env.ipSalt}:${todaySaltKey()}:${ip}`);
   return h.digest("hex");
