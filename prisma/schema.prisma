@@ -32,6 +32,7 @@ model LessonRun {
   objective       String?
   notes           String?          // up to 2KB
   sourceUploadId  String?
+  optionsRequested Json?            // { differentiation?: bool, homework?: bool, enrichment?: bool }
 
   // Phase outputs (full JSON; queryable for judge inspection via ?judge=1)
   hunterBuild      Json?
