@@ -289,6 +289,11 @@ export async function orchestrate({ runId }: OrchestrateOptions): Promise<void> 
       christineDelta.delta,
     );
 
+    const optionsRequested = {
+      differentiation: Boolean(rawOptions?.differentiation),
+      homework: Boolean(rawOptions?.homework),
+      enrichment: Boolean(rawOptions?.enrichment),
+    };
     const finalPackage = mergeAndValidate({
       runId,
       hunterPackage,
@@ -298,6 +303,7 @@ export async function orchestrate({ runId }: OrchestrateOptions): Promise<void> 
       review,
       sourceId: run.sourceUploadId,
       subject: run.subject,
+      optionsRequested,
     });
 
     // Post-merge: validate any cited standards codes against published
@@ -640,6 +646,11 @@ interface MergeAndValidateArgs {
   review: ReviewReport;
   sourceId: string | null;
   subject: string | null;
+  optionsRequested: {
+    differentiation: boolean;
+    homework: boolean;
+    enrichment: boolean;
+  };
 }
 
 function mergeAndValidate(args: MergeAndValidateArgs): LessonPackage {
@@ -651,7 +662,7 @@ function mergeAndValidate(args: MergeAndValidateArgs): LessonPackage {
     sourceId: args.sourceId,
     hunterPackageExtended: args.hunterPackageExtended,
     christinePackageExtended: args.christinePackageExtended,
-    optionsRequested: { differentiation: true, homework: true, enrichment: true },
+    optionsRequested: args.optionsRequested,
   });
   // Resolve subject from the run input; merge doesn't know it.
   merged.subject = args.subject;
