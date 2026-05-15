@@ -69,11 +69,16 @@ if the Neon Postgres connection breaks.
 
 | Var | Purpose |
 |---|---|
-| `GOOGLE_AI_STUDIO_KEY` | Gemma 4 calls via `@google/genai`. Billing must be enabled on the linked Google Cloud project for the paid lane. |
-| `DATABASE_URL` | Neon Postgres connection string with `?sslmode=require`. |
+| `GEMMA_BACKEND` | `local` (default) routes inference at `lib/gemma-local.ts` to the llama.cpp server below. Set to `cloud` (or unset) to use Google AI Studio instead. |
+| `GEMMA_LOCAL_URL` | Cloudflare Tunnel host fronting llama.cpp — e.g. `https://tlc.stillmeproject.com`. The local listener never binds to a public interface. |
+| `GEMMA_LOCAL_MODEL` | Model alias served by llama.cpp. Production: `tlc`. |
+| `GEMMA_LOCAL_PERSONA_LORA` | JSON map of persona → llama.cpp adapter id, e.g. `{"hunter":0,"christine":1}`. Worker POSTs to `/lora-adapters` to hot-swap per request. |
+| `WORKER_MODE` | `1` (production) makes `/api/lesson/create` insert + return, leaving orchestration to the on-host worker (`scripts/run_local_worker.sh`). Unset → orchestrator fires inline on Vercel (legacy / cloud-only). |
+| `GOOGLE_AI_STUDIO_KEY` | Cloud fallback — Gemma 4 31B (dense) via `@google/genai`. Optional. Billing must be enabled on the linked Google Cloud project for sustained throughput. |
+| `GEMMA_MODEL_ID` | Cloud-only override (e.g. `gemma-4-31b-it`). Ignored when `GEMMA_BACKEND=local`. |
+| `DATABASE_URL` | Neon Postgres connection string with `?sslmode=require`. Marked **Sensitive** on Vercel — re-issue from the Neon dashboard if lost. |
 | `IP_SALT` | 32-byte random salt for hashing IPs. Was `tlc-dev-...` until 2026-05-08; rotated to a fresh `openssl rand -hex 32` value at that time. |
-| `GEMMA_MODEL_ID` | `gemma-4-31b-it` for production quality. Switch to `gemma-4-26b-a4b-it` for a faster MoE build if needed. |
-| `NEXT_PUBLIC_APP_URL` | `https://tlc-hardcoded74s-projects.vercel.app` (used for absolute share links). |
+| `NEXT_PUBLIC_APP_URL` | `https://tlc-demo.vercel.app` (used for absolute share links). |
 | `CRON_SECRET` | Random 32-byte hex; matches the `Authorization: Bearer …` header Vercel sends to the cron route. Stored in `/tmp/.vercel-cron-secret` on Sam's laptop. |
 
 Pull the current values for local dev with:

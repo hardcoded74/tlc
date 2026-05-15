@@ -540,7 +540,7 @@ judges evaluating whether TLC is a serious product.
 │   Uptime (last 24h): 99.8%                                      │
 │   Last checked: 30 seconds ago                                  │
 │                                                                 │
-│   ● Gemma 4 (Google AI Studio)        OK   • 1.2s avg          │
+│   ● Gemma 4 E4B (local llama.cpp)     OK   • 0.4s avg          │
 │   ● Database (Neon Postgres)          OK   • 45ms avg          │
 │   ● Frontend (Vercel)                 OK                        │
 │                                                                 │

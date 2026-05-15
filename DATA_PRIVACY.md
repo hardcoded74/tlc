@@ -135,28 +135,41 @@ and **not** linked to your `ipHash` in the database.
 
 ## TLC and the model: the data flow that **does not** happen
 
-Cloud Gemma 4 inference is **stateless from the user's perspective.**
-Each request is one round-trip to Google AI Studio (`@google/genai`):
+Gemma 4 inference is **stateless from the user's perspective.** Each
+request is one round-trip to either the local llama.cpp instance
+(primary) or Google AI Studio (cloud fallback):
 
 ```
+TLC worker  →  local llama.cpp (Gemma 4 E4B + LoRA)  →  response
+              ─OR (fallback)─
 TLC server  →  generativelanguage.googleapis.com  →  Gemma 4 response
 ```
 
-There is **no fine-tuning loop** in this codebase. TLC does not:
+There is **no online fine-tuning loop** in the deployed system. TLC
+does not:
 
-- Train, fine-tune, LoRA-adapt, or otherwise modify Gemma 4.
+- Train, fine-tune, LoRA-adapt, or otherwise modify Gemma 4 *at
+  request time*. The Hunter and Christine LoRAs are static, trained
+  offline from synthetic data, and shipped as immutable artifacts.
 - Store conversation history beyond the single lesson run.
 - Send any user data to a third-party model trainer.
 - Embed user data into long-term memory or a vector store.
 
 This means **no teacher input and no source material ever lands in
-model weights.** The model that responds to the next user is the
-same Gemma 4 that responded to the previous user. There is no
-mechanism in the deployed system by which one teacher's lesson
-could leak into another teacher's lesson.
+model weights.** Every lesson generation pass sees the same frozen
+adapter checkpoints. There is no mechanism in the deployed system by
+which one teacher's lesson could leak into another teacher's lesson.
 
-(Google's own AI Studio terms govern what they do with the API
-traffic on their side. TLC does not retain a copy of the request
+**Local-first matters here.** When the primary backend is in use, no
+teacher input crosses the public internet at all — Vercel hands the
+run id to a worker over the (private) Cloudflare Tunnel, the worker
+generates against `127.0.0.1:8091`, and the result is written back to
+Neon. Cloud Gemma 4 traffic only happens when the cloud fallback is
+explicitly configured and the local backend is unreachable.
+
+(When the cloud fallback fires, Google's own AI Studio terms govern
+what they do with the API traffic on their side. TLC does not retain
+a copy of the request
 beyond what's needed to render the page and then prune at 30 days.)
 
 ---

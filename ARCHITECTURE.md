@@ -31,16 +31,24 @@ weekend-hack.
 └──────────────┬──────────────────────────────┬──────────────────┘
                │                              │
                ▼                              ▼
-    ┌──────────────────┐          ┌────────────────────────┐
-    │  Neon Postgres   │          │  Google AI Studio      │
-    │  (serverless)    │          │  gemma-4-e4b-it        │
-    │  Prisma ORM      │          │  REST (OpenAI-compat)  │
-    └──────────────────┘          └────────────────────────┘
+    ┌──────────────────┐          ┌─────────────────────────┐
+    │  Neon Postgres   │          │  Local llama.cpp        │
+    │  (serverless)    │          │  Gemma 4 E4B + LoRAs    │
+    │  Prisma ORM      │          │  Hunter / Christine     │
+    └──────────────────┘          │  reached via Cloudflare │
+                                  │  Tunnel + worker drain  │
+                                  │                         │
+                                  │  Fallback: Google AI    │
+                                  │  Studio gemma-4-31b-it  │
+                                  └─────────────────────────┘
 ```
 
 **Deploy:** Vercel (frontend + API routes + SSE) + Neon (Postgres) +
-Google AI Studio (Gemma 4). Three managed services, all with free tiers
-covering the hackathon, all professionally stable for judging.
+local llama.cpp on an edge GPU (model) reached from Vercel via a
+Cloudflare Tunnel. A long-running worker on the inference host drains
+the Neon `pending` queue (`WORKER_MODE=1`), keeping orchestration off
+Vercel's function ceiling. Google AI Studio (`gemma-4-31b-it` dense)
+is retained as a cloud fallback.
 
 ---
 
@@ -52,7 +60,9 @@ covering the hackathon, all professionally stable for judging.
   is what "polished" looks like in a modern repo
 - Next.js App Router supports server-side logic (API routes, server
   actions, streaming responses) natively — no separate Python backend needed
-- Gemma 4 via Google AI Studio has a mature Node SDK (`@google/genai`)
+- Both inference paths speak HTTP/JSON: llama.cpp's OpenAI-compatible
+  REST for the local primary, and the `@google/genai` Node SDK for the
+  cloud fallback. Same TypeScript client interface for both.
 
 **Why not Python + Next.js with Python backend:**
 - Doubles the cognitive surface for anyone reading the repo
@@ -187,46 +197,78 @@ enum RunStatus {
 
 ---
 
-## 4. Gemma 4 Inference — Google AI Studio
+## 4. Gemma 4 Inference — Local llama.cpp (primary) + AI Studio (fallback)
 
-### Why AI Studio (confirmed)
+### Why local-first
 
-- Official Google API, Gemma 4 explicitly branded in the response payload
-  (useful for judge audit)
-- Free tier: ~1,500 req/day, 1M tokens/day — enough for the demo + judging
-- Paid tier kicks in at $0.075 / 1M input tokens if we exceed — trivial
-- Node SDK is mature: `@google/genai`
-- Supports OpenAI-compatible function calling (for structured output)
+- **Open-weights model with persona LoRAs** — each request hits a
+  specific GGUF + adapter id, both versioned in the repo. Judge mode
+  (`?judge=1`) shows the active adapter on every call.
+- **No API budget, no per-minute quota** — the orchestration is bounded
+  by VRAM and ctx-size, not by Google's input-token rate limit. The
+  hackathon build can run an arbitrary number of lessons without
+  surprise bills.
+- **Privacy** — student/teacher inputs never leave the inference host.
+- **Same protocol as the fallback** — llama.cpp serves an OpenAI-style
+  `/v1/chat/completions` endpoint with native function-calling, so the
+  client wrapper is one code path.
+
+### Serving recipe (`scripts/run_local_llama.sh`)
+
+```text
+base = google/gemma-4-e4b-it    (GGUF, Q5_K_M)
+--lora <tlc-hunter-lora>        (id 0)
+--lora <tlc-christine-lora>     (id 1)
+--lora-init-without-apply       (worker hot-swaps per request)
+--ctx-size 32768                (Phase 3 prompts can hit 7k tokens)
+--gpu-layers 999                (full offload on a 10 GB Arc B570 with
+                                 selene-llama@26b stopped — see ops doc)
+```
+
+Per-request adapter swap is done by the worker via
+`POST /lora-adapters` with `[{id:0, scale:1}, {id:1, scale:0}]` (Hunter
+active) or the inverse (Christine active). The persona-aware merge in
+`lib/merge.ts` combines the two outputs deterministically.
+
+### Cloud fallback
+
+Stock Gemma 4 31B (dense) via Google AI Studio is wired through the
+same client interface (`lib/gemma.ts`). Used if the local backend is
+unreachable. `GEMMA_BACKEND=local` (default) + `GEMMA_LOCAL_URL`
+selects the local path; absence of those vars falls back to the cloud
+path.
 
 ### Client Wrapper
 
 ```typescript
-// lib/gemma.ts
-import { GoogleGenAI } from "@google/genai";
+// lib/gemma-local.ts (primary) + lib/gemma.ts (cloud fallback)
+//
+// Both export a function with the same signature; the orchestrator
+// picks one based on GEMMA_BACKEND.
 
-export const gemma = new GoogleGenAI({
-  apiKey: process.env.GOOGLE_AI_STUDIO_KEY!,
-});
-
-export async function callGemma(params: {
+export async function callGemmaLocal(params: {
   systemPrompt: string;
   userPrompt: string;
-  tools?: FunctionDeclaration[];
-  toolChoice?: "auto" | string;
-  stream?: boolean;
-}) {
-  // ... normalized wrapper with retry, streaming, usage tracking
-}
+  tool: FunctionDeclaration;
+  persona?: "hunter" | "christine";   // selects which LoRA to activate
+  temperature?: number;               // default 0.5
+  maxRetries?: number;                // default 3 — trained model can
+                                      //  occasionally emit partial JSON;
+                                      //  retries converge to clean output
+}): Promise<{ toolArgs, rawText, viaToolCall, tokensIn, tokensOut, latencyMs }>;
 ```
 
 ### Retry + Fallback Policy
 
-- 3 retries on transient errors (rate limit / 500) with exponential
-  backoff (500ms, 1.5s, 4.5s)
-- On persistent failure: record error to `LessonRun.errorLog`, surface to
-  frontend with a "try again in a moment" message
-- **No silent fallback to a different model.** If Gemma 4 is down, we
-  say so — overpromising is worse than a clean error message
+- **3 attempts per call** at temperature 0.5 (the trained model's
+  occasional partial-JSON emits resolve with one or two re-samples).
+- On all attempts failing for a given call: record error to
+  `LessonRun.errorLog`, mark the run `failed`, surface a clean message
+  to the UI.
+- **No silent fallback between backends mid-run.** Either the run
+  used local + LoRAs end-to-end, or it used cloud Gemma 4 31B
+  end-to-end. The `generated_by` provenance on each phase output
+  records which.
 
 ---
 
@@ -245,8 +287,9 @@ export async function callGemma(params: {
 - `/gallery` shows 5-6 pre-generated lesson packages (photosynthesis,
   fractions, water cycle, etc.) served directly from the DB — no Gemma
   call needed
-- Even if Google AI Studio goes down mid-judging, judges can still
-  experience the output quality via the gallery
+- Even if the inference backend (local llama.cpp *or* cloud AI Studio)
+  goes down mid-judging, judges can still experience the output
+  quality via the gallery
 - Each gallery lesson shows its "generated on" timestamp + the same
   inspector UI as live-generated lessons
 
@@ -534,7 +577,8 @@ components/
 lib/
 ├── api.ts                       # typed fetchers for /api/*
 ├── stream.ts                    # EventSource wrapper with reconnection
-├── gemma.ts                     # Google AI Studio client
+├── gemma.ts                     # Cloud fallback client (Google AI Studio)
+├── gemma-local.ts               # Primary client: local llama.cpp + LoRA hot-swap
 ├── tools.ts                     # function schemas
 ├── orchestrator.ts              # three-phase flow
 ├── personas.ts                  # Hunter + Christine system prompts
@@ -566,10 +610,15 @@ lib/
 - Framework: Next.js
 - Node runtime for API routes (not Edge — SSE needs Node)
 - Keep-warm ping from uptime monitor every 60s
-- Environment variables:
-  - `GOOGLE_AI_STUDIO_KEY`
-  - `DATABASE_URL` (Neon)
+- Environment variables (see [`docs/operations.md`](docs/operations.md)
+  for full purpose-by-purpose breakdown):
+  - `GEMMA_BACKEND`, `GEMMA_LOCAL_URL`, `GEMMA_LOCAL_MODEL`,
+    `GEMMA_LOCAL_PERSONA_LORA`, `WORKER_MODE` — local-first primary
+  - `GOOGLE_AI_STUDIO_KEY`, `GEMMA_MODEL_ID` — cloud fallback (optional)
+  - `DATABASE_URL` (Neon — Sensitive)
   - `IP_SALT` (for hashed rate limiting)
+  - `CRON_SECRET` (for the prune cron)
+  - `NEXT_PUBLIC_APP_URL` (for absolute share links)
 
 ### GitHub Actions
 - On push: typecheck, eslint, prisma generate + validate, `next build`
@@ -601,7 +650,9 @@ lib/
 - Prisma's generated types prevent SQL injection by construction
 - CSP headers in `next.config.ts`: deny unsafe-eval, restrict media
   sources
-- Google AI Studio key in Vercel env vars, never client-exposed
+- Google AI Studio key (cloud fallback) in Vercel env vars, never
+  client-exposed. Local backend reached via a Cloudflare Tunnel; the
+  llama.cpp port never binds to a public interface.
 - IP salt rotated daily (so even the hash isn't a persistent identifier
   beyond 24h)
 
@@ -718,7 +769,8 @@ lib/
 | Framework | **Next.js 15 App Router** | frontend + API + SSE in one codebase |
 | Hosting | **Vercel** (frontend + API) | free, warm, custom domains, auto-deploy |
 | Database | **Neon Postgres + Prisma** | serverless, branchable, typed, inspectable |
-| AI | **Google AI Studio / gemma-4-e4b-it** | official, free tier, contest-accurate |
+| AI (primary) | **Local llama.cpp + Gemma 4 E4B + Hunter/Christine LoRAs** | open weights, no API budget, per-persona behavior baked in |
+| AI (fallback) | Google AI Studio `gemma-4-31b-it` (dense) | resilience if local backend is unreachable |
 | Structured output | **Gemma 4 function calling** | tool-call JSON with retry |
 | Streaming | **Server-Sent Events (Node runtime)** | SSE works cleanly on Vercel Node functions |
 | Source ingestion | **pdf-parse (Node), 8 KB cap, 1h TTL** | simple, private, good enough for MVP |

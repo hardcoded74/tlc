@@ -8,6 +8,15 @@ Weeks 3 and 4 on polish + the four required artifacts (writeup, video,
 repo, gallery, live demo). Do not leave video recording for the last
 week — plan for three re-records.
 
+> **Note (2026-05-15):** This document is the *original* plan written
+> before the Week 4 pivot to local-first inference. The shipping artifact
+> now runs Gemma 4 E4B + per-persona QLoRA adapters served by llama.cpp,
+> with cloud Gemma 4 31B retained as fallback. The Google AI Studio
+> account is still useful — it powers the cloud fallback path and was
+> the teacher model used to synthesize the LoRA training data. See
+> [WRITEUP.md](WRITEUP.md) and [ARCHITECTURE.md](ARCHITECTURE.md) for
+> the current architecture; this plan is preserved as build history.
+
 ---
 
 ## Legend
