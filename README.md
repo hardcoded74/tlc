@@ -8,8 +8,8 @@ collaborating Teacher's Assistants, Hunter and Christine.
 
 ## Quick Links
 
-- **[Live demo](https://tlc-demo.vercel.app)** *(live after Week 1)*
-- **[Demo video](https://youtube.com/)** *(recorded Week 4)*
+- **[Live demo](https://tlc-demo.vercel.app)**
+- **Demo video** — link added when the submission video is published
 - **[Scope](SCOPE.md)** — what TLC does and why
 - **[Architecture](ARCHITECTURE.md)** — technical stack + data flow
 - **[Prompts directory](prompts/)** — versioned `.md` files for every string sent to Gemma 4 (source of truth)
@@ -24,24 +24,46 @@ collaborating Teacher's Assistants, Hunter and Christine.
 
 ## Running locally
 
+TLC's primary inference path is **Gemma 4 E4B + per-persona LoRA
+adapters** served by llama.cpp. Cloud Gemma 4 31B via Google AI Studio
+is supported as a fallback. Configure one or both.
+
 ```bash
 # 1. Install deps
 npm install
 
 # 2. Copy the env template and fill it in
 cp .env.example .env.local
-# Set GOOGLE_AI_STUDIO_KEY (https://aistudio.google.com/apikey)
-# Set DATABASE_URL (Neon connection string with sslmode=require)
+# Required for either backend:
+#   DATABASE_URL          — Neon connection string with sslmode=require
+# Local backend (recommended):
+#   GEMMA_BACKEND=local
+#   GEMMA_LOCAL_URL       — e.g. http://127.0.0.1:8091 (or a Cloudflare Tunnel host)
+#   GEMMA_LOCAL_MODEL     — model alias served by llama.cpp (default: "tlc")
+#   GEMMA_LOCAL_PERSONA_LORA — JSON map, e.g. {"hunter":0,"christine":1}
+# Cloud fallback:
+#   GOOGLE_AI_STUDIO_KEY  — https://aistudio.google.com/apikey
 
 # 3. Push the Prisma schema to your Neon database
-npx prisma migrate dev --name init
+npx prisma db push
 
 # 4. Seed the gallery with example lessons
 npm run db:seed
 
-# 5. Start the dev server
+# 5. (Local backend) Start llama.cpp with the trained adapters
+#    See scripts/run_local_llama.sh — fetches Gemma 4 E4B + Hunter +
+#    Christine LoRAs and serves them on 127.0.0.1:8091 with adapter
+#    hot-swap.
+bash scripts/run_local_llama.sh
+
+# 6. Start the dev server
 npm run dev
 # → http://localhost:3000
+
+# 7. (Optional) Run the orchestration worker against Neon's pending queue
+#    Required when running TLC in WORKER_MODE=1 (the local-first deploy
+#    on Vercel uses this — the public site enqueues, the worker drains).
+bash scripts/run_local_worker.sh
 ```
 
 ### Smoke tests
@@ -75,11 +97,21 @@ npm i -g vercel
 vercel link
 
 # 3. Set environment variables (or use the Vercel dashboard)
-vercel env add GOOGLE_AI_STUDIO_KEY production
 vercel env add DATABASE_URL production
 vercel env add IP_SALT production
 vercel env add CRON_SECRET production    # openssl rand -hex 32
 vercel env add NEXT_PUBLIC_APP_URL production    # https://your-deploy.vercel.app
+
+# Local-first backend (recommended):
+vercel env add GEMMA_BACKEND production            # "local"
+vercel env add GEMMA_LOCAL_URL production          # Cloudflare Tunnel host pointing at llama.cpp
+vercel env add GEMMA_LOCAL_MODEL production        # "tlc"
+vercel env add GEMMA_LOCAL_PERSONA_LORA production # {"hunter":0,"christine":1}
+vercel env add WORKER_MODE production              # "1" — Vercel only enqueues; the worker on
+                                                   #  the inference host drains the pending queue
+
+# Cloud fallback (optional — used if the local backend is unreachable):
+vercel env add GOOGLE_AI_STUDIO_KEY production
 
 # 4. Deploy
 vercel deploy --prod

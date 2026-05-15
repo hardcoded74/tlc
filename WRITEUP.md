@@ -6,7 +6,9 @@ A Gemma 4-powered lesson-building tool that turns a topic and grade
 level into a complete, classroom-ready lesson package — guided by two
 collaborating Teacher's Assistants, Hunter and Christine.
 
-**[Live demo →](https://tlc-demo.vercel.app)** | **[Source code →](https://github.com/YOUR_HANDLE/tlc)** | **[Demo video →](https://youtu.be/YOUR_ID)** | **[Status page →](https://tlc-demo.vercel.app/status)**
+**[Live demo →](https://tlc-demo.vercel.app)** | **[Source code →](https://github.com/hardcoded74/tlc)** | **[Status page →](https://tlc-demo.vercel.app/status)**
+
+*Demo video link will be added when the submission video is published.*
 
 ---
 
@@ -236,7 +238,9 @@ provides the scaffolding *and* the receipts.
 ## Architecture
 
 TLC is a single Next.js 16 application running TypeScript end-to-end,
-backed by Postgres (Neon) and Google AI Studio's Gemma 4 API.
+backed by Postgres (Neon) and a fine-tuned **Gemma 4 E4B** served from
+a local llama.cpp instance. Google AI Studio's stock `gemma-4-31b-it`
+(dense) is retained as a cloud fallback.
 
 ### Stack summary
 
@@ -245,9 +249,11 @@ backed by Postgres (Neon) and Google AI Studio's Gemma 4 API.
 | Language | TypeScript (frontend + API routes) |
 | Framework | Next.js 16, App Router |
 | UI | Tailwind v4 |
-| Hosting | Vercel |
+| Hosting | Vercel (frontend + API) |
 | Database | Neon Postgres + Prisma ORM |
-| AI | Google AI Studio, model `gemma-4-31b-it` (dense; chosen for structured-output fidelity over the MoE variant) |
+| AI (primary) | **Gemma 4 E4B + per-persona QLoRA adapters** (Hunter / Christine), served by llama.cpp on an Intel Arc B570; reached from Vercel via a Cloudflare Tunnel |
+| AI (fallback) | Google AI Studio `gemma-4-31b-it` (dense) — used if the local backend is unreachable |
+| Worker | Long-running Node process polls Neon for `pending` runs, orchestrates against the local model (`WORKER_MODE=1` on Vercel) — no Vercel function ceiling, no Cloudflare proxy timeout in the request path |
 | Streaming | Server-Sent Events (Node runtime) |
 | Source parsing | UTF-8 text + Markdown (PDF support deferred — pdf-parse's native bindings interact poorly with Vercel's runtimes; UI prompts the teacher to paste excerpts instead) |
 | External verification | Wikipedia REST summary API + Wikidata `wbsearchentities` (no API keys; concurrency-capped at 6 in flight) |
@@ -257,10 +263,15 @@ backed by Postgres (Neon) and Google AI Studio's Gemma 4 API.
 
 - **One language** means the repo is inspectable top-to-bottom in a
   single mental model — useful for judges scanning the code
-- **One deploy target** (Vercel) means no service coordination risk
-  during judging
-- **Official Gemma 4 API** means the response payload explicitly
-  attributes to Gemma 4 — auditable in judge mode (`?judge=1`)
+- **Vercel + local backend split** means the public site stays on a
+  zero-ops serverless stack while the heavy inference runs on hardware
+  TLC operators can actually pick (edge GPU, school server, laptop —
+  whatever fits the deployment). No model API budget, no quota
+  ceilings, no student data sent to a third party.
+- **Open-weights model with persona LoRAs** means the response payload
+  is fully attributable: the request hits a specific model file +
+  adapter id, both versioned. Judge mode (`?judge=1`) shows the active
+  adapter and timings for every call.
 - **Serverless Postgres** means generated lessons persist with
   branch-per-environment isolation; no data-loss on deploys
 
@@ -283,7 +294,7 @@ backed by Postgres (Neon) and Google AI Studio's Gemma 4 API.
 - Generated lessons: 30-day TTL, then pruned
 - All retention policies documented on the public `/about#privacy` page
 
-Full architecture documentation: [ARCHITECTURE.md in the repo](https://github.com/YOUR_HANDLE/tlc/blob/main/ARCHITECTURE.md)
+Full architecture documentation: [ARCHITECTURE.md in the repo](https://github.com/hardcoded74/tlc/blob/main/ARCHITECTURE.md)
 
 ---
 
@@ -321,7 +332,7 @@ Gemma's output doesn't include it, Zod rejects the payload, we retry
 once with the error context, and if it still fails we surface a clean
 error to the UI. No silent fallbacks.
 
-Full schema: [SCHEMA.md in the repo](https://github.com/YOUR_HANDLE/tlc/blob/main/SCHEMA.md)
+Full schema: [SCHEMA.md in the repo](https://github.com/hardcoded74/tlc/blob/main/SCHEMA.md)
 
 ---
 
@@ -338,7 +349,7 @@ Judges can:
   timings, token usage, raw tool-call JSON, and Gemma API request IDs
 
 The demo is rate-limited to 10 lessons/hour per IP. Judges who want
-higher throughput can contact [YOUR_EMAIL] for a whitelist.
+higher throughput can contact sam@tgcfl.com for a whitelist.
 
 ---
 
@@ -398,8 +409,9 @@ and in the gallery.
 ## What We Built in 27 Days
 
 - Week 1 — Foundation: Next.js scaffold, Vercel + Neon deployment,
-  Google AI Studio integration, three-phase orchestration running
-  end-to-end as JSON
+  cloud Gemma 4 integration (used both as the early backend and later
+  as the teacher model for synthetic training data), three-phase
+  orchestration running end-to-end as JSON
 - Week 2 — Core flow: teacher input form, live-streaming assistant panel,
   review report UI, tabbed lesson package viewer, source upload pipeline,
   download endpoints (`.md` / `.html` / `.json`), per-IP rate limits
@@ -409,9 +421,14 @@ and in the gallery.
   accommodations for students with disabilities, **source verification
   against Wikipedia + Wikidata, NGSS / Common Core code validation,
   verification-aware regenerate**
-- Week 4 — Submission: demo video, screenshots, this writeup
+- Week 4 — Local-first migration: SFT-trained Hunter and Christine
+  QLoRA adapters on top of Gemma 4 E4B (~250 schema-validated examples
+  per persona), GGUF quantization, llama.cpp serving with adapter
+  hot-swap per request, Cloudflare Tunnel + worker split so Vercel
+  can keep the public site simple while inference runs on hardware
+  the operator owns. Demo video, screenshots, this writeup.
 
-Full timeline breakdown: [BUILD_PLAN.md](https://github.com/YOUR_HANDLE/tlc/blob/main/BUILD_PLAN.md)
+Full timeline breakdown: [BUILD_PLAN.md](https://github.com/hardcoded74/tlc/blob/main/BUILD_PLAN.md)
 
 ---
 
@@ -458,17 +475,21 @@ Things we'd build if TLC became a real product:
 
 ---
 
-## Local-first deployment via fine-tuned Gemma 4 E4B
+## Why Gemma 4 E4B + LoRAs is the primary deploy
 
-The shipped TLC stack runs against cloud Gemma 4 31B on AI Studio's
-paid tier with a local-Selene fallback when the per-minute quota
-fires. That works, but cloud inference adds three drag factors:
-network latency on every call, a quota ceiling that bites under load,
-and a privacy story that ends with "we send the teacher's input to
-Google."
+TLC's primary inference path is a **fine-tuned Gemma 4 E4B** running
+in llama.cpp on a single edge GPU (an Intel Arc B570 in our
+demonstration setup; any 8 GB+ Vulkan-capable GPU works). Cloud
+inference would have been easier to ship, but it adds three drag
+factors:
 
-The companion shipping artifact in [`training/`](training/) is the
-answer to all three. We use cloud Gemma 4 31B as a teacher, generate
+- network latency on every call,
+- a quota ceiling that bites under load,
+- and a privacy story that ends with "we send the teacher's input to
+  Google."
+
+The training pipeline in [`training/`](training/) is the answer to
+all three. We use cloud Gemma 4 31B as a *teacher model*, generate
 ~250 schema-validated golden outputs per persona on a curated K-12
 topic × grade matrix, and SFT-train a QLoRA adapter on top of stock
 **Gemma 4 E4B** for each of Hunter and Christine. The 4B-parameter
@@ -476,34 +497,52 @@ edge model can't reliably emit our `PersonaScaffoldSchema` from
 zero-shot; with ~250 examples it learns the strict-schema discipline
 end-to-end.
 
-The result: TLC can deploy with no API budget, no quotas, and no
-student data leaving the building. A single laptop GPU runs the
-whole stack — a school IT department's dream. The cloud path stays
-available as a faster fallback for installations that want it.
+The result: TLC deploys with no API budget, no quotas, and no
+student data leaving the building. A single laptop-class GPU runs
+the whole inference stack — a school IT department's dream. Stock
+cloud Gemma 4 31B stays available as a faster fallback for
+installations that want it.
 
 This is the open-source pattern the Gemma 4 Good Hackathon's Impact
 Track explicitly wants to encourage: small open-weights models,
 fine-tuned on synthetic high-quality outputs from larger teachers,
-deployed where users actually are. Both adapters are MIT-licensed
-and live on Hugging Face Hub:
+deployed where users actually are. Both adapters are MIT-licensed and
+published as Hugging Face model repos:
 
-- `hardcoded74/tlc-gemma-4-e4b-hunter-lora`
-- `hardcoded74/tlc-gemma-4-e4b-christine-lora`
+- [`hardcoded74/tlc-gemma-4-e4b-hunter-lora`](https://huggingface.co/hardcoded74/tlc-gemma-4-e4b-hunter-lora)
+- [`hardcoded74/tlc-gemma-4-e4b-christine-lora`](https://huggingface.co/hardcoded74/tlc-gemma-4-e4b-christine-lora)
 
 The full training pipeline (topic matrix, data-gen script, Colab
 T4 notebook, GGUF export) is reproducible from the
 [`training/README.md`](training/README.md) — anyone can re-run it
 with their own teacher model or topic mix.
 
+### How Vercel reaches the local model
+
+Vercel's `WORKER_MODE=1` environment flag makes `/api/lesson/create`
+do nothing more than insert a `pending` row and return — it does not
+run the orchestrator inline. A long-running Node worker on the host
+serving the local model polls Neon for `pending` rows, claims one
+atomically, and orchestrates the full Build → Review → Package flow
+against `127.0.0.1:8091`. The Vercel-side request never holds open a
+30-minute connection, and the model never has to be reachable from
+the public internet — only from the worker.
+
+A Cloudflare Tunnel terminates at the same llama.cpp port, so the
+deployed Vercel functions *can* still reach the model for ad-hoc
+calls (the verifier paths, judge-mode probes). The split keeps the
+slow paths off Vercel's function ceiling and the fast paths on the
+edge.
+
 ---
 
 ## Operating constraints we worked under
 
-The hackathon build runs on Google AI Studio's paid tier with the
-default per-minute input-token quota for the Gemma 4 family. That
-quota is shared by all five (sometimes seven) calls per lesson, so
-the orchestration is tuned for a small token budget rather than for
-maximum reasoning per call:
+The hackathon build runs primary inference on a single edge GPU
+(Intel Arc B570, ~10 GB VRAM) hosting Gemma 4 E4B + two LoRA
+adapters via llama.cpp. The constraints that shape the orchestration
+are VRAM and the model's context window, not a per-minute API
+quota:
 
 - **Phase 3 context is assistant-scoped.** Each Package call sees its
   own Phase 1 scaffold in full but only a title + objective +
@@ -517,8 +556,8 @@ maximum reasoning per call:
   No "think step by step" preambles, no scratchpad — just the role
   and the schema.
 
-In a production deployment with higher quotas (or self-hosted Gemma 4
-inference), TLC could **trade tokens for accuracy** in several ways:
+On larger hardware (or a cloud Gemma 4 deployment with higher
+quotas), TLC could **trade tokens for accuracy** in several ways:
 
 1. **Allow longer thinking on Phase 2 Review** — let the reviewer
    produce a chain-of-thought before emitting the structured tool
@@ -547,8 +586,10 @@ Gemma 4's strengths map directly onto what lesson building needs:
   parsing or prompt engineering around format
 - **Coherent long-form generation** — producing a full lesson package
   (often 2,000+ tokens) without drift
-- **Fast inference** — interactive demo latency (~10-20s per assistant
-  call) is viable on the free AI Studio tier
+- **Fast inference** — per-persona LoRAs on Gemma 4 E4B sustain
+  ~28-30 tokens/second on a single edge GPU; an end-to-end lesson
+  (5-7 calls) lands in 10-13 minutes wall-clock, well inside what
+  "while I make coffee" can absorb
 - **Open model family** — the open weights let us reason about the
   model's behavior and debug prompts against local copies during
   development
@@ -578,22 +619,24 @@ Every teacher deserves TLC.
 
 ## Credits
 
-- **Built by:** [Sam] · [sam@tgcfl.com]
-- **Model:** Gemma 4 (`gemma-4-31b-it`, dense variant) via Google AI Studio
+- **Built by:** Sam · sam@tgcfl.com
+- **Model:** Gemma 4 E4B (it), fine-tuned per-persona via QLoRA (Hunter
+  + Christine adapters) and served locally with llama.cpp. Stock
+  Gemma 4 31B (dense) via Google AI Studio retained as cloud fallback.
 - **Personas:** Hunter (structure & rigor), Christine (depth &
   engagement)
-- **UI illustrations:** [credit if commissioned; otherwise omit]
 - **External verification:** Wikipedia REST summary API · Wikidata
   `wbsearchentities` (CC BY-SA + CC0 respectively)
 - **Framework:** Next.js 16, Tailwind v4, Prisma
-- **Hosting:** Vercel (frontend + API), Neon (database), Google AI
-  Studio (model)
+- **Hosting:** Vercel (frontend + API), Neon (database), local
+  llama.cpp on Intel Arc B570 (model) — reached from Vercel via a
+  Cloudflare Tunnel
 
 **License:** MIT. Open source. Fork it, build on it, improve it.
 
-**Repo:** [github.com/YOUR_HANDLE/tlc](https://github.com/YOUR_HANDLE/tlc)
+**Repo:** [github.com/hardcoded74/tlc](https://github.com/hardcoded74/tlc)
 
-**Demo video:** [youtube.com/watch?v=YOUR_ID](https://youtube.com/watch?v=YOUR_ID)
+**Demo video:** to be added when published.
 
 **Live demo:** [tlc-demo.vercel.app](https://tlc-demo.vercel.app)
 
@@ -609,13 +652,13 @@ Every teacher deserves TLC.
   example lessons (always available, no live generation required)
 - **[Status page](https://tlc-demo.vercel.app/status)** — uptime,
   metrics, recent activity
-- **[Source code](https://github.com/YOUR_HANDLE/tlc)** — MIT, read
+- **[Source code](https://github.com/hardcoded74/tlc)** — MIT, read
   top-to-bottom
-- **[Architecture doc](https://github.com/YOUR_HANDLE/tlc/blob/main/ARCHITECTURE.md)** — technical deep dive
-- **[Schema doc](https://github.com/YOUR_HANDLE/tlc/blob/main/SCHEMA.md)** —
+- **[Architecture doc](https://github.com/hardcoded74/tlc/blob/main/ARCHITECTURE.md)** — technical deep dive
+- **[Schema doc](https://github.com/hardcoded74/tlc/blob/main/SCHEMA.md)** —
   structured output contract
-- **[Persona design](https://github.com/YOUR_HANDLE/tlc/blob/main/PROMPTS.md)** — Hunter + Christine system prompts
-- **[Demo video](https://youtube.com/watch?v=YOUR_ID)** — 2:30 walkthrough
+- **[Persona design](https://github.com/hardcoded74/tlc/blob/main/PROMPTS.md)** — Hunter + Christine system prompts
+- **Demo video** — to be added when published (2:30 walkthrough)
 
 ---
 
