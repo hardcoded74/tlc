@@ -99,7 +99,7 @@ export async function POST(req: Request) {
       objective: data.objective ?? null,
       notes: data.notes ?? null,
       sourceUploadId: data.sourceUploadId ?? null,
-      optionsRequested: data.options ?? null,
+      optionsRequested: data.options ?? undefined,
       parentRunId: data.parentRunId ?? null,
       authorHandle: authorHandle ?? null,
       ipHash,
