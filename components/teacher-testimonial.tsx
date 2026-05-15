@@ -127,12 +127,8 @@ function TestimonialForm({
 
   return (
     <section className="rounded-md border border-hunter-100 bg-paper px-5 py-4">
-      <p className="text-xs uppercase tracking-widest text-(--color-muted)">
-        Tell us about this lesson
-      </p>
-      <p className="mt-1 text-sm text-(--color-muted)">
-        Optional — if you used this with students, leave a few lines for the
-        next teacher and the project judges.
+      <p className="text-sm text-(--color-muted)">
+        Would you like to make a comment?
       </p>
 
       <form className="mt-3 space-y-3" onSubmit={submit}>
