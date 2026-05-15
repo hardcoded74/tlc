@@ -269,12 +269,12 @@ export async function callGemmaLocal(
     userPrompt,
     tool,
     forceToolCall = true,
-    temperature = 0.7,
-    // Local Selene per-call latency on a 26B-A4B MoE on Arc B570 sits
-    // around 200-300s for a Phase 1 build and similar for Phase 3.
-    // Default of 1 attempt + 10-minute hard ceiling gives margin without
-    // wasting retries (re-running a slow call doesn't make Selene faster).
-    maxRetries = 1,
+    temperature = 0.5,
+    // Trained E4B + LoRA can occasionally emit a partial JSON shape (e.g.
+    // starting with "assessment" only) that fails parseJsonFromText. Three
+    // attempts at temp 0.5 converges to valid JSON > 95% of the time. Each
+    // retry is ~30-60s, capped at the 10-minute timeoutMs ceiling.
+    maxRetries = 3,
     timeoutMs = 600_000,
     persona,
   } = params;

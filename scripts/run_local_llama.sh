@@ -40,7 +40,7 @@ exec "$LLAMACPP_DIR/build-vulkan/bin/llama-server" \
   --lora-init-without-apply \
   --alias tlc \
   --host 127.0.0.1 --port "$PORT" \
-  --ctx-size 8192 \
+  --ctx-size 32768 \
   --gpu-layers 999 \
   --jinja --flash-attn on --parallel 1 \
   --reasoning off
