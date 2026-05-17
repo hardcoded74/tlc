@@ -9,7 +9,7 @@ collaborating Teacher's Assistants, Hunter and Christine.
 ## Quick Links
 
 - **[Live demo](https://tlc-demo.vercel.app)**
-- **Demo video** — link added when the submission video is published
+- **Demo video — (https://youtu.be/UYMLUsza3gA)**
 - **[Scope](SCOPE.md)** — what TLC does and why
 - **[Architecture](ARCHITECTURE.md)** — technical stack + data flow
 - **[Prompts directory](prompts/)** — versioned `.md` files for every string sent to Gemma 4 (source of truth)
